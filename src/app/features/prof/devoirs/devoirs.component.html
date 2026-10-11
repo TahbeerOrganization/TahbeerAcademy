@@ -1,1177 +1,738 @@
+
 <div class="layout" dir="rtl">
 
-  <!-- ══ SIDEBAR ══════════════════════════════════ -->
   <app-sidebar activePage="devoirs"></app-sidebar>
 
-
-  <!-- ══ MAIN ═════════════════════════════════════ -->
   <main class="main">
 
-    <!-- TOPBAR -->
-    <div class="topbar">
-
+    <header class="topbar">
       <div>
-        <div class="topbar-title">
-          📝 الواجبات والتمارين
-        </div>
-
-        <div class="topbar-sub">
-          {{ devoirs().length }} واجب
-        </div>
+        <h1 class="topbar-title">🎓 الكورس والحصص المباشرة</h1>
+        <p class="topbar-sub">
+          تدبير رابط Meet، مواعيد الحصص وملفات الكورس PDF
+        </p>
       </div>
 
-      <button
-        class="btn-primary"
-        (click)="ouvrirAjoutDevoir()">
-
-         إضافة واجب
-
-      </button>
-
-    </div>
-
+      @if (activeView() !== 'home') {
+        <button
+          type="button"
+          class="btn-ghost back-button"
+          (click)="goHome()">
+          → الرجوع
+        </button>
+      }
+    </header>
 
     <div class="content">
 
-      <!-- SUCCESS -->
       @if (successMsg()) {
-
         <div class="alert alert-success">
-          {{ successMsg() }}
+          ✅ {{ successMsg() }}
         </div>
-
       }
 
-
-      <!-- ERROR -->
       @if (errorMsg()) {
-
         <div class="alert alert-error">
           ⚠️ {{ errorMsg() }}
         </div>
-
       }
-
-
-      <!-- ══ STATS ═════════════════════════════════ -->
-
-      <div class="stats-grid">
-
-        <div class="stat-card">
-
-          <div class="stat-icon blue">
-            📝
-          </div>
-
-          <div>
-            <div class="stat-label">
-              جميع الواجبات
-            </div>
-
-            <div class="stat-value">
-              {{ devoirs().length }}
-            </div>
-          </div>
-
-        </div>
-
-
-        <div class="stat-card">
-
-          <div class="stat-icon green">
-            🎥
-          </div>
-
-          <div>
-            <div class="stat-label">
-              حصص مباشرة
-            </div>
-
-            <div class="stat-value">
-              {{ devoirsAvecMeet() }}
-            </div>
-          </div>
-
-        </div>
-
-
-        <div class="stat-card">
-
-          <div class="stat-icon amber">
-            ✏️
-          </div>
-
-          <div>
-            <div class="stat-label">
-              تمارين
-            </div>
-
-            <div class="stat-value">
-              {{ devoirsAvecExercice() }}
-            </div>
-          </div>
-
-        </div>
-
-
-        <div class="stat-card">
-
-          <div class="stat-icon purple">
-            📎
-          </div>
-
-          <div>
-            <div class="stat-label">
-              ملفات
-            </div>
-
-            <div class="stat-value">
-              {{ devoirsAvecFichier() }}
-            </div>
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <!-- ══ FILTERS ═══════════════════════════════ -->
-
-      <div class="filters-bar">
-
-        <input
-          class="search-input"
-          placeholder="🔍 ابحث عن واجب..."
-          [value]="searchQuery()"
-          (input)="onSearch($any($event.target).value)"
-        />
-
-
-        <select
-          class="filter-select"
-          [value]="filterType()"
-          (change)="onFilterType($any($event.target).value)">
-
-          <option value="all">
-            جميع الواجبات
-          </option>
-
-          <option value="meet">
-            🎥 حصص مباشرة
-          </option>
-
-          <option value="plan">
-            📝 خطط
-          </option>
-
-          <option value="exercise">
-            ✏️ تمارين
-          </option>
-
-          <option value="file">
-            📎 ملفات
-          </option>
-
-        </select>
-
-
-        <button
-          class="btn-ghost"
-          (click)="loadAll()">
-
-          🔄 تحديث
-
-        </button>
-
-      </div>
-
-
-      <!-- ══ LOADING ═══════════════════════════════ -->
 
       @if (loading()) {
+        <section class="card loading-wrap">
+          <div class="spinner"></div>
+          <p>جاري تحميل المجموعات...</p>
+        </section>
+      }
 
-        <div class="card">
+      <!-- ========================================= -->
+      <!-- HOME -->
+      <!-- ========================================= -->
 
-          <div class="loading-wrap">
+      @if (activeView() === 'home') {
 
-            <div class="spinner"></div>
+        <div class="home-cards">
 
-            <p>
-              جاري التحميل...
-            </p>
+          <button
+            type="button"
+            class="home-card"
+            (click)="goTo('meet')">
 
-          </div>
+            <div class="home-card-icon meet-icon">
+              🎥
+            </div>
+
+            <div class="home-card-info">
+              <h3>Google Meet</h3>
+              <p>حفظ الرابط مرة وحدة وتنظيم مواعيد المجموعات.</p>
+
+              @if (meetUrl()) {
+                <span class="home-status status-success">
+                  ✓ رابط محفوظ
+                </span>
+              } @else {
+                <span class="home-status status-pending">
+                  رابط غير محفوظ
+                </span>
+              }
+            </div>
+
+            <span class="home-card-arrow">←</span>
+          </button>
+
+          <button
+            type="button"
+            class="home-card"
+            (click)="goTo('pdf')">
+
+            <div class="home-card-icon file-icon">
+              📄
+            </div>
+
+            <div class="home-card-info">
+              <h3>ملفات الكورس PDF</h3>
+              <p>رفع الملفات وتحديد المجموعات المستفيدة منها.</p>
+
+              <span class="home-status status-neutral">
+                {{ coursesPdf().length }} ملف محفوظ
+              </span>
+            </div>
+
+            <span class="home-card-arrow">←</span>
+          </button>
 
         </div>
 
+        <!-- GOOGLE MEET SESSIONS -->
+
+<section class="saved-section">
+
+  <div class="section-heading">
+    <div>
+      <h2>🎥 حصص Google Meet</h2>
+      <p>جميع الحصص المسجلة مع المجموعات والتواريخ ديالها.</p>
+    </div>
+
+    <button
+      type="button"
+      class="btn-secondary"
+      (click)="goTo('meet')">
+      ＋ إضافة حصة
+    </button>
+  </div>
+
+  @if (loadingMeetSessions()) {
+
+    <div class="card loading-wrap">
+      <div class="spinner"></div>
+      <p>جاري تحميل الحصص...</p>
+    </div>
+
+  } @else if (meetSessions().length > 0) {
+
+    <div class="pdf-grid">
+
+      @for (session of meetSessions(); track
+        session.groupe_id + '-' + session.date_heure) {
+
+        <article class="pdf-card meet-session-card">
+
+          <div class="pdf-card-top">
+            <div class="pdf-card-icon">🎥</div>
+            <span class="saved-badge">مسجلة</span>
+          </div>
+
+          <div class="pdf-card-info">
+
+            <strong>{{ session.groupe_nom }}</strong>
+
+            <p class="file-description">
+              📅 التاريخ:
+              {{ session.date_heure | date:'dd/MM/yyyy' }}
+            </p>
+
+            <p class="file-description">
+              🕒 الوقت:
+              {{ session.date_heure | date:'HH:mm' }}
+            </p>
+
+            <div class="pdf-card-groupes">
+              <span class="pdf-groupe-tag">
+                👥 {{ session.groupe_nom }}
+              </span>
+            </div>
+
+          </div>
+
+          <a
+            class="pdf-card-link"
+            [href]="session.meet_link"
+            target="_blank"
+            rel="noopener noreferrer">
+            فتح الحصة ↗
+          </a>
+
+        </article>
+
+      }
+
+    </div>
+
+  } @else {
+
+    <div class="empty-state">
+      <span>🎥</span>
+      <h3>مازال ما تسجلات حتى حصة</h3>
+      <p>الحصص اللي غادي تسجل غادي يبانوا هنا.</p>
+
+      <button
+        type="button"
+        class="btn-primary"
+        (click)="goTo('meet')">
+        ＋ إضافة أول حصة
+      </button>
+    </div>
+
+  }
+
+</section>
+
+
+        <!-- SAVED COURSES -->
+
+        <section class="saved-section">
+
+          <div class="section-heading">
+            <div>
+              <h2>📚 الدروس المحفوظة</h2>
+              <p>جميع ملفات الدروس المسجلة عندك.</p>
+            </div>
+
+            <button
+              type="button"
+              class="btn-secondary"
+              (click)="goTo('pdf')">
+              ＋ إضافة ملف
+            </button>
+          </div>
+
+          @if (coursesPdf().length > 0) {
+
+            <div class="pdf-grid">
+
+              @for (c of coursesPdf(); track c.fichier_url) {
+                <article class="pdf-card">
+
+                  <div class="pdf-card-top">
+                    <div class="pdf-card-icon">📕</div>
+                    <span class="saved-badge">محفوظ</span>
+                  </div>
+
+                  <div class="pdf-card-info">
+                    <strong>{{ c.nom }}</strong>
+
+                    <p class="file-description">
+                      ملف تعليمي مخصص للمجموعات المحددة.
+                    </p>
+
+                    <div class="pdf-card-groupes">
+                      @for (nom of c.groupes; track nom) {
+                        <span class="pdf-groupe-tag">
+                          {{ nom }}
+                        </span>
+                      }
+
+                      @if (c.groupes.length === 0) {
+                        <span class="pdf-groupe-tag">
+                          بدون مجموعة معروفة
+                        </span>
+                      }
+                    </div>
+                  </div>
+
+                  <a
+                    class="pdf-card-link"
+                    [href]="c.fichier_url"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    فتح الملف ↗
+                  </a>
+
+                </article>
+              }
+
+            </div>
+
+          } @else {
+
+            <div class="empty-state">
+              <span>📂</span>
+              <h3>مازال ما تسجلو حتى كورس</h3>
+              <p>الملفات اللي غادي تحفظ غادي يبانوا هنا.</p>
+
+              <button
+                type="button"
+                class="btn-primary"
+                (click)="goTo('pdf')">
+                📎 إضافة أول ملف
+              </button>
+            </div>
+
+          }
+
+        </section>
       }
 
 
-      <!-- ══ EMPTY ═════════════════════════════════ -->
+      <!-- ========================================= -->
+      <!-- GOOGLE MEET -->
+      <!-- ========================================= -->
 
-      @else if (devoirsFiltres().length === 0) {
+      @if (activeView() === 'meet') {
 
-        <div class="card">
+        <section class="card section-card">
 
-          <div class="empty-state">
+          <div class="section-header">
+            <div class="section-icon meet-icon">🎥</div>
 
-            <div class="empty-icon">
-              📝
+            <div>
+              <h2>رابط Google Meet</h2>
+              <p>
+                حفظ الرابط مرة وحدة واستعماله فالحصص الجاية.
+              </p>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="meetUrl">رابط الاجتماع</label>
+
+            <input
+              id="meetUrl"
+              type="url"
+              class="form-input"
+              dir="ltr"
+              placeholder="https://meet.google.com/..."
+              [value]="meetUrl()"
+              (input)="updateMeetUrl($any($event.target).value)"
+              [disabled]="savingMeetUrl()"
+            />
+
+            <small class="field-hint">
+              الرابط كيتحفظ فقاعدة البيانات، وما تحتاجش تعاود تدخلو كل مرة.
+            </small>
+          </div>
+
+          <div class="form-actions">
+            <button
+              type="button"
+              class="btn-primary"
+              (click)="enregistrerMeetUrl()"
+              [disabled]="savingMeetUrl()">
+
+              @if (savingMeetUrl()) {
+                ⏳ جاري حفظ الرابط...
+              } @else {
+                💾 حفظ الرابط
+              }
+
+            </button>
+          </div>
+
+          @if (meetUrl().trim()) {
+            <div class="meet-preview">
+
+              <div class="preview-icon">🎥</div>
+
+              <div class="preview-content">
+                <h3>رابط الاجتماع</h3>
+                <p dir="ltr">{{ meetUrl() }}</p>
+              </div>
+
+              <a
+                class="meet-button"
+                [href]="meetUrl()"
+                target="_blank"
+                rel="noopener noreferrer">
+                فتح Meet ↗
+              </a>
+
+            </div>
+          }
+
+        </section>
+
+        <!-- MEETING SCHEDULES -->
+
+        <section class="card section-card">
+
+          <div class="section-header">
+            <div class="section-icon schedule-icon">📅</div>
+
+            <div>
+              <h2>مواعيد الحصص</h2>
+              <p>
+                حدد المجموعة والتاريخ والوقت ديال كل حصة.
+              </p>
+            </div>
+          </div>
+
+          @if (!meetUrl().trim()) {
+            <div class="inline-notice">
+              ⚠️ حفظ رابط Meet أولا باش تقدر تسجل المواعيد.
+            </div>
+          }
+
+          @for (slot of meetSlots(); track $index) {
+
+            <div class="meet-slot-card">
+
+              <div class="slot-header">
+                <span class="slot-number">
+                  الحصة {{ $index + 1 }}
+                </span>
+
+                @if (meetSlots().length > 1) {
+                  <button
+                    type="button"
+                    class="btn-ghost btn-remove"
+                    (click)="removeMeetSlot($index)">
+                    🗑️ حذف
+                  </button>
+                }
+              </div>
+
+              <div class="form-row">
+
+                <div class="form-group">
+                  <label [for]="'groupe-' + $index">
+                    المجموعة
+                  </label>
+
+                  <select
+                    [id]="'groupe-' + $index"
+                    class="form-input"
+                    [value]="slot.groupeId"
+                    (change)="updateMeetSlot(
+                      $index,
+                      'groupeId',
+                      $any($event.target).value
+                    )">
+
+                    <option value="">اختر المجموعة</option>
+
+                    @for (g of groupes(); track g.id) {
+                      <option [value]="g.id">
+                        {{ g.nom }}
+                      </option>
+                    }
+
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label [for]="'date-' + $index">
+                    تاريخ الحصة
+                  </label>
+
+                  <input
+                    [id]="'date-' + $index"
+                    type="date"
+                    class="form-input"
+                    [value]="slot.date"
+                    (change)="updateMeetSlot(
+                      $index,
+                      'date',
+                      $any($event.target).value
+                    )"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label [for]="'time-' + $index">
+                    وقت الحصة
+                  </label>
+
+                  <input
+                    [id]="'time-' + $index"
+                    type="time"
+                    class="form-input"
+                    [value]="slot.time"
+                    (change)="updateMeetSlot(
+                      $index,
+                      'time',
+                      $any($event.target).value
+                    )"
+                  />
+                </div>
+
+              </div>
+
             </div>
 
-            <p>
-              لا توجد واجبات
-            </p>
+          }
+
+          <div class="meet-actions">
 
             <button
-              class="btn-primary"
-              (click)="ouvrirAjoutDevoir()">
+              type="button"
+              class="btn-secondary"
+              (click)="addMeetSlot()"
+              [disabled]="loading() || saving()">
+              ＋ إضافة حصة
+            </button>
 
-               إضافة أول واجب
+            <button
+              type="button"
+              class="btn-primary"
+              (click)="validerMeet()"
+              [disabled]="
+                saving() ||
+                savingMeetUrl() ||
+                loading() ||
+                !meetUrl().trim()
+              ">
+
+              @if (saving()) {
+                ⏳ جاري حفظ المواعيد...
+              } @else {
+                ✓ حفظ المواعيد
+              }
 
             </button>
 
           </div>
 
-        </div>
-
+        </section>
       }
 
+      <!-- ========================================= -->
+      <!-- PDF -->
+      <!-- ========================================= -->
 
-      <!-- ══ DEVOIRS ══════════════════════════════ -->
+      @if (activeView() === 'pdf') {
 
-      @else {
+        <section class="card section-card">
 
-        <div class="devoirs-list">
+          <div class="section-header">
+            <div class="section-icon file-icon">📄</div>
 
-          @for (
-            devoir of devoirsFiltres();
-            track devoir.id
-          ) {
-
-            <div class="devoir-card">
-
-              <!-- HEADER -->
-
-              <div class="devoir-header">
-
-                <div class="devoir-main">
-
-                  <div class="devoir-icon">
-                    {{ devoir.icon || '📝' }}
-                  </div>
-
-                  <div class="devoir-info">
-
-                    <div class="devoir-title">
-                      {{ devoir.titre }}
-                    </div>
-
-                    <div class="devoir-date">
-                      📅
-                      {{ formatDate(devoir.dateLimite) }}
-                    </div>
-
-                  </div>
-
-                </div>
-
-
-                <div class="devoir-actions">
-
-                  <button
-                    class="action-btn btn-edit"
-                    title="تعديل"
-                    (click)="ouvrirEditDevoir(devoir)">
-
-                    ✏️
-
-                  </button>
-
-
-                  <button
-                    class="action-btn btn-delete"
-                    title="حذف"
-                    (click)="confirmerSuppression(devoir)">
-
-                    🗑️
-
-                  </button>
-
-                </div>
-
-              </div>
-
-
-              <!-- DESCRIPTION -->
-
-              @if (devoir.description) {
-
-                <div class="devoir-description">
-
-                  {{ devoir.description }}
-
-                </div>
-
-              }
-
-
-              <!-- ══ CONTENT OPTIONS ═══════════════ -->
-
-              <div class="devoir-content">
-
-
-                <!-- GOOGLE MEET -->
-
-                @if (devoir.meetUrl) {
-
-                  <div class="content-box meet-box">
-
-                    <div class="content-box-header">
-
-                      <div class="content-title">
-
-                        <span class="content-icon">
-                          🎥
-                        </span>
-
-                        <span>
-                          حصة مباشرة
-                        </span>
-
-                      </div>
-
-                      <span class="content-badge meet-badge">
-                        Google Meet
-                      </span>
-
-                    </div>
-
-
-                    <div class="meet-info">
-
-                      @if (devoir.meetDate) {
-
-                        <span>
-                          📅
-                          {{ formatDate(devoir.meetDate) }}
-                        </span>
-
-                      }
-
-                      @if (devoir.meetTime) {
-
-                        <span>
-                          🕐
-                          {{ devoir.meetTime }}
-                        </span>
-
-                      }
-
-                    </div>
-
-
-                    <a
-                      class="meet-button"
-                      [href]="devoir.meetUrl"
-                      target="_blank"
-                      rel="noopener noreferrer">
-
-                      🔗 الدخول إلى Google Meet
-
-                    </a>
-
-                  </div>
-
-                }
-
-
-                <!-- PLAN -->
-
-                @if (devoir.plan) {
-
-                  <div class="content-box plan-box">
-
-                    <div class="content-box-header">
-
-                      <div class="content-title">
-
-                        <span class="content-icon">
-                          📝
-                        </span>
-
-                        <span>
-                          خطة الحصة
-                        </span>
-
-                      </div>
-
-                    </div>
-
-
-                    <div class="plan-content">
-
-                      {{ devoir.plan }}
-
-                    </div>
-
-                  </div>
-
-                }
-
-
-                <!-- EXERCICE -->
-
-                @if (devoir.exercice) {
-
-                  <div class="content-box exercise-box">
-
-                    <div class="content-box-header">
-
-                      <div class="content-title">
-
-                        <span class="content-icon">
-                          ✏️
-                        </span>
-
-                        <span>
-                          التمرين
-                        </span>
-
-                      </div>
-
-                    </div>
-
-
-                    <div class="exercise-content">
-
-                      {{ devoir.exercice }}
-
-                    </div>
-
-                  </div>
-
-                }
-
-
-                <!-- FILE -->
-
-                @if (devoir.fichierUrl) {
-
-                  <div class="content-box file-box">
-
-                    <div class="content-box-header">
-
-                      <div class="content-title">
-
-                        <span class="content-icon">
-                          📎
-                        </span>
-
-                        <span>
-                          ملف مرفق
-                        </span>
-
-                      </div>
-
-                    </div>
-
-
-                    <a
-                      class="file-button"
-                      [href]="devoir.fichierUrl"
-                      target="_blank"
-                      rel="noopener noreferrer">
-
-                      📄 فتح الملف
-
-                    </a>
-
-                  </div>
-
-                }
-
-
-                <!-- NO EXTRA CONTENT -->
-
-                @if (
-                  !devoir.meetUrl &&
-                  !devoir.plan &&
-                  !devoir.exercice &&
-                  !devoir.fichierUrl
-                ) {
-
-                  <div class="no-content">
-
-                    لا توجد إضافات لهذا الواجب
-
-                  </div>
-
-                }
-
-              </div>
-
-
-              <!-- FOOTER -->
-
-              <div class="devoir-footer">
-
-                <div class="footer-info">
-
-                  @if (devoir.classeNom) {
-
-                    <span class="badge badge-blue">
-                      📚 {{ devoir.classeNom }}
-                    </span>
-
-                  }
-
-                  @if (devoir.groupeNom) {
-
-                    <span class="badge badge-gray">
-                      👥 {{ devoir.groupeNom }}
-                    </span>
-
-                  }
-
-                </div>
-
-
-                <button
-                  class="btn-ghost btn-sm"
-                  (click)="voirDevoir(devoir)">
-
-                  👁️ التفاصيل
-
-                </button>
-
-              </div>
-
+            <div>
+              <h2>ملفات الكورس PDF</h2>
+              <p>
+                رفع الملفات وتخصيص كل ملف لمجموعة أو عدة مجموعات.
+              </p>
             </div>
-
-          }
-
-        </div>
-
-      }
-
-    </div>
-
-  </main>
-
-</div>
-
-
-<!-- ═══════════════════════════════════════════════
-     MODAL AJOUT / EDIT DEVOIR
-════════════════════════════════════════════════ -->
-
-@if (showDevoirModal()) {
-
-  <div
-    class="modal-overlay"
-    (click)="fermerDevoirModal()">
-
-    <div
-      class="modal"
-      (click)="$event.stopPropagation()">
-
-
-      <!-- HEADER -->
-
-      <div class="modal-header">
-
-        <h3>
-
-          @if (modeEdit()) {
-            ✏️ تعديل الواجب
-          } @else {
-             إضافة واجب جديد
-          }
-
-        </h3>
-
-
-        <button
-          class="modal-close"
-          (click)="fermerDevoirModal()">
-
-          ✕
-
-        </button>
-
-      </div>
-
-
-      <!-- BODY -->
-
-      <div class="modal-body">
-
-        @if (errorMsg()) {
-
-          <div class="alert alert-error">
-            ⚠️ {{ errorMsg() }}
           </div>
 
-        }
+          <div class="upload-area">
 
+            <div class="upload-icon">📁</div>
 
-        <!-- TITRE -->
+            <h3>إضافة ملف جديد</h3>
+            <p>اختار ملف PDF من الجهاز ديالك.</p>
 
-        <div class="form-group">
-
-          <label>
-            عنوان الواجب
-            <span class="required">*</span>
-          </label>
-
-          <input
-            class="form-input"
-            placeholder="مثال: حفظ سورة الكهف"
-            [value]="devoirForm().titre"
-            (input)="updateDevoirForm(
-              'titre',
-              $any($event.target).value
-            )"
-          />
-
-        </div>
-
-
-        <!-- DESCRIPTION -->
-
-        <div class="form-group">
-
-          <label>
-            الوصف
-          </label>
-
-          <textarea
-            class="form-input"
-            rows="3"
-            placeholder="وصف مختصر للواجب..."
-            [value]="devoirForm().description"
-            (input)="updateDevoirForm(
-              'description',
-              $any($event.target).value
-            )">
-          </textarea>
-
-        </div>
-
-
-        <!-- DATE -->
-
-        <div class="form-row">
-
-          <div class="form-group">
-
-            <label>
-              تاريخ التسليم
+            <label
+              for="coursPdf"
+              class="btn-secondary upload-label">
+              📎 اختيار ملف PDF
             </label>
 
             <input
-              type="date"
-              class="form-input"
-              [value]="devoirForm().dateLimite"
-              (input)="updateDevoirForm(
-                'dateLimite',
-                $any($event.target).value
-              )"
+              id="coursPdf"
+              type="file"
+              accept=".pdf,application/pdf"
+              class="file-input-hidden"
+              (change)="onFichierSelected($event)"
+              [disabled]="uploadingFichier() || saving()"
             />
 
-          </div>
-
-
-          <div class="form-group">
-
-            <label>
-              المجموعة
-            </label>
-
-            <select
-              class="form-input"
-              [value]="devoirForm().groupeId"
-              (change)="updateDevoirForm(
-                'groupeId',
-                $any($event.target).value
-              )">
-
-              <option value="">
-                جميع المجموعات
-              </option>
-
-              @for (
-                groupe of groupes();
-                track groupe.id
-              ) {
-
-                <option [value]="groupe.id">
-
-                  {{ groupe.nom }}
-
-                </option>
-
-              }
-
-            </select>
-
-          </div>
-
-        </div>
-
-
-        <!-- ══ OPTIONAL CONTENT ═════════════════ -->
-
-        <div class="section-divider">
-
-          <div class="section-title">
-            ➕ محتوى إضافي
-          </div>
-
-          <div class="section-subtitle">
-            يمكنك إضافة واحد أو أكثر من هذه العناصر
-          </div>
-
-        </div>
-
-
-        <!-- MEET -->
-
-        <div class="optional-section">
-
-          <label class="check-row">
-
-            <input
-              type="checkbox"
-              [checked]="devoirForm().hasMeet"
-              (change)="toggleOptional(
-                'hasMeet',
-                $any($event.target).checked
-              )"
-            />
-
-            <span class="check-custom"></span>
-
-            <span class="check-content">
-
-              <strong>
-                🎥 حصة مباشرة
-              </strong>
-
-              <small>
-                إضافة رابط Google Meet
-              </small>
-
-            </span>
-
-          </label>
-
-
-          @if (devoirForm().hasMeet) {
-
-            <div class="optional-body">
-
-              <div class="form-group">
-
-                <label>
-                  رابط Google Meet
-                  <span class="required">*</span>
-                </label>
-
-                <input
-                  type="url"
-                  class="form-input"
-                  dir="ltr"
-                  placeholder="https://meet.google.com/..."
-                  [value]="devoirForm().meetUrl"
-                  (input)="updateDevoirForm(
-                    'meetUrl',
-                    $any($event.target).value
-                  )"
-                />
-
+            @if (uploadingFichier()) {
+              <div class="upload-progress">
+                <div class="spinner"></div>
+                <span>جاري رفع الملف...</span>
               </div>
-
-
-              <div class="form-row">
-
-                <div class="form-group">
-
-                  <label>
-                    تاريخ الحصة
-                  </label>
-
-                  <input
-                    type="date"
-                    class="form-input"
-                    [value]="devoirForm().meetDate"
-                    (input)="updateDevoirForm(
-                      'meetDate',
-                      $any($event.target).value
-                    )"
-                  />
-
-                </div>
-
-
-                <div class="form-group">
-
-                  <label>
-                    وقت الحصة
-                  </label>
-
-                  <input
-                    type="time"
-                    class="form-input"
-                    [value]="devoirForm().meetTime"
-                    (input)="updateDevoirForm(
-                      'meetTime',
-                      $any($event.target).value
-                    )"
-                  />
-
-                </div>
-
-              </div>
-
-            </div>
-
-          }
-
-        </div>
-
-
-        <!-- PLAN -->
-
-        <div class="optional-section">
-
-          <label class="check-row">
-
-            <input
-              type="checkbox"
-              [checked]="devoirForm().hasPlan"
-              (change)="toggleOptional(
-                'hasPlan',
-                $any($event.target).checked
-              )"
-            />
-
-            <span class="check-custom"></span>
-
-            <span class="check-content">
-
-              <strong>
-                📝 خطة الحصة
-              </strong>
-
-              <small>
-                أضف خطوات أو برنامج الحصة
-              </small>
-
-            </span>
-
-          </label>
-
-
-          @if (devoirForm().hasPlan) {
-
-            <div class="optional-body">
-
-              <div class="form-group">
-
-                <label>
-                  الخطة
-                </label>
-
-                <textarea
-                  class="form-input"
-                  rows="4"
-                  placeholder="مثال:
-1. مراجعة الحفظ السابق
-2. حفظ الآيات 1 إلى 10
-3. تسميع جماعي..."
-                  [value]="devoirForm().plan"
-                  (input)="updateDevoirForm(
-                    'plan',
-                    $any($event.target).value
-                  )">
-                </textarea>
-
-              </div>
-
-            </div>
-
-          }
-
-        </div>
-
-
-        <!-- EXERCICE -->
-
-        <div class="optional-section">
-
-          <label class="check-row">
-
-            <input
-              type="checkbox"
-              [checked]="devoirForm().hasExercice"
-              (change)="toggleOptional(
-                'hasExercice',
-                $any($event.target).checked
-              )"
-            />
-
-            <span class="check-custom"></span>
-
-            <span class="check-content">
-
-              <strong>
-                ✏️ تمرين
-              </strong>
-
-              <small>
-                أضف تمريناً للطلاب
-              </small>
-
-            </span>
-
-          </label>
-
-
-          @if (devoirForm().hasExercice) {
-
-            <div class="optional-body">
-
-              <div class="form-group">
-
-                <label>
-                  نص التمرين
-                </label>
-
-                <textarea
-                  class="form-input"
-                  rows="5"
-                  placeholder="مثال:
-قم بتسجيل تسميع سورة الكهف من الآية 1 إلى 10..."
-                  [value]="devoirForm().exercice"
-                  (input)="updateDevoirForm(
-                    'exercice',
-                    $any($event.target).value
-                  )">
-                </textarea>
-
-              </div>
-
-            </div>
-
-          }
-
-        </div>
-
-
-        <!-- FILE -->
-
-        <div class="optional-section">
-
-          <label class="check-row">
-
-            <input
-              type="checkbox"
-              [checked]="devoirForm().hasFichier"
-              (change)="toggleOptional(
-                'hasFichier',
-                $any($event.target).checked
-              )"
-            />
-
-            <span class="check-custom"></span>
-
-            <span class="check-content">
-
-              <strong>
-                📎 ملف مرفق
-              </strong>
-
-              <small>
-                أضف رابط PDF أو ملف
-              </small>
-
-            </span>
-
-          </label>
-
-
-          @if (devoirForm().hasFichier) {
-
-            <div class="optional-body">
-
-              <div class="form-group">
-
-                <label>
-                  رابط الملف
-                </label>
-
-                <input
-                  type="url"
-                  class="form-input"
-                  dir="ltr"
-                  placeholder="https://..."
-                  [value]="devoirForm().fichierUrl"
-                  (input)="updateDevoirForm(
-                    'fichierUrl',
-                    $any($event.target).value
-                  )"
-                />
-
-              </div>
-
-            </div>
-
-          }
-
-        </div>
-
-      </div>
-
-
-      <!-- FOOTER -->
-
-      <div class="modal-footer">
-
-        <button
-          class="btn-ghost"
-          (click)="fermerDevoirModal()">
-
-          إلغاء
-
-        </button>
-
-
-        <button
-          class="btn-primary"
-          (click)="soumettreDevoir()"
-          [disabled]="formLoading()">
-
-          @if (formLoading()) {
-
-            <span class="spinner-sm"></span>
-
-            جاري الحفظ...
-
-          } @else {
-
-            @if (modeEdit()) {
-               حفظ التعديلات
-            } @else {
-               إضافة الواجب
             }
 
-          }
-
-        </button>
-
-      </div>
-
-    </div>
-
-  </div>
-
-}
-
-
-<!-- ═══════════════════════════════════════════════
-     DELETE MODAL
-════════════════════════════════════════════════ -->
-
-@if (showDeleteModal()) {
-
-  <div
-    class="modal-overlay"
-    (click)="showDeleteModal.set(false)">
-
-    <div
-      class="modal modal-sm"
-      (click)="$event.stopPropagation()">
-
-      <div class="modal-header">
-
-        <h3>
-          🗑️ تأكيد الحذف
-        </h3>
-
-        <button
-          class="modal-close"
-          (click)="showDeleteModal.set(false)">
-
-          ✕
-
-        </button>
-
-      </div>
-
-
-      <div class="modal-body">
-
-        <div class="delete-confirm">
-
-          <div class="delete-icon">
-            ⚠️
           </div>
 
-          <p>
+          <!-- FILES WAITING FOR GROUP ASSIGNMENT -->
 
-            هل أنت متأكد من حذف الواجب
+          @if (pdfUploads().length > 0) {
 
-            <strong>
-              {{ devoirToDelete()?.titre }}
-            </strong>؟
+            <div class="section-divider">
+              <h3>📚 تحديد المجموعات لكل ملف</h3>
+              <p>
+                خاصك تختار مجموعة واحدة على الأقل لكل ملف قبل الحفظ.
+              </p>
+            </div>
 
-          </p>
+            @for (pdf of pdfUploads(); track pdf.fichier_url) {
 
-          <p class="delete-warning">
+              <article class="pdf-assignment-card">
 
-            سيتم حذف الواجب وجميع المحتويات المرتبطة به.
+                <div class="pdf-assignment-header">
 
-          </p>
+                  <div class="pdf-card-icon">📕</div>
 
-        </div>
+                  <div class="pdf-card-info">
+                    <strong>{{ pdf.nom }}</strong>
+                    <small>
+                      اختار المجموعات اللي غادي يوصلها الملف.
+                    </small>
+                  </div>
 
-      </div>
+                  <button
+                    type="button"
+                    class="btn-ghost btn-remove"
+                    (click)="removePdf($index)"
+                    [disabled]="saving()">
+                    حذف
+                  </button>
 
+                </div>
 
-      <div class="modal-footer">
+                <div class="groupe-chips">
 
-        <button
-          class="btn-ghost"
-          (click)="showDeleteModal.set(false)">
+                  @for (g of groupes(); track g.id) {
 
-          إلغاء
+                    <label
+                      class="groupe-chip"
+                      [class.chip-selected]="isPdfGroupSelected(
+                        $index,
+                        g.id.toString()
+                      )">
 
-        </button>
+                      <input
+                        type="checkbox"
+                        [checked]="isPdfGroupSelected(
+                          $index,
+                          g.id.toString()
+                        )"
+                        (change)="togglePdfGroup(
+                          $index,
+                          g.id.toString()
+                        )"
+                      />
 
+                      <span class="chip-check">
+                        @if (isPdfGroupSelected(
+                          $index,
+                          g.id.toString()
+                        )) {
+                          ✓
+                        }
+                      </span>
 
-        <button
-          class="btn-danger"
-          (click)="supprimerDevoir()"
-          [disabled]="formLoading()">
+                      {{ g.nom }}
 
-          @if (formLoading()) {
+                    </label>
 
-            جاري الحذف...
+                  }
+
+                </div>
+
+                <div class="pdf-assignment-footer">
+                  <span>
+                    {{ pdf.groupeIds.length }} مجموعة مختارة
+                  </span>
+
+                  <a
+                    class="pdf-card-link"
+                    [href]="pdf.fichier_url"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    معاينة PDF ↗
+                  </a>
+                </div>
+
+              </article>
+
+            }
+
+            <div class="form-actions pdf-save-actions">
+
+              <button
+                type="button"
+                class="btn-primary"
+                (click)="validerPdf()"
+                [disabled]="saving() || uploadingFichier()">
+
+                @if (saving()) {
+                  ⏳ جاري حفظ الملفات...
+                } @else {
+                  ✓ حفظ الملفات
+                }
+
+              </button>
+
+            </div>
+
+          }
+
+          <!-- SAVED PDFS -->
+
+          <div class="section-divider">
+            <h3>📂 ملفات الكورس المحفوظة</h3>
+            <p>الملفات المسجلة مسبقا فقاعدة البيانات.</p>
+          </div>
+
+          @if (coursesPdf().length > 0) {
+
+            <div class="pdf-grid">
+
+              @for (c of coursesPdf(); track c.fichier_url) {
+
+                <article class="pdf-card">
+
+                  <div class="pdf-card-top">
+                    <div class="pdf-card-icon">📕</div>
+                    <span class="saved-badge">محفوظ</span>
+                  </div>
+
+                  <div class="pdf-card-info">
+                    <strong>{{ c.nom }}</strong>
+
+                    <div class="pdf-card-groupes">
+                      @for (nom of c.groupes; track nom) {
+                        <span class="pdf-groupe-tag">
+                          {{ nom }}
+                        </span>
+                      }
+
+                      @if (c.groupes.length === 0) {
+                        <span class="pdf-groupe-tag">
+                          بدون مجموعة معروفة
+                        </span>
+                      }
+                    </div>
+                  </div>
+
+                  <a
+                    class="pdf-card-link"
+                    [href]="c.fichier_url"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    فتح الملف ↗
+                  </a>
+
+                </article>
+
+              }
+
+            </div>
 
           } @else {
 
-            🗑️ نعم، احذف
+            <div class="empty-state">
+              <span>📄</span>
+              <h3>مازال ما تسجلو حتى ملف PDF</h3>
+              <p>الملفات المحفوظة غادي يبانوا هنا.</p>
+            </div>
 
           }
 
-        </button>
-
-      </div>
+        </section>
+      }
 
     </div>
-
-  </div>
-
-}
+  </main>
+</div>
