@@ -1,88 +1,85 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+import { SupabaseService } from '../../../core/services/supabase.service';
 import { SidebarComponent } from '../sidebar/sidebar.component';
+
+interface PaymentNotification {
+  id: number;
+  title: string;
+  message: string;
+  is_read: boolean;
+  dismissed_at: string | null;
+  created_at: string;
+}
 
 @Component({
   selector: 'app-mes-notifications',
-  imports: [SidebarComponent],
+  standalone: true,
+  imports: [CommonModule, SidebarComponent],
   templateUrl: './mes-notifications.component.html',
   styleUrl: './mes-notifications.component.css'
 })
-export class MesNotificationsComponent {
+export class MesNotificationsComponent implements OnInit {
+  constructor(private sb: SupabaseService) {}
 
-  notifications = [
+  notifications: PaymentNotification[] = [];
+  loading = false;
+  errorMsg = '';
+  successMsg = '';
 
-    {
-      id: 1,
-      type: 'payment',
-      icon: '💳',
-      title: 'تذكير بأداء الواجب الشهري',
-      message: 'يرجى أداء الواجب الشهري لشهر أكتوبر قبل بداية الشهر الجديد.',
-      date: '15/09/2026',
-      unread: true
-    },
+  get visibleNotifications(): PaymentNotification[] {
+    return this.notifications.filter(n => !n.dismissed_at);
+  }
 
-    {
-      id: 2,
-      type: 'devoir',
-      icon: '📝',
-      title: 'واجب جديد',
-      message: 'تمت إضافة واجب جديد في مادة أحكام التجويد.',
-      date: '14/09/2026',
-      unread: true
-    },
+  ngOnInit(): void {
+    void this.loadNotifications();
+  }
 
-    {
-      id: 3,
-      type: 'cours',
-      icon: '📚',
-      title: 'درس جديد',
-      message: 'تمت إضافة درس جديد: سورة الإخلاص.',
-      date: '12/09/2026',
-      unread: false
-    },
+  async loadNotifications(): Promise<void> {
+    this.loading = true;
+    this.errorMsg = '';
 
-    {
-      id: 4,
-      type: 'presence',
-      icon: '📅',
-      title: 'الحضور',
-      message: 'تم تسجيل حضورك في حصة اليوم.',
-      date: '11/09/2026',
-      unread: false
+    try {
+      const { data, error } = await this.sb.client
+        .from('notifications')
+        .select('id, title, message, is_read, dismissed_at, created_at')
+        .eq('type', 'payment')
+        .is('dismissed_at', null)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('NOTIFICATIONS ERROR:', error);
+        this.errorMsg = 'تعذر تحميل الإشعارات';
+        return;
+      }
+
+      this.notifications = (data ?? []) as PaymentNotification[];
+    } catch (error) {
+      console.error('NOTIFICATIONS ERROR:', error);
+      this.errorMsg = 'وقع خطأ أثناء تحميل الإشعارات';
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  async dismissPayment(notification: PaymentNotification): Promise<void> {
+    const { error } = await this.sb.client
+      .from('notifications')
+      .update({
+        is_read: true,
+        dismissed_at: new Date().toISOString()
+      })
+      .eq('id', notification.id);
+
+    if (error) {
+      console.error('DISMISS PAYMENT ERROR:', error);
+      this.errorMsg = 'تعذر تحديث الإشعار';
+      return;
     }
 
-  ];
-
-
-  markAsRead(notification: any) {
-
-    notification.unread = false;
-
+    this.notifications = this.notifications.filter(
+      n => n.id !== notification.id
+    );
   }
-
-
-  markAllAsRead() {
-
-    this.notifications.forEach(notification => {
-
-      notification.unread = false;
-
-    });
-
-  }
-
-
-  deleteNotification(notification: any) {
-
-    const index =
-      this.notifications.indexOf(notification);
-
-    if (index !== -1) {
-
-      this.notifications.splice(index, 1);
-
-    }
-
-  }
-
 }

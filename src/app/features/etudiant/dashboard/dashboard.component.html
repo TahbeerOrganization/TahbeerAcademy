@@ -1,448 +1,278 @@
+
 <div class="layout" dir="rtl">
 
-  <!-- ══ SIDEBAR ══════════════════════════════════ -->
-
-  <app-sidebar
-    activePage="dashboard">
-  </app-sidebar>
-
-
-  <!-- ══ MAIN ═════════════════════════════════════ -->
+  <app-sidebar activePage="dashboard"></app-sidebar>
 
   <main class="main">
 
-
-    <!-- ══ TOPBAR ═════════════════════════════════ -->
-
+    <!-- TOPBAR -->
     <div class="topbar">
-
       <div>
-
-        <div class="topbar-title">
-          لوحة الطالب
-        </div>
+        <div class="topbar-title">لوحة الطالب</div>
 
         <div class="topbar-sub">
           مرحباً {{ etudiant()?.nom || auth.currentUser()?.nom }} —
           {{ today() }}
         </div>
-
       </div>
 
-
       <div class="topbar-actions">
-
         <button
           class="btn-refresh"
           (click)="loadDashboard()"
           [disabled]="loading()">
-
           🔄 تحديث
-
         </button>
-
       </div>
-
     </div>
 
-
-    <!-- ══ LOADING ════════════════════════════════ -->
-
     @if (loading()) {
-
       <div class="loading-wrap">
-
         <div class="spinner-big"></div>
-
-        <p>
-          جاري تحميل بياناتك...
-        </p>
-
+        <p>جاري تحميل بياناتك...</p>
       </div>
-
     } @else {
-
 
       <div class="content">
 
+        <!-- STUDENT PROFILE + KPI -->
+        <section class="student-profile card">
 
-        <!-- ═══════════════════════════════════════
-             PROFILE HEADER
-        ═══════════════════════════════════════ -->
+          <div class="student-avatar">
+            {{ (etudiant()?.nom || '?').charAt(0) }}
+          </div>
 
-        <div class="student-welcome card">
+          <div class="student-main-info">
+            <h2>{{ etudiant()?.nom || 'الطالب' }}</h2>
 
-          <div class="welcome-avatar">
+            <span>
+              تاريخ التسجيل:
+              {{ formatDate(etudiant()?.created_at) }}
+            </span>
 
-            {{
-              etudiant()?.nom?.charAt(0)?.toUpperCase()
-              || '?'
-            }}
+            @if (etudiant()?.niveau) {
+              <span class="student-level">
+                المستوى: {{ etudiant()?.niveau }}
+              </span>
+            }
+          </div>
+
+          <div class="student-kpis">
+
+            <div>
+              <strong>{{ studentGroupesList().length }}</strong>
+              <span>مجموعات</span>
+            </div>
+
+            <div>
+              <strong>{{ getStudentHifdTotal() }}</strong>
+              <span>سور مسجلة</span>
+            </div>
+
+            <div>
+              <strong>{{ tauxPresence() }}%</strong>
+              <span>الحضور</span>
+            </div>
 
           </div>
 
-          <div class="welcome-info">
+        </section>
 
-            <h2>
-              {{ etudiant()?.nom || 'الطالب' }}
-            </h2>
+        <!-- STUDENT GROUPS -->
+        <section class="card">
 
-            <p>
-              {{
-                etudiant()?.groupes?.nom
-                || 'بدون مجموعة'
-              }}
+          <div class="card-header">
+            <div>
+              <div class="card-title">👥 مجموعاتي</div>
+              <div class="card-description">
+                المجموعات التي تنتمي إليها
+              </div>
+            </div>
+          </div>
 
-              @if (etudiant()?.niveau) {
-                ·
-                {{ etudiant()?.niveau }}
+          @if (studentGroupesList().length === 0) {
+            <div class="empty-state">
+              غير مسجل في أي مجموعة
+            </div>
+          } @else {
+
+            <div class="student-groups">
+              @for (g of studentGroupesList(); track g.id) {
+                <div class="group-chip">
+                  <span class="dot"></span>
+
+                  <div>
+                    <strong>{{ g.nom }}</strong>
+
+                    @if (g.type) {
+                      <span>{{ g.type }}</span>
+                    }
+                  </div>
+                </div>
               }
-            </p>
+            </div>
 
-          </div>
+          }
 
-          <div class="welcome-badge">
+        </section>
 
-            📖
-            واصل حفظك
-
-          </div>
-
-        </div>
-
-
-        <!-- ═══════════════════════════════════════
-             KPI
-        ═══════════════════════════════════════ -->
-
-        <div class="kpi-grid">
-
-
-          <!-- PRESENCE -->
+        <!-- KPI -->
+        <section class="kpi-grid">
 
           <div class="kpi-card kpi-green">
-
-            <div class="kpi-icon">
-              ✅
-            </div>
-
+            <div class="kpi-icon">✅</div>
             <div class="kpi-val">
-
               {{ presenceCount() }}
-
-              <span class="kpi-sub">
-                /{{ totalPresences() }}
-              </span>
-
+              <span class="kpi-sub">/{{ totalPresences() }}</span>
             </div>
-
-            <div class="kpi-label">
-              أيام الحضور
-            </div>
-
-            <div class="kpi-pct">
-              {{ tauxPresence() }}%
-            </div>
-
+            <div class="kpi-label">أيام الحضور</div>
           </div>
-
-
-          <!-- ABSENCE -->
 
           <div class="kpi-card kpi-red">
-
-            <div class="kpi-icon">
-              ❌
-            </div>
-
-            <div class="kpi-val">
-              {{ absenceCount() }}
-            </div>
-
-            <div class="kpi-label">
-              أيام الغياب
-            </div>
-
+            <div class="kpi-icon">❌</div>
+            <div class="kpi-val">{{ absenceCount() }}</div>
+            <div class="kpi-label">أيام الغياب</div>
           </div>
-
-
-          <!-- HIFD -->
 
           <div class="kpi-card kpi-blue">
-
-            <div class="kpi-icon">
-              📖
-            </div>
-
-            <div class="kpi-val">
-              {{ souratesMktmla() }}
-            </div>
-
-            <div class="kpi-label">
-              سور مكتملة
-            </div>
-
+            <div class="kpi-icon">📖</div>
+            <div class="kpi-val">{{ getStudentHifdCompletees() }}</div>
+            <div class="kpi-label">سور مكتملة</div>
           </div>
 
+        </section>
 
-          <!-- DEVOIRS -->
+        <!-- CHARTS GRID -->
+        <section class="charts-grid">
 
-          <div class="kpi-card kpi-amber">
-
-            <div class="kpi-icon">
-              📝
-            </div>
-
-            <div class="kpi-val">
-              {{ devoirsNonRemis() }}
-            </div>
-
-            <div class="kpi-label">
-              واجبات لم تُسلَّم
-            </div>
-
-          </div>
-
-
-        </div>
-
-
-        <!-- ═══════════════════════════════════════
-             ROW 1
-        ═══════════════════════════════════════ -->
-
-        <div class="two-col">
-
-
-          <!-- ══ PRESENCE CARD ═══════════════════ -->
-
+          <!-- HIFD DONUT -->
           <div class="card">
 
             <div class="card-header">
-
               <div>
-
-                <div class="card-title">
-                  📅 الحضور والغياب
-                </div>
-
+                <div class="card-title">📖 تقدم الحفظ</div>
                 <div class="card-description">
-                  ملخص حضورك في الحصص
+                  الآيات المكتملة والجارية والمتبقية
+                </div>
+              </div>
+            </div>
+
+            @if (hifdStats().totalAyat === 0) {
+              <div class="empty-state">
+                <div class="empty-icon">📖</div>
+                <p>لا توجد بيانات كافية لحساب تقدم الحفظ</p>
+              </div>
+            } @else {
+
+              <div class="hifd-donut-wrap">
+
+                <div
+                  class="hifd-donut"
+                  [style.background]="getHifdDonutGradient()">
+
+                  <div class="hifd-donut-center">
+                    <strong>{{ hifdStats().pourcentage }}%</strong>
+                    <span>مكتمل</span>
+                  </div>
+
                 </div>
 
+                <div class="hifd-donut-legend">
+
+                  <div class="legend-item">
+                    <i class="dot dot-green"></i>
+                    <span>آيات محفوظة</span>
+                    <strong>{{ hifdStats().ayatCompletees }}</strong>
+                  </div>
+
+                  <div class="legend-item">
+                    <i class="dot dot-blue"></i>
+                    <span>آيات جارية</span>
+                    <strong>{{ hifdStats().ayatEnCours }}</strong>
+                  </div>
+
+                  <div class="legend-item">
+                    <i class="dot dot-gray"></i>
+                    <span>آيات متبقية</span>
+                    <strong>{{ hifdStats().ayatRestantes }}</strong>
+                  </div>
+
+                </div>
+
+              </div>
+
+              <div class="hifd-total">
+                مجموع السور المتابعة:
+                <strong>{{ getStudentHifdTotal() }}</strong>
+
+                <span>·</span>
+
+                مكتملة:
+                <strong>{{ getStudentHifdCompletees() }}</strong>
+              </div>
+
+            }
+
+          </div>
+
+          <!-- PRESENCE TABLE -->
+          <div class="card">
+
+            <div class="card-header">
+              <div>
+                <div class="card-title">📅 حضوري</div>
+                <div class="card-description">
+                  سجل الحضور والغياب
+                </div>
               </div>
 
               <span class="badge badge-green">
                 {{ tauxPresence() }}%
               </span>
-
             </div>
-
-
-            <div class="presence-box">
-              <div class="presence-stats">
-
-                <div class="presence-stat ps-green">
-
-                  <span>
-                    حاضر
-                  </span>
-
-                  <strong>
-                    {{ presenceCount() }}
-                  </strong>
-
-                </div>
-
-
-                <div class="presence-stat ps-red">
-
-                  <span>
-                    غائب
-                  </span>
-
-                  <strong>
-                    {{ absenceCount() }}
-                  </strong>
-
-                </div>
-
-
-                <div class="presence-stat ps-gray">
-
-                  <span>
-                    المجموع
-                  </span>
-
-                  <strong>
-                    {{ totalPresences() }}
-                  </strong>
-
-                </div>
-
-              </div>
-
-            </div>
-
 
             @if (presences().length === 0) {
-
-              <div class="empty-state small">
-                لا توجد بيانات حضور بعد
-              </div>
-
-            } @else {
-
-              <div class="presence-history">
-
-                <div class="history-title">
-                  آخر الحصص
-                </div>
-
-                @for (
-                  p of presences().slice(0, 5);
-                  track p.id
-                ) {
-
-                  <div class="history-item">
-
-                    <span>
-                      {{ formatDate(p.date) }}
-                    </span>
-
-                    @if (p.statut === 'حاضر') {
-
-                      <span class="badge badge-green">
-                        حاضر
-                      </span>
-
-                    } @else {
-
-                      <span class="badge badge-red">
-                        {{ p.statut }}
-                      </span>
-
-                    }
-
-                  </div>
-
-                }
-
-              </div>
-
-            }
-
-          </div>
-
-
-          <!-- ══ HIFD GRAPH ═════════════════════ -->
-
-          <div class="card">
-
-            <div class="card-header">
-
-              <div>
-
-                <div class="card-title">
-                  📈 تطور الحفظ
-                </div>
-
-                <div class="card-description">
-                  تطور حفظك للقرآن
-                </div>
-
-              </div>
-
-              <span class="badge badge-blue">
-                {{ tauxHifd() }}%
-              </span>
-
-            </div>
-
-
-            @if (hifdGraph().length === 0) {
-
               <div class="empty-state">
-                <div class="empty-icon">
-                  📖
-                </div>
-
-                <p>
-                  لا توجد بيانات للحفظ بعد
-                </p>
+                لا توجد بيانات للحضور
               </div>
-
             } @else {
 
+              <div class="presence-table-wrap">
 
-              <div class="chart">
-
-                <div class="chart-y">
-
-                  <span>100</span>
-                  <span>75</span>
-                  <span>50</span>
-                  <span>25</span>
-                  <span>0</span>
-
+                <div class="mini-table-title">
+                  📋 سجل الحضور والغياب
                 </div>
 
+                <div class="table-wrapper">
+                  <table class="mini-table">
 
-                <div class="chart-area">
+                    <thead>
+                      <tr>
+                        <th>التاريخ</th>
+                        <th>الحالة</th>
+                      </tr>
+                    </thead>
 
-                  <div class="grid-line line-100"></div>
-                  <div class="grid-line line-75"></div>
-                  <div class="grid-line line-50"></div>
-                  <div class="grid-line line-25"></div>
-                  <div class="grid-line line-0"></div>
+                    <tbody>
+                      @for (p of presences(); track p.id) {
+                        <tr>
+                          <td>{{ formatDate(p.date) }}</td>
 
+                          <td>
+                            <span
+                              class="badge"
+                              [class.badge-green]="p.statut === 'حاضر'"
+                              [class.badge-red]="p.statut === 'غائب'"
+                              [class.badge-gray]="p.statut !== 'حاضر' && p.statut !== 'غائب'">
+                              {{ p.statut || 'غير محدد' }}
+                            </span>
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
 
-                  <div class="chart-bars">
-
-                    @for (
-                      point of hifdGraph().slice(-12);
-                      track $index
-                    ) {
-
-                      <div
-                        class="chart-column">
-
-                        <div
-                          class="chart-bar"
-                          [style.height.%]="
-                            hifdGraph().length > 0
-                            ? (point.value / hifdGraph().length) * 100
-                            : 0
-                          "
-                          [title]="
-                            point.value + ' سور'
-                          ">
-                        </div>
-
-                      </div>
-
-                    }
-
-                  </div>
-
+                  </table>
                 </div>
-
-              </div>
-
-
-              <div class="chart-footer">
-
-                <span>
-                  بداية المتابعة
-                </span>
-
-                <strong>
-                  {{ souratesMktmla() }} سور مكتملة
-                </strong>
-
-                <span>
-                  الآن
-                </span>
 
               </div>
 
@@ -450,299 +280,152 @@
 
           </div>
 
-        </div>
+        </section>
 
-
-        <!-- ═══════════════════════════════════════
-             SOURATES
-        ═══════════════════════════════════════ -->
-
-        <div class="card sourate-card">
+        <!-- SURAH MAP -->
+        <section class="card">
 
           <div class="card-header">
-
             <div>
-
-              <div class="card-title">
-                📖 تتبع حفظ السور
-              </div>
-
+              <div class="card-title">🗺️ خريطة الحفظ</div>
               <div class="card-description">
-                اختر السورة لمعرفة مستوى حفظك
+                الخضراء مكتملة، الزرقاء جارية، والرمادية لم تبدأ
               </div>
-
             </div>
-
-
-            <select
-              class="sourate-select"
-              [value]="
-                selectedSourate()?.id ||
-                selectedSourate()?.sourate ||
-                selectedSourate()?.nom_sourate ||
-                ''
-              "
-              (change)="selectSourate($event)">
-
-              @if (sourates().length === 0) {
-
-                <option value="">
-                  لا توجد سور
-                </option>
-
-              } @else {
-
-                @for (
-                  s of sourates();
-                  track s.id || s.sourate || s.nom_sourate
-                ) {
-
-                  <option
-                    [value]="
-                      s.id ||
-                      s.sourate ||
-                      s.nom_sourate
-                    ">
-
-                    {{ getSourateName(s) }}
-
-                  </option>
-
-                }
-
-              }
-
-            </select>
-
           </div>
 
+          <div class="sourate-map-legend">
+            <span>
+              <i class="legend-square completed-square"></i>
+              مكتملة
+            </span>
 
-          @if (selectedSourate()) {
+            <span>
+              <i class="legend-square running-square"></i>
+              جارية / مراجعة
+            </span>
 
-            <div class="sourate-detail">
+            <span>
+              <i class="legend-square not-started-square"></i>
+              لم تبدأ
+            </span>
+          </div>
 
-
-              <div class="sourate-top">
-
-                <div>
-
-                  <div class="sourate-name">
-                    {{ getSourateName(selectedSourate()) }}
-                  </div>
-
-                  <div class="sourate-status">
-
-                    @if (
-                      selectedSourate()?.statut === 'مكتملة'
-                    ) {
-
-                      <span class="badge badge-green">
-                        ✓ مكتملة
-                      </span>
-
-                    } @else {
-
-                      <span class="badge badge-amber">
-                        قيد الحفظ
-                      </span>
-
-                    }
-
-                  </div>
-
-                </div>
-
-
-                <div class="sourate-percent">
-
-                  {{
-                    getSourateProgress(
-                      selectedSourate()
-                    )
-                  }}%
-
-                </div>
-
-              </div>
-
-
-              <div class="progress-container">
-
-                <div class="progress-track">
-
-                  <div
-                    class="progress-fill"
-                    [style.width.%]="
-                      getSourateProgress(
-                        selectedSourate()
-                      )
-                    ">
-                  </div>
-
-                </div>
-
-              </div>
-
-
-              <div class="progress-footer">
-
-                <span>
-                  التقدم
-                </span>
-
-                <strong>
-                  {{
-                    getSourateProgress(
-                      selectedSourate()
-                    )
-                  }}%
-                </strong>
-
-              </div>
-
-
+          @if (allSourates().length === 0) {
+            <div class="empty-state">
+              لا توجد سور لعرضها
             </div>
-
           } @else {
 
-            <div class="empty-state">
+            <div class="sourate-map">
 
-              <div class="empty-icon">
-                📖
-              </div>
+              @for (s of allSourates(); track s.id) {
 
-              <p>
-                لا توجد معلومات عن الحفظ
-              </p>
+                <div
+                  class="sourate-chip"
+                  [class.chip-completed]="isSourateCompletee(s.id)"
+                  [class.chip-encours]="!isSourateCompletee(s.id) && isSourateEnCours(s.id)"
+                  [class.chip-not-started]="!isSourateCompletee(s.id) && !isSourateEnCours(s.id)"
+                  [title]="s.nom || s.nom_ar || s.name || ('سورة ' + s.id)">
+
+                  <span class="chip-number">{{ s.id }}</span>
+
+                  <span class="chip-name">
+                    {{ s.nom || s.nom_ar || s.name || ('سورة ' + s.id) }}
+                  </span>
+
+                </div>
+
+              }
 
             </div>
 
           }
 
-        </div>
+        </section>
 
-
-        <!-- ═══════════════════════════════════════
-             DEVOIRS
-        ═══════════════════════════════════════ -->
-
-        <div class="card">
+        <!-- HIFD DETAILS TABLE -->
+        <section class="card">
 
           <div class="card-header">
-
             <div>
-
-              <div class="card-title">
-                📝 واجباتي
-              </div>
-
+              <div class="card-title">📚 تفاصيل الحفظ</div>
               <div class="card-description">
-                آخر الواجبات والمهام المطلوبة
+                السور والآيات المسجلة
               </div>
-
             </div>
 
-            <a
-              routerLink="/etudiant/devoirs"
-              class="card-link">
-
-              عرض الكل ←
-
-            </a>
-
+            <span class="badge badge-blue">
+              {{ getStudentHifdTotal() }} سور
+            </span>
           </div>
 
-
-          @if (devoirs().length === 0) {
-
+          @if (suiviDetails().length === 0) {
             <div class="empty-state">
-
-              <div class="empty-icon">
-                📝
-              </div>
-
-              <p>
-                لا توجد واجبات حالياً
-              </p>
-
+              لا توجد بيانات حفظ
             </div>
-
           } @else {
 
-            <div class="devoirs-list">
+            <div class="table-wrapper">
 
-              @for (
-                d of devoirs().slice(0, 5);
-                track d.id
-              ) {
+              <table class="details-table">
 
-                <div class="devoir-item">
+                <thead>
+                  <tr>
+                    <th>السورة</th>
+                    <th>الآيات</th>
+                    <th>الحالة</th>
+                    <th>التقييم</th>
+                    <th>آخر تحديث</th>
+                  </tr>
+                </thead>
 
+                <tbody>
+                  @for (s of suiviDetails(); track s.id) {
 
-                  <div class="devoir-icon">
-                    📝
-                  </div>
+                    <tr>
 
+                      <td>
+                        <strong>
+                          {{ getSourateNomById(s.sourate_id) }}
+                        </strong>
+                      </td>
 
-                  <div class="devoir-info">
+                      <td>
+                        @if (s.ayat_debut != null && s.ayat_fin != null) {
+                          من {{ s.ayat_debut }} إلى {{ s.ayat_fin }}
+                        } @else {
+                          —
+                        }
+                      </td>
 
-                    <div class="devoir-title">
+                      <td>
+                        <span
+                          class="status-badge"
+                          [class.status-completed]="isCompletedStatus(s.statut)"
+                          [class.status-progress]="isInProgressStatus(s.statut)">
+                          {{ s.statut || '—' }}
+                        </span>
+                      </td>
 
-                      {{
-                        d.devoirs?.titre
-                        || 'واجب'
-                      }}
+                      <td>{{ s.evaluation || '—' }}</td>
 
-                    </div>
+                      <td>
+                        {{ formatDate(s.updated_at || s.created_at) }}
+                      </td>
 
-                    <div class="devoir-date">
-
-                      @if (d.devoirs?.deadline) {
-
-                        الموعد:
-                        {{
-                          formatDate(
-                            d.devoirs.deadline
-                          )
-                        }}
-
-                      } @else {
-
-                        بدون موعد
-
-                      }
-
-                    </div>
-
-                  </div>
-
-
-                  @if (
-                    d.statut === 'لم يسلّم'
-                  ) {
-
-                    <span class="badge badge-red">
-                      لم يُسلّم
-                    </span>
-
-                  } @else {
-
-                    <span class="badge badge-green">
-                      {{ d.statut }}
-                    </span>
+                    </tr>
 
                   }
+                </tbody>
 
-                </div>
-
-              }
+              </table>
 
             </div>
 
           }
 
-        </div>
-
+        </section>
 
       </div>
 

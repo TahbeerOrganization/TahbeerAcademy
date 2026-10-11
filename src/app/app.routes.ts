@@ -89,12 +89,6 @@ export const routes: Routes = [
             .then(m => m.MesCoursComponent)
       },
       {
-        path: 'mes-devoirs',
-        loadComponent: () =>
-          import('./features/etudiant/mes-devoirs/mes-devoirs.component')
-            .then(m => m.MesDevoirsComponent)
-      },
-      {
         path: 'mes-notifications',
         loadComponent: () =>
           import('./features/etudiant/mes-notifications/mes-notifications.component')

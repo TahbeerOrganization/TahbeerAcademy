@@ -1,203 +1,86 @@
 <div class="layout" dir="rtl">
 
-  <!-- SIDEBAR -->
-
   <app-sidebar activePage="notifications"></app-sidebar>
-
-
-  <!-- MAIN -->
 
   <main class="main">
 
-
-    <!-- TOPBAR -->
-
     <div class="topbar">
-
       <div>
-
-        <div class="topbar-title">
-          الإشعارات
-        </div>
-
-        <div class="topbar-sub">
-          آخر التنبيهات والإشعارات الخاصة بك
-        </div>
-
+        <div class="topbar-title">الإشعارات</div>
+        <div class="topbar-sub">تذكيرات الخلاص الخاصة بك</div>
       </div>
-
-
-      <button
-        class="btn-read-all"
-        (click)="markAllAsRead()">
-
-        ✓ تعليم الكل كمقروء
-
-      </button>
-
     </div>
-
-
-
-    <!-- CONTENT -->
 
     <div class="content">
 
-
-      <!-- HEADER -->
+      @if (errorMsg) {
+        <div class="alert alert-error">⚠️ {{ errorMsg }}</div>
+      }
 
       <div class="page-header">
-
         <div>
-
-          <h2>
-            🔔 الإشعارات
-          </h2>
-
-          <p>
-            ستتوصل هنا بجميع التحديثات المهمة
-          </p>
-
+          <h2>💳 تذكيرات الخلاص</h2>
+          <p>الإشعارات الخاصة بأداء الواجب الشهري</p>
         </div>
-
 
         <div class="notification-count">
-
-          {{ notifications.length }}
-
-          <span>
-            إشعارات
-          </span>
-
+          {{ visibleNotifications.length }}
+          <span>إشعارات</span>
         </div>
-
       </div>
 
-
-
-      <!-- NOTIFICATIONS -->
-
-      @if (notifications.length > 0) {
+      @if (loading) {
+        <div class="loading-wrap">
+          <div class="spinner-big"></div>
+          <p>جاري تحميل الإشعارات...</p>
+        </div>
+      } @else if (visibleNotifications.length > 0) {
 
         <div class="notifications-list">
 
-          @for (
-            notification of notifications;
-            track notification.id
-          ) {
+          @for (notification of visibleNotifications; track notification.id) {
 
-            <div
-              class="notification-card"
-              [class.unread]="notification.unread">
+            <article class="notification-card" [class.unread]="!notification.is_read">
 
-
-              <!-- ICON -->
-
-              <div
-                class="notification-icon"
-                [class.payment]="notification.type === 'payment'"
-                [class.devoir]="notification.type === 'devoir'"
-                [class.cours]="notification.type === 'cours'"
-                [class.presence]="notification.type === 'presence'">
-
-                {{ notification.icon }}
-
-              </div>
-
-
-
-              <!-- CONTENT -->
+              <div class="notification-icon payment">💳</div>
 
               <div class="notification-content">
 
                 <div class="notification-header">
-
-                  <h3>
-                    {{ notification.title }}
-                  </h3>
-
-                  @if (notification.unread) {
-
-                    <span class="new-badge">
-                      جديد
-                    </span>
-
+                  <h3>{{ notification.title }}</h3>
+                  @if (!notification.is_read) {
+                    <span class="new-badge">جديد</span>
                   }
-
                 </div>
 
-
-                <p>
-                  {{ notification.message }}
-                </p>
-
+                <p>{{ notification.message }}</p>
 
                 <div class="notification-date">
+                  🕒 {{ notification.created_at | date:'dd/MM/yyyy HH:mm' }}
+                </div>
 
-                  🕒 {{ notification.date }}
-
+                <div class="notification-actions-main">
+                  <button
+                    type="button"
+                    class="btn-payment-done"
+                    (click)="dismissPayment(notification)">
+                    ✓ خلصت
+                  </button>
                 </div>
 
               </div>
 
-
-
-              <!-- ACTIONS -->
-
-              <div class="notification-actions">
-
-                @if (notification.unread) {
-
-                  <button
-                    class="action-btn"
-                    title="تعليم كمقروء"
-                    (click)="markAsRead(notification)">
-
-                    ✓
-
-                  </button>
-
-                }
-
-
-                <button
-                  class="action-btn delete"
-                  title="حذف"
-                  (click)="deleteNotification(notification)">
-
-                  ×
-
-                </button>
-
-              </div>
-
-            </div>
+            </article>
 
           }
 
         </div>
 
-      }
-
-
-      <!-- EMPTY -->
-
-      @else {
+      } @else {
 
         <div class="empty-state">
-
-          <div class="empty-icon">
-            🔔
-          </div>
-
-          <h3>
-            لا توجد إشعارات
-          </h3>
-
-          <p>
-            ليس لديك أي إشعارات جديدة حالياً
-          </p>
-
+          <div class="empty-icon">💳</div>
+          <h3>لا توجد تذكيرات خلاص</h3>
         </div>
 
       }
