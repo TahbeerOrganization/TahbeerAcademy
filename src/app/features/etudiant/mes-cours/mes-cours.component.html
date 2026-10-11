@@ -128,28 +128,6 @@
             <div class="course-card">
 
 
-              <!-- IMAGE -->
-
-              <div class="course-image">
-
-                <img
-                  [src]="course.image"
-                  [alt]="course.titre"
-                  (error)="onImageError($event)"
-                />
-
-
-                <div class="image-overlay">
-
-                  <span class="course-type">
-                    📖 درس
-                  </span>
-
-                </div>
-
-              </div>
-
-
 
               <!-- BODY -->
 
@@ -163,41 +141,10 @@
                 </div>
 
 
-                <div class="course-description">
-
-                  {{ course.description }}
-
-                </div>
+               
 
 
-                <!-- INFO -->
-
-                <div class="course-info">
-
-                  <div class="info-item">
-
-                    👨‍🏫
-
-                    <span>
-                      {{ course.professeur }}
-                    </span>
-
-                  </div>
-
-
-                  <div class="info-item">
-
-                    📅
-
-                    <span>
-                      {{ course.date }}
-                    </span>
-
-                  </div>
-
-                </div>
-
-
+             
 
                 <!-- ACTIONS -->
 

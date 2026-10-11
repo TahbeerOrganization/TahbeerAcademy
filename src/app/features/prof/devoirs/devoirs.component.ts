@@ -1,4 +1,3 @@
-
 import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
@@ -24,7 +23,7 @@ export interface PdfUpload {
 
 export interface PdfCard {
   fichier_url: string;
-  nom : string;
+  nom: string;
   groupes: string[];
 }
 
@@ -69,16 +68,23 @@ export class DevoirsComponent implements OnInit {
   groupes = signal<Groupe[]>([]);
   loading = signal(false);
 
-  // Google Meet
+  // Google Meet URL
   meetUrl = signal('');
-
   savingMeetUrl = signal(false);
 
+  // Lock editing after loading/saving a URL
+  editingMeetUrl = signal(false);
+
+  toggleEditMeetUrl(): void {
+    this.editingMeetUrl.update(value => !value);
+    this.clearMessages();
+  }
+
+  // Meeting schedules
   meetSlots = signal<MeetSlot[]>([
     { groupeId: '', date: '', time: '' }
   ]);
 
-  // Google Meet sessions already saved
   meetSessions = signal<MeetCard[]>([]);
   loadingMeetSessions = signal(false);
 
@@ -89,7 +95,7 @@ export class DevoirsComponent implements OnInit {
   // PDFs already saved in Supabase
   coursesPdf = signal<PdfCard[]>([]);
 
-  // Form state
+  // General form state
   saving = signal(false);
   errorMsg = signal('');
   successMsg = signal('');
@@ -151,7 +157,12 @@ export class DevoirsComponent implements OnInit {
         return;
       }
 
-      this.meetUrl.set(data?.meet_url ?? '');
+      const url = data?.meet_url ?? '';
+
+      this.meetUrl.set(url);
+
+      // If a URL already exists, show it in locked mode.
+      this.editingMeetUrl.set(!url.trim());
     } catch (error) {
       console.error('LOAD MEET URL ERROR:', error);
       this.errorMsg.set('وقع خطأ أثناء تحميل رابط Meet');
@@ -208,6 +219,9 @@ export class DevoirsComponent implements OnInit {
 
       this.meetUrl.set(url);
       this.successMsg.set('تم حفظ رابط Meet بنجاح');
+
+      // Lock the input after a successful save.
+      this.editingMeetUrl.set(false);
     } catch (error) {
       console.error('SAVE MEET URL ERROR:', error);
       this.errorMsg.set('وقع خطأ أثناء حفظ الرابط');
@@ -257,9 +271,7 @@ export class DevoirsComponent implements OnInit {
     const link = this.meetUrl().trim();
 
     if (!link) {
-      this.errorMsg.set(
-        'خاصك تحفظ رابط Meet أولا'
-      );
+      this.errorMsg.set('خاصك تحفظ رابط Meet أولا');
       return;
     }
 
@@ -315,13 +327,13 @@ export class DevoirsComponent implements OnInit {
         return;
       }
 
-      this.successMsg.set(
-        'تم حفظ مواعيد الحصص بنجاح'
-      );
+      this.successMsg.set('تم حفظ مواعيد الحصص بنجاح');
 
       this.meetSlots.set([
         { groupeId: '', date: '', time: '' }
       ]);
+
+      await this.loadMeetSessions();
     } catch (error) {
       console.error('MEET SCHEDULE ERROR:', error);
       this.errorMsg.set('وقع خطأ أثناء حفظ المواعيد');
@@ -329,7 +341,6 @@ export class DevoirsComponent implements OnInit {
       this.saving.set(false);
     }
   }
-
 
   async loadMeetSessions(): Promise<void> {
     this.loadingMeetSessions.set(true);
@@ -450,17 +461,11 @@ export class DevoirsComponent implements OnInit {
           upsert: false
         });
 
-      
-        if (error) {
-          console.error('UPLOAD ERROR:', error);
-          console.error('UPLOAD ERROR MESSAGE:', error.message);
-          console.error('UPLOAD ERROR DETAILS:', error);
-
-          this.errorMsg.set(
-            'فشل رفع الملف: ' + error.message
-          );
-          return;
-        }
+      if (error) {
+        console.error('UPLOAD ERROR:', error);
+        this.errorMsg.set('فشل رفع الملف: ' + error.message);
+        return;
+      }
 
       const { data } = this.sb.client.storage
         .from('devoirs-fichiers')
@@ -488,135 +493,151 @@ export class DevoirsComponent implements OnInit {
   }
 
   // ==================================================
-  // SAVE PDF ASSIGNMENTS SEPARATELY
+  // SAVE PDF ASSIGNMENTS
   // ==================================================
 
-  async validerPdf(): Promise<void> {
-    if (this.saving() || this.uploadingFichier()) {
-      return;
-    }
-
-    this.clearMessages();
-
-    const uploads = this.pdfUploads();
-
-    if (uploads.length === 0) {
-      this.errorMsg.set('زيد ملف PDF واحد على الأقل أولا');
-      return;
-    }
-
-    if (uploads.some(pdf => pdf.groupeIds.length === 0)) {
-      this.errorMsg.set(
-        'خاص كل ملف يكون عندو مجموعة واحدة على الأقل'
-      );
-      return;
-    }
-
-    this.saving.set(true);
-
-    try {
-      const rows = uploads.flatMap(pdf =>
-        pdf.groupeIds.map(groupeId => ({
-          groupe_id: groupeId,
-          fichier_url: pdf.fichier_url,
-          fichier_nom : pdf.nom,
-          date_heure: null,
-          meet_link: null
-        }))
-      );
-
-      const { error } = await this.sb.client
-        .from('cours')
-        .insert(rows);
-
-      if (error) {
-        console.error('PDF SAVE ERROR:', error);
-        this.errorMsg.set(
-          'فشل حفظ الملفات. تأكد أن date_heure وmeet_link كيقبلو NULL عند حفظ PDF.'
-        );
-        return;
-      }
-
-      this.successMsg.set('تم حفظ ملفات الكورس بنجاح');
-      this.pdfUploads.set([]);
-
-      await this.loadFichiers();
-    } catch (error) {
-      console.error('PDF SAVE ERROR:', error);
-      this.errorMsg.set('وقع خطأ أثناء حفظ ملفات PDF');
-    } finally {
-      this.saving.set(false);
-    }
+  
+async validerPdf(): Promise<void> {
+  if (this.saving() || this.uploadingFichier()) {
+    return;
   }
+
+  this.clearMessages();
+
+  const uploads = this.pdfUploads();
+
+  // التحقق من وجود الملفات
+  if (uploads.length === 0) {
+    this.errorMsg.set('المرجو إضافة ملف PDF واحد على الأقل');
+    return;
+  }
+
+  // التحقق من اختيار مجموعة لكل ملف
+  if (uploads.some(pdf => pdf.groupeIds.length === 0)) {
+    this.errorMsg.set(
+      'المرجو اختيار مجموعة واحدة على الأقل لكل ملف'
+    );
+    return;
+  }
+
+  this.saving.set(true);
+
+  try {
+    // تجهيز البيانات للحفظ في جدول cours
+    const rows = uploads.flatMap(pdf =>
+      pdf.groupeIds.map(groupeId => ({
+        groupe_id: groupeId,
+        fichier_url: pdf.fichier_url,
+        fichier_nom: pdf.nom,
+        date_heure: null,
+        meet_link: null
+      }))
+    );
+
+    // حفظ الملفات في قاعدة البيانات
+    const { error } = await this.sb.client
+      .from('cours')
+      .insert(rows);
+
+    if (error) {
+      console.error('PDF SAVE ERROR:', error);
+      console.error('PDF SAVE ERROR MESSAGE:', error.message);
+      console.error('PDF SAVE ERROR CODE:', error.code);
+      console.error('PDF SAVE ERROR DETAILS:', error.details);
+      console.error('PDF SAVE ERROR HINT:', error.hint);
+
+      this.errorMsg.set(
+        `فشل حفظ الملفات: ${error.message}`
+      );
+
+      return;
+    }
+
+    // نجاح الحفظ
+    this.successMsg.set('تم حفظ ملفات PDF بنجاح');
+
+    // تفريغ الملفات التي تم حفظها
+    this.pdfUploads.set([]);
+
+    // تحديث لائحة الملفات المحفوظة
+    await this.loadFichiers();
+
+  } catch (error) {
+    console.error('PDF SAVE ERROR:', error);
+
+    this.errorMsg.set(
+      'وقع خطأ غير متوقع أثناء حفظ ملفات PDF'
+    );
+
+  } finally {
+    this.saving.set(false);
+  }
+}
 
   // ==================================================
   // LOAD SAVED PDFS
   // ==================================================
 
-  
+  async loadFichiers(): Promise<void> {
+    try {
+      const { data, error } = await this.sb.client
+        .from('cours')
+        .select('fichier_url, fichier_nom, groupe_id, groupes(nom)')
+        .not('fichier_url', 'is', null);
 
-  
-async loadFichiers(): Promise<void> {
-  try {
-    const { data, error } = await this.sb.client
-      .from('cours')
-      .select('fichier_url, fichier_nom, groupe_id, groupes(nom)')
-      .not('fichier_url', 'is', null);
+      if (error) {
+        console.error('FICHIERS ERROR:', error);
+        this.errorMsg.set('تعذر تحميل ملفات PDF');
+        return;
+      }
 
-    if (error) {
+      const map = new Map<
+        string,
+        { nom: string; groupes: Set<string> }
+      >();
+
+      for (const row of data ?? []) {
+        const url = row.fichier_url as string | null;
+
+        if (!url) {
+          continue;
+        }
+
+        const nomOriginal = row.fichier_nom as string | null;
+        const nomUrl =
+          url.split('/').pop()?.split('?')[0] ?? 'fichier.pdf';
+
+        if (!map.has(url)) {
+          map.set(url, {
+            nom: nomOriginal?.trim() || nomUrl,
+            groupes: new Set<string>()
+          });
+        }
+
+        const relation = row.groupes as
+          | { nom?: string }
+          | { nom?: string }[]
+          | null;
+
+        const groupe = Array.isArray(relation)
+          ? relation[0]
+          : relation;
+
+        if (groupe?.nom) {
+          map.get(url)!.groupes.add(groupe.nom);
+        }
+      }
+
+      this.coursesPdf.set(
+        Array.from(map.entries()).map(([fichier_url, info]) => ({
+          fichier_url,
+          nom: info.nom,
+          groupes: Array.from(info.groupes)
+        }))
+      );
+    } catch (error) {
       console.error('FICHIERS ERROR:', error);
-      this.errorMsg.set('تعذر تحميل ملفات PDF');
-      return;
+      this.errorMsg.set('وقع خطأ أثناء تحميل ملفات PDF');
     }
-
-    const map = new Map<
-      string,
-      { nom: string; groupes: Set<string> }
-    >();
-
-    for (const row of data ?? []) {
-      const url = row.fichier_url as string | null;
-
-      if (!url) continue;
-
-      // الاسم الأصلي المخزن في قاعدة البيانات
-      const nomOriginal = row.fichier_nom as string | null;
-
-      // الاسم الاحتياطي من URL إلا كان العمود NULL
-      const nomUrl =
-        url.split('/').pop()?.split('?')[0] ?? 'fichier.pdf';
-
-      if (!map.has(url)) {
-        map.set(url, {
-          nom: nomOriginal?.trim() || nomUrl,
-          groupes: new Set<string>()
-        });
-      }
-
-      const relation = row.groupes as
-        | { nom?: string }
-        | { nom?: string }[]
-        | null;
-
-      const groupe = Array.isArray(relation)
-        ? relation[0]
-        : relation;
-
-      if (groupe?.nom) {
-        map.get(url)!.groupes.add(groupe.nom);
-      }
-    }
-
-    this.coursesPdf.set(
-      Array.from(map.entries()).map(([fichier_url, info]) => ({
-        fichier_url,
-        nom: info.nom,
-        groupes: Array.from(info.groupes)
-      }))
-    );
-  } catch (error) {
-    console.error('FICHIERS ERROR:', error);
-    this.errorMsg.set('وقع خطأ أثناء تحميل ملفات PDF');
   }
-}
 }
