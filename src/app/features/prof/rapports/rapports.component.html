@@ -127,65 +127,75 @@
         <section class="charts-grid">
 
           <!-- HIFD DONUT -->
+                    
+                    
           <div class="card">
             <div class="card-header">
               <div>
                 <h2>📖 تقدم الحفظ</h2>
-                <p>الآيات المكتملة والجارية والمتبقية</p>
+                <p>إحصائيات السورة الجاري حفظها فقط</p>
               </div>
             </div>
 
-            @if (studentSuivis().length === 0) {
-              <div class="empty">
-                لا توجد بيانات حفظ لهذا الطالب
-              </div>
+            @if (getSourateEnCours(); as current) {
+              @if (getCurrentSourateStats(); as stats) {
+
+                <!-- NOM DE LA SOURATE -->
+                <div class="current-sourate">
+                  <div class="current-sourate-header">
+                    <div>
+                      <h3>
+                        السورة الحالية:
+                        {{ current.nom_arabe || current.nom }}
+                      </h3>
+                      <p>
+                        مجموع آيات السورة:
+                        {{ stats.total }}
+                        آية
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- DONUT -->
+                <div class="hifd-donut-wrap">
+                  <div
+                    class="hifd-donut"
+                    [style.background]="getCurrentSourateDonutGradient()">
+
+                    <div class="hifd-donut-center">
+                      <strong>{{ stats.percentEnCours }}%</strong>
+                      <span>نسبة التقدم</span>
+                    </div>
+                  </div>
+
+                  <!-- STATISTIQUES DE LA SOURATE -->
+                  <div class="hifd-donut-legend">
+
+                    <div class="legend-item">
+                      <i class="dot dot-blue"></i>
+                      <span>آيات تم الوصول إليها</span>
+                      <strong>{{ stats.enCours }}</strong>
+                    </div>
+
+                    <div class="legend-item">
+                      <i class="dot dot-gray"></i>
+                      <span>آيات متبقية</span>
+                      <strong>{{ stats.remaining }}</strong>
+                    </div>
+
+                    <div class="legend-item">
+                      <i class="dot dot-green"></i>
+                      <span>مجموع آيات السورة</span>
+                      <strong>{{ stats.total }}</strong>
+                    </div>
+
+                  </div>
+                </div>
+              }
             } @else {
-              <div class="hifd-donut-wrap">
-                <div
-                  class="hifd-donut"
-                  [style.background]="getHifdDonutGradient()">
-
-                  <div class="hifd-donut-center">
-                    <strong>
-                      {{ getHifdAyatStats().percentAchieved }}%
-                    </strong>
-                    <span>مكتمل</span>
-                  </div>
-                </div>
-
-                <div class="hifd-donut-legend">
-                  <div class="legend-item">
-                    <i class="dot dot-green"></i>
-                    <span>آيات محفوظة</span>
-                    <strong>
-                      {{ getHifdAyatStats().achieved }}
-                    </strong>
-                  </div>
-
-                  <div class="legend-item">
-                    <i class="dot dot-blue"></i>
-                    <span>آيات جارية</span>
-                    <strong>
-                      {{ getHifdAyatStats().enCours }}
-                    </strong>
-                  </div>
-
-                  <div class="legend-item">
-                    <i class="dot dot-gray"></i>
-                    <span>آيات متبقية</span>
-                    <strong>
-                      {{ getHifdAyatStats().remaining }}
-                    </strong>
-                  </div>
-                </div>
-              </div>
-
-              <div class="hifd-total">
-                مجموع السور المتابعة:
-                <strong>{{ getStudentHifdTotal() }}</strong>
-                <span>·</span>
-                مكتملة:
-                <strong>{{ getStudentHifdCompletees() }}</strong>
+              <div class="empty">
+                لا توجد سورة قيد الحفظ حالياً
               </div>
             }
           </div>

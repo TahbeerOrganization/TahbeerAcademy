@@ -1,28 +1,22 @@
-/* =========================================================
-   GLOBAL
-========================================================= */
 
+/* GLOBAL */
 * {
   box-sizing: border-box;
 }
-
 :host {
   display: block;
   height: 100vh;
   color: #26343e;
   font-family: "Segoe UI", Tahoma, Arial, sans-serif;
 }
-
 button,
 select,
 input {
   font: inherit;
 }
-
 button {
   -webkit-tap-highlight-color: transparent;
 }
-
 .layout {
   display: flex;
   flex-direction: row;
@@ -33,7 +27,6 @@ button {
   overflow: hidden;
   background: #f3f6f9;
 }
-
 app-sidebar {
   flex: 0 0 auto;
   order: 1;
@@ -41,7 +34,6 @@ app-sidebar {
   min-height: 0;
   z-index: 10;
 }
-
 .main {
   order: 2;
   flex: 1;
@@ -52,25 +44,18 @@ app-sidebar {
   scrollbar-width: thin;
   scrollbar-color: #cbd5df transparent;
 }
-
 .main::-webkit-scrollbar {
   width: 7px;
 }
-
 .main::-webkit-scrollbar-thumb {
   background: #cbd5df;
   border-radius: 10px;
 }
-
 .content {
   padding: 0 24px 24px;
   min-width: 0;
 }
-
-/* =========================================================
-   TOPBAR
-========================================================= */
-
+/* TOPBAR */
 .topbar {
   display: flex;
   align-items: center;
@@ -82,28 +67,24 @@ app-sidebar {
   background: #fff;
   border-bottom: 0.5px solid #e0ded8;
 }
-
 .topbar-title {
   color: #1a1a1a;
   font-size: 16px;
   font-weight: 600;
   line-height: 1.4;
 }
-
 .topbar-sub {
   margin-top: 2px;
   color: #888;
   font-size: 12px;
   line-height: 1.4;
 }
-
 .topbar-actions {
   display: flex;
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
 }
-
 .btn-refresh {
   display: inline-flex;
   align-items: center;
@@ -117,27 +98,18 @@ app-sidebar {
   cursor: pointer;
   font-size: 13px;
   font-weight: 600;
-  transition:
-    background .2s,
-    border-color .2s,
-    transform .2s;
+  transition: background .2s, border-color .2s, transform .2s;
 }
-
 .btn-refresh:hover:not(:disabled) {
   background: #f0f7fc;
   border-color: #9fc8e5;
   transform: translateY(-1px);
 }
-
 .btn-refresh:disabled {
   opacity: .55;
   cursor: not-allowed;
 }
-
-/* =========================================================
-   CARDS
-========================================================= */
-
+/* CARDS */
 .card {
   min-width: 0;
   padding: 20px;
@@ -147,7 +119,6 @@ app-sidebar {
   background: #fff;
   box-shadow: 0 3px 12px rgb(32 51 68 / 3%);
 }
-
 .card-header {
   display: flex;
   align-items: center;
@@ -155,25 +126,54 @@ app-sidebar {
   gap: 14px;
   margin-bottom: 20px;
 }
-
+.card-header h2 {
+  margin: 0;
+  color: #202e38;
+  font-size: 15px;
+  font-weight: 750;
+  line-height: 1.8;
+}
+.card-header p {
+  margin: 4px 0 0;
+  color: #929da6;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.current-sourate {
+  min-width: 0;
+}
+.current-sourate-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.current-sourate h3 {
+  margin: 0;
+  color: #26343e;
+  font-size: 14px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.current-sourate p {
+  margin: 4px 0 0;
+  color: #929da6;
+  font-size: 12px;
+  line-height: 1.8;
+}
 .card-title {
   color: #202e38;
   font-size: 15px;
   font-weight: 750;
   line-height: 1.8;
 }
-
 .card-description {
   margin-top: 4px;
   color: #929da6;
   font-size: 12px;
   line-height: 1.7;
 }
-
-/* =========================================================
-   STUDENT PROFILE
-========================================================= */
-
+/* STUDENT PROFILE */
 .student-profile {
   display: flex;
   align-items: center;
@@ -181,7 +181,6 @@ app-sidebar {
   gap: 18px;
   padding: 22px;
 }
-
 .student-avatar {
   display: flex;
   align-items: center;
@@ -196,7 +195,6 @@ app-sidebar {
   font-size: 23px;
   font-weight: 800;
 }
-
 .student-main-info {
   display: flex;
   flex: 1 1 150px;
@@ -204,7 +202,6 @@ app-sidebar {
   gap: 5px;
   min-width: 0;
 }
-
 .student-main-info h2 {
   margin: 0 0 2px;
   color: #1d2933;
@@ -212,24 +209,21 @@ app-sidebar {
   font-weight: 750;
   overflow-wrap: anywhere;
 }
-
 .student-main-info > span {
   color: #929da6;
   font-size: 11px;
   line-height: 1.7;
 }
-
 .student-main-info .student-level {
   color: #1b6fa8 !important;
   font-weight: 600;
 }
 .student-kpis {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 0;
   margin-inline-start: auto;
 }
-
 .student-kpis > div {
   display: flex;
   flex-direction: column;
@@ -240,11 +234,9 @@ app-sidebar {
   border-right: 1px solid #edf0f2;
   text-align: center;
 }
-
 .student-kpis > div:first-child {
   border-right: none;
 }
-
 .student-kpis strong {
   display: block;
   color: #1b6fa8;
@@ -252,23 +244,17 @@ app-sidebar {
   font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
-
 .student-kpis span {
   display: block;
   color: #929da6;
   font-size: 11px;
 }
-
-/* =========================================================
-   STUDENT GROUPS
-========================================================= */
-
+/* STUDENT GROUPS */
 .student-groups {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
 }
-
 .group-chip {
   display: flex;
   align-items: center;
@@ -279,38 +265,28 @@ app-sidebar {
   border: 1px solid #e7edf2;
   border-radius: 11px;
   background: #fbfcfd;
-  transition:
-    border-color .2s,
-    background .2s;
+  transition: border-color .2s, background .2s;
 }
-
 .group-chip:hover {
   border-color: #cfe2ef;
   background: #f7fbfe;
 }
-
 .group-chip > div {
   display: flex;
   flex-direction: column;
   gap: 4px;
   min-width: 0;
 }
-
 .group-chip strong {
   color: #34404a;
   font-size: 12px;
   overflow-wrap: anywhere;
 }
-
 .group-chip span:not(.dot) {
   color: #929da6;
   font-size: 11px;
 }
-
-/* =========================================================
-   DOTS
-========================================================= */
-
+/* DOTS */
 .dot {
   display: inline-block;
   width: 9px;
@@ -319,30 +295,22 @@ app-sidebar {
   border-radius: 50%;
   background: #1b6fa8;
 }
-
 .dot-green {
   background: #1d9e75;
 }
-
 .dot-blue {
   background: #1b6fa8;
 }
-
 .dot-gray {
   background: #d1d5db;
 }
-
-/* =========================================================
-   DASHBOARD KPI GRID
-========================================================= */
-
+/* DASHBOARD KPI GRID */
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px;
   margin-bottom: 18px;
 }
-
 .kpi-card {
   position: relative;
   display: flex;
@@ -356,16 +324,12 @@ app-sidebar {
   border-radius: 15px;
   background: #fff;
   box-shadow: 0 3px 12px rgb(32 51 68 / 3%);
-  transition:
-    transform .2s,
-    box-shadow .2s;
+  transition: transform .2s, box-shadow .2s;
 }
-
 .kpi-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 18px rgb(32 51 68 / 7%);
 }
-
 .kpi-icon {
   display: flex;
   align-items: center;
@@ -376,7 +340,6 @@ app-sidebar {
   background: #eef6fc;
   font-size: 21px;
 }
-
 .kpi-val {
   display: flex;
   align-items: baseline;
@@ -387,19 +350,16 @@ app-sidebar {
   line-height: 1.3;
   font-variant-numeric: tabular-nums;
 }
-
 .kpi-sub {
   color: #929da6;
   font-size: 14px;
   font-weight: 500;
 }
-
 .kpi-label {
   color: #788590;
   font-size: 12px;
   line-height: 1.7;
 }
-
 .kpi-pct {
   position: absolute;
   top: 20px;
@@ -411,43 +371,31 @@ app-sidebar {
   font-size: 11px;
   font-weight: 750;
 }
-
 .kpi-green {
   border-top: 3px solid #1d9e75;
 }
-
 .kpi-green .kpi-icon {
   background: #e1f5ee;
 }
-
 .kpi-red {
   border-top: 3px solid #d85a5a;
 }
-
 .kpi-red .kpi-icon {
   background: #fde8e8;
 }
-
 .kpi-blue {
   border-top: 3px solid #1b6fa8;
 }
-
 .kpi-blue .kpi-icon {
   background: #eaf3fa;
 }
-
 .kpi-amber {
   border-top: 3px solid #d99a35;
 }
-
 .kpi-amber .kpi-icon {
   background: #faeeda;
 }
-
-/* =========================================================
-   CHARTS GRID
-========================================================= */
-
+/* CHARTS GRID */
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -455,17 +403,12 @@ app-sidebar {
   gap: 18px;
   margin-bottom: 18px;
 }
-
 .charts-grid > .card {
   min-width: 0;
   height: auto;
   margin-bottom: 0;
 }
-
-/* =========================================================
-   HIFD DONUT
-========================================================= */
-
+/* HIFD DONUT */
 .hifd-donut-wrap {
   display: flex;
   align-items: center;
@@ -474,7 +417,6 @@ app-sidebar {
   gap: 24px;
   padding: 12px 0;
 }
-
 .hifd-donut {
   display: flex;
   align-items: center;
@@ -483,15 +425,10 @@ app-sidebar {
   height: 150px;
   flex: 0 0 150px;
   border-radius: 50%;
-  background: conic-gradient(
-    #1d9e75 0% 0%,
-    #1b6fa8 0% 0%,
-    #e5e7eb 0% 100%
-  );
+  background: conic-gradient(#1d9e75 0% 0%, #1b6fa8 0% 0%, #e5e7eb 0% 100%);
   box-shadow: 0 3px 12px rgb(32 51 68 / 6%);
   transition: background .3s ease;
 }
-
 .hifd-donut-center {
   display: flex;
   flex-direction: column;
@@ -504,19 +441,16 @@ app-sidebar {
   border-radius: 50%;
   background: #fff;
 }
-
 .hifd-donut-center strong {
   color: #1d9e75;
   font-size: 25px;
   font-weight: 800;
   line-height: 1.2;
 }
-
 .hifd-donut-center span {
   color: #89939b;
   font-size: 11px;
 }
-
 .hifd-donut-legend {
   display: flex;
   flex: 1 1 145px;
@@ -524,7 +458,6 @@ app-sidebar {
   gap: 13px;
   min-width: 0;
 }
-
 .legend-item {
   display: grid;
   grid-template-columns: 10px minmax(0, 1fr) auto;
@@ -533,14 +466,12 @@ app-sidebar {
   color: #596671;
   font-size: 12px;
 }
-
 .legend-item strong {
   color: #25343e;
   font-size: 13px;
   font-weight: 750;
   font-variant-numeric: tabular-nums;
 }
-
 .hifd-total {
   display: flex;
   align-items: center;
@@ -553,16 +484,11 @@ app-sidebar {
   font-size: 12px;
   line-height: 1.9;
 }
-
 .hifd-total strong {
   color: #1b6fa8;
   font-weight: 800;
 }
-
-/* =========================================================
-   PRESENCE TABLE
-========================================================= */
-
+/* PRESENCE TABLE */
 .presence-table-wrap {
   margin-top: 16px;
   padding-top: 14px;
@@ -572,14 +498,12 @@ app-sidebar {
   scrollbar-width: thin;
   scrollbar-color: #cbd5df transparent;
 }
-
 .mini-table-title {
   margin: 0 0 12px;
   color: #34434e;
   font-size: 13px;
   font-weight: 750;
 }
-
 .table-wrapper {
   width: 100%;
   overflow-x: auto;
@@ -588,16 +512,13 @@ app-sidebar {
   scrollbar-width: thin;
   -webkit-overflow-scrolling: touch;
 }
-
 .table-wrapper::-webkit-scrollbar {
   height: 6px;
 }
-
 .table-wrapper::-webkit-scrollbar-thumb {
   border-radius: 10px;
   background: #cbd5df;
 }
-
 .mini-table,
 .details-table {
   width: 100%;
@@ -605,7 +526,6 @@ app-sidebar {
   border-spacing: 0;
   text-align: right;
 }
-
 .mini-table th,
 .details-table th {
   padding: 12px 13px;
@@ -616,7 +536,6 @@ app-sidebar {
   font-weight: 700;
   white-space: nowrap;
 }
-
 .mini-table td,
 .details-table td {
   padding: 12px 13px;
@@ -627,26 +546,19 @@ app-sidebar {
   vertical-align: middle;
   white-space: nowrap;
 }
-
 .mini-table tbody tr:hover,
 .details-table tbody tr:hover {
   background: #f8fbfd;
 }
-
 .mini-table tbody tr:last-child td,
 .details-table tbody tr:last-child td {
   border-bottom: none;
 }
-
 .details-table td strong {
   color: #243541;
   font-weight: 700;
 }
-
-/* =========================================================
-   BADGES
-========================================================= */
-
+/* BADGES */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -657,36 +569,27 @@ app-sidebar {
   font-weight: 700;
   white-space: nowrap;
 }
-
 .badge-green {
   background: #e1f5ee;
   color: #16835c;
 }
-
 .badge-blue {
   background: #eaf3fa;
   color: #1b6fa8;
 }
-
 .badge-red {
   background: #fde8e4;
   color: #d85a30;
 }
-
 .badge-amber {
   background: #faeeda;
   color: #854f0b;
 }
-
 .badge-gray {
   background: #f0f2f4;
   color: #77838d;
 }
-
-/* =========================================================
-   SURAH MAP
-========================================================= */
-
+/* SURAH MAP */
 .sourate-map-legend {
   display: flex;
   flex-wrap: wrap;
@@ -694,7 +597,6 @@ app-sidebar {
   gap: 12px 20px;
   margin-bottom: 16px;
 }
-
 .sourate-map-legend > span {
   display: inline-flex;
   align-items: center;
@@ -702,7 +604,6 @@ app-sidebar {
   color: #687580;
   font-size: 11px;
 }
-
 .legend-square {
   display: inline-block;
   width: 12px;
@@ -711,29 +612,24 @@ app-sidebar {
   border: 1px solid transparent;
   border-radius: 4px;
 }
-
 .completed-square {
   background: #1d9e75;
   border-color: #1d9e75;
 }
-
 .running-square {
   background: #eaf3fa;
   border-color: #1b6fa8;
 }
-
 .not-started-square {
   background: transparent;
   border-color: #d0d5dd;
 }
-
 .sourate-map {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(125px, 1fr));
   gap: 9px;
   padding: 5px 0;
 }
-
 .sourate-chip {
   display: flex;
   align-items: center;
@@ -745,17 +641,11 @@ app-sidebar {
   border-radius: 10px;
   background: transparent;
   color: #8b96a1;
-  transition:
-    background .2s ease,
-    border-color .2s ease,
-    color .2s ease,
-    transform .2s ease;
+  transition: background .2s ease, border-color .2s ease, color .2s ease, transform .2s ease;
 }
-
 .sourate-chip:hover {
   transform: translateY(-1px);
 }
-
 .chip-number {
   display: flex;
   align-items: center;
@@ -769,7 +659,6 @@ app-sidebar {
   font-size: 10px;
   font-weight: 800;
 }
-
 .chip-name {
   min-width: 0;
   overflow: hidden;
@@ -778,39 +667,30 @@ app-sidebar {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 .sourate-chip.chip-completed {
   border-color: #1d9e75;
   background: #1d9e75;
   color: #fff;
 }
-
 .chip-completed .chip-number {
   background: rgb(255 255 255 / 20%);
   color: #fff;
 }
-
 .sourate-chip.chip-encours {
   border-color: #1b6fa8;
   background: #eaf3fa;
   color: #1b6fa8;
 }
-
 .chip-encours .chip-number {
   background: #d7eaf8;
   color: #1b6fa8;
 }
-
 .sourate-chip.chip-not-started {
   border-color: #d0d5dd;
   background: transparent;
   color: #8b96a1;
 }
-
-/* =========================================================
-   HIFD STATUS
-========================================================= */
-
+/* HIFD STATUS */
 .status-badge {
   display: inline-flex;
   align-items: center;
@@ -825,23 +705,17 @@ app-sidebar {
   font-weight: 650;
   white-space: nowrap;
 }
-
 .status-completed {
   border-color: #c9ebdb;
   background: #e7f6ef;
   color: #16835c;
 }
-
 .status-progress {
   border-color: #cfe2f3;
   background: #eaf3fa;
   color: #1b6fa8;
 }
-
-/* =========================================================
-   EMPTY STATES
-========================================================= */
-
+/* EMPTY STATES */
 .empty-state {
   display: flex;
   align-items: center;
@@ -856,7 +730,6 @@ app-sidebar {
   line-height: 1.8;
   text-align: center;
 }
-
 .empty-icon {
   display: flex;
   align-items: center;
@@ -868,11 +741,7 @@ app-sidebar {
   background: #eef6fc;
   font-size: 24px;
 }
-
-/* =========================================================
-   LOADING
-========================================================= */
-
+/* LOADING */
 .loading-wrap {
   display: flex;
   flex-direction: column;
@@ -885,11 +754,9 @@ app-sidebar {
   font-size: 13px;
   text-align: center;
 }
-
 .loading-wrap p {
   margin: 0;
 }
-
 .spinner-big {
   width: 38px;
   height: 38px;
@@ -898,99 +765,69 @@ app-sidebar {
   border-radius: 50%;
   animation: dashboard-spin .8s linear infinite;
 }
-
 @keyframes dashboard-spin {
   to {
     transform: rotate(360deg);
   }
 }
-
-/* =========================================================
-   FOCUS
-========================================================= */
-
+/* FOCUS */
 button:focus-visible,
 select:focus-visible,
 input:focus-visible {
   outline: 3px solid rgb(27 111 168 / 25%);
   outline-offset: 3px;
 }
-
-/* =========================================================
-   SMALL DESKTOP
-========================================================= */
-
+/* SMALL DESKTOP */
 @media (max-width: 1200px) {
   .content {
     padding-right: 20px;
     padding-left: 20px;
   }
-
   .kpi-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-
   .hifd-donut-wrap {
     gap: 16px;
   }
-
   .hifd-donut {
     width: 130px;
     height: 130px;
     flex-basis: 130px;
   }
-
   .hifd-donut-center {
     width: 94px;
     height: 94px;
   }
-
   .student-kpis > div {
     min-width: 65px;
     padding: 0 8px;
   }
 }
-
-/* =========================================================
-   TABLET
-========================================================= */
-
+/* TABLET */
 @media (max-width: 900px) {
   .charts-grid {
     grid-template-columns: minmax(0, 1fr);
   }
-
   .student-profile {
     align-items: flex-start;
   }
-
   .student-kpis {
     width: 100%;
     margin-inline-start: 0;
     padding-top: 14px;
     border-top: 1px solid #edf0f2;
   }
-
-  .student-kpis > div {
-    flex: 1 1 0;
-  }
-
   .sourate-map {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
+/* MOBILE */
 @media (max-width: 600px) {
   :host,
   .layout {
     height: 100vh;
     height: 100dvh;
   }
-
   .topbar {
     align-items: center;
     gap: 10px;
@@ -998,11 +835,9 @@ input:focus-visible {
     padding: 0 14px;
     margin-bottom: 17px;
   }
-
   .topbar-title {
     font-size: 15px;
   }
-
   .topbar-sub {
     max-width: 230px;
     overflow: hidden;
@@ -1010,189 +845,151 @@ input:focus-visible {
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-
   .btn-refresh {
     gap: 5px;
     padding: 9px 10px;
     font-size: 11px;
   }
-
   .content {
     padding: 0 14px 14px;
   }
-
   .card {
     padding: 15px;
     margin-bottom: 14px;
     border-radius: 12px;
   }
-
   .card-header {
     align-items: flex-start;
     margin-bottom: 16px;
   }
-
   .card-title {
     font-size: 14px;
   }
-
   .card-description {
     font-size: 11px;
   }
-
   .student-profile {
     gap: 13px;
     padding: 17px;
   }
-
   .student-avatar {
     width: 48px;
     height: 48px;
     flex-basis: 48px;
     font-size: 19px;
   }
-
   .student-main-info {
     flex-basis: calc(100% - 65px);
   }
-
   .student-main-info h2 {
     font-size: 15px;
   }
-
   .student-main-info > span {
     font-size: 10px;
   }
-
   .student-kpis {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px 5px;
     padding-top: 16px;
   }
-
   .student-kpis > div {
     min-width: 0;
     padding: 0 4px;
     border-right: 1px solid #edf0f2;
   }
-
   .student-kpis > div:first-child {
     border-right: none;
   }
-
   .student-kpis strong {
     font-size: 18px;
   }
-
   .student-kpis span {
     font-size: 10px;
   }
-
   .student-groups {
     gap: 8px;
   }
-
   .group-chip {
     flex: 1 1 130px;
     min-width: 0;
     padding: 10px;
   }
-
   .group-chip strong {
     font-size: 12px;
   }
-
   .group-chip span:not(.dot) {
     font-size: 10px;
   }
-
   .kpi-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
     margin-bottom: 14px;
   }
-
   .kpi-card {
     gap: 8px;
     padding: 14px;
     border-radius: 12px;
   }
-
   .kpi-icon {
     width: 35px;
     height: 35px;
     border-radius: 10px;
     font-size: 18px;
   }
-
   .kpi-val {
     font-size: 23px;
   }
-
   .kpi-sub {
     font-size: 12px;
   }
-
   .kpi-label {
     font-size: 11px;
   }
-
   .kpi-pct {
     top: 13px;
     left: 12px;
     padding: 4px 7px;
     font-size: 10px;
   }
-
   .charts-grid {
     grid-template-columns: minmax(0, 1fr);
     gap: 14px;
     margin-bottom: 14px;
   }
-
   .hifd-donut-wrap {
     justify-content: center;
     gap: 20px;
   }
-
   .hifd-donut {
     width: 130px;
     height: 130px;
     flex-basis: 130px;
   }
-
   .hifd-donut-center {
     width: 94px;
     height: 94px;
   }
-
   .hifd-donut-center strong {
     font-size: 22px;
   }
-
   .hifd-donut-legend {
     flex-basis: 135px;
   }
-
   .legend-item {
     font-size: 11px;
   }
-
   .hifd-total {
     gap: 5px;
     font-size: 11px;
   }
-
   .presence-table-wrap {
     max-height: 250px;
   }
-
   .mini-table,
   .details-table {
     font-size: 11px;
   }
-
   .mini-table th,
   .mini-table td,
   .details-table th,
@@ -1200,107 +997,160 @@ input:focus-visible {
     padding: 9px 8px;
     font-size: 11px;
   }
-
   .sourate-map {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 7px;
   }
-
   .sourate-chip {
     gap: 7px;
     padding: 7px;
   }
-
   .chip-name {
     font-size: 11px;
   }
-
   .sourate-map-legend {
     gap: 9px 13px;
   }
-
   .sourate-map-legend > span {
     font-size: 10px;
   }
-
   .empty-state {
     padding: 22px 12px;
     font-size: 12px;
   }
-
   .loading-wrap {
     min-height: 45vh;
   }
 }
-
-/* =========================================================
-   VERY SMALL MOBILE
-========================================================= */
-
+/* VERY SMALL MOBILE */
 @media (max-width: 380px) {
   .content {
     padding-right: 10px;
     padding-left: 10px;
   }
-
   .topbar {
     padding-right: 10px;
     padding-left: 10px;
   }
-
   .topbar-title {
     font-size: 14px;
   }
-
   .topbar-sub {
     max-width: 185px;
   }
-
   .btn-refresh {
     padding: 8px;
     font-size: 10px;
   }
-
   .card {
     padding: 12px;
   }
-
   .student-profile {
     padding: 13px;
   }
-
   .student-kpis strong {
     font-size: 16px;
   }
-
   .kpi-card {
     padding: 11px;
   }
-
   .kpi-val {
     font-size: 21px;
   }
-
   .kpi-pct {
     top: 10px;
     left: 9px;
     font-size: 9px;
   }
-
   .hifd-total {
     gap: 4px;
     font-size: 10px;
   }
-
   .sourate-map {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
-
-/* =========================================================
-   REDUCED MOTION
-========================================================= */
-
+/* MEETINGS */
+.meet-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+  margin-top: 20px;
+}
+.meet-card {
+  padding: 22px;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+}
+.meet-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.meet-icon {
+  font-size: 30px;
+}
+.meet-group {
+  background: #eff6ff;
+  color: #1d4ed8;
+  padding: 7px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+}
+.meet-card h3 {
+  margin: 18px 0 12px;
+  color: #0f172a;
+}
+.meet-info p {
+  color: #64748b;
+  font-size: 14px;
+  margin: 8px 0;
+}
+.meet-status {
+  margin: 18px 0 14px;
+  padding: 10px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 13px;
+  text-align: center;
+}
+.meet-status-live {
+  background: #dcfce7;
+  color: #166534;
+}
+.meet-status-ended {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.meet-join-button {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: #16a34a;
+  color: white;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+.meet-join-button:hover:not(:disabled) {
+  background: #15803d;
+}
+.meet-join-disabled,
+.meet-join-disabled:disabled {
+  background: #e2e8f0;
+  color: #64748b;
+  cursor: not-allowed;
+  opacity: 1;
+}
+/* REDUCED MOTION */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -1311,8 +1161,6 @@ input:focus-visible {
     transition-duration: .01ms !important;
   }
 }
-
-
 /* توحيد ارتفاع كروت الحفظ والحضور */
 .charts-grid {
   display: grid;
@@ -1321,7 +1169,6 @@ input:focus-visible {
   gap: 18px;
   margin-bottom: 18px;
 }
-
 .charts-grid > .card {
   display: flex;
   flex-direction: column;
@@ -1329,7 +1176,6 @@ input:focus-visible {
   height: 100%;
   margin-bottom: 0;
 }
-
 /* توزيع محتوى كارت الحفظ */
 .hifd-donut-wrap {
   flex: 1;
@@ -1340,7 +1186,6 @@ input:focus-visible {
   gap: 24px;
   padding: 12px 0;
 }
-
 /* الحفاظ على تناسق الجدول */
 .presence-table-wrap {
   flex: 1;
@@ -1348,22 +1193,18 @@ input:focus-visible {
   max-height: 280px;
   overflow: auto;
 }
-
 /* Tablet و mobile */
 @media (max-width: 900px) {
   .charts-grid {
     grid-template-columns: minmax(0, 1fr);
     align-items: stretch;
   }
-
   .charts-grid > .card {
     height: auto;
   }
-
   .hifd-donut-wrap {
     flex: initial;
   }
-
   .presence-table-wrap {
     flex: initial;
   }

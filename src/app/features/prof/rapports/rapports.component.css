@@ -1,3 +1,4 @@
+
 /* =========================================================
    GLOBAL
 ========================================================= */
@@ -74,17 +75,13 @@ button {
 .page-header {
   background: #fff;
   border-bottom: 0.5px solid #e0ded8;
-
   padding: 0 24px;
   height: 56px;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   flex-shrink: 0;
-
-  margin: -24px -24px 22px -24px;  /* يلغي البادينغ ديال main-content باش يوصل للحواف */
+  margin: -24px -24px 22px -24px;
 }
 
 .page-header h1 {
@@ -421,7 +418,7 @@ button {
 .student-main-info h2 {
   margin: 0 0 7px;
   color: #1d2933;
-  font-size: 10px;
+  font-size: 16px;
   font-weight: 750;
   overflow-wrap: anywhere;
 }
@@ -501,28 +498,45 @@ button {
 
 /* =========================================================
    STUDENT CHARTS GRID
+   HIFD + PRESENCE CARDS SAME HEIGHT
 ========================================================= */
 
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-items: start;
+  align-items: stretch;
   gap: 18px;
+  width: 100%;
+  min-width: 0;
+  margin-bottom: 20px;
 }
 
 .charts-grid > .card {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
   min-width: 0;
-  height: auto;
+  min-height: 350px;
+  height: 100%;
   margin-bottom: 0;
 }
 
+/* توحيد مساحة العنوان */
+.charts-grid > .card .card-header {
+  flex-shrink: 0;
+  min-height: 48px;
+  margin-bottom: 20px;
+}
+
 /* =========================================================
-   THREE-COLOR HIFD DONUT
+   HIFD DONUT
 ========================================================= */
 
 .hifd-donut-wrap {
   display: flex;
+  flex: 1;
   align-items: center;
+  align-content: center;
   justify-content: center;
   flex-wrap: wrap;
   gap: 24px;
@@ -593,6 +607,34 @@ button {
   font-size: 13px;
   font-weight: 750;
   font-variant-numeric: tabular-nums;
+}
+
+/* معلومات السورة الحالية */
+
+.current-sourate {
+  min-width: 0;
+}
+
+.current-sourate-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.current-sourate h3 {
+  margin: 0;
+  color: #26343e;
+  font-size: 14px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+
+.current-sourate p {
+  margin: 4px 0 0;
+  color: #929da6;
+  font-size: 12px;
+  line-height: 1.8;
 }
 
 /* =========================================================
@@ -678,6 +720,8 @@ button {
 ========================================================= */
 
 .presence-table-wrap {
+  flex: 1;
+  min-height: 0;
   margin-top: 16px;
   padding-top: 14px;
   border-top: 1px solid #edf0f2;
@@ -813,10 +857,7 @@ button {
   border-radius: 10px;
   background: transparent;
   color: #8b96a1;
-  transition:
-    background .2s ease,
-    border-color .2s ease,
-    color .2s ease;
+  transition: background .2s ease, border-color .2s ease, color .2s ease;
 }
 
 .chip-number {
@@ -1029,6 +1070,37 @@ button {
 }
 
 /* =========================================================
+   GROUP DISTRIBUTION
+========================================================= */
+
+.groupes-distribution {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 8px 0;
+}
+
+.groupe-dist-row {
+  display: grid;
+  grid-template-columns: 140px minmax(0, 1fr) 70px;
+  align-items: center;
+  gap: 12px;
+}
+
+.groupe-dist-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.groupe-dist-count {
+  font-size: 12px;
+  color: #666;
+  text-align: left;
+}
+
+/* =========================================================
    FOCUS
 ========================================================= */
 
@@ -1072,6 +1144,11 @@ select:focus-visible {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .charts-grid > .card {
+    min-height: 320px;
+    height: auto;
+  }
+
   .student-profile {
     align-items: flex-start;
   }
@@ -1094,7 +1171,7 @@ select:focus-visible {
   }
 
   .hifd-donut-wrap {
-    justify-content: flex-start;
+    justify-content: center;
   }
 }
 
@@ -1114,13 +1191,16 @@ select:focus-visible {
   }
 
   .page-header {
-    align-items: flex-start;
+    align-items: center;
     gap: 12px;
-    margin-bottom: 17px;
+    height: auto;
+    min-height: 56px;
+    padding: 10px 14px;
+    margin: -14px -14px 17px;
   }
 
   .page-header h1 {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   .page-header p {
@@ -1161,6 +1241,22 @@ select:focus-visible {
 
   .card-header p {
     font-size: 11px;
+  }
+
+  /* Cards فوق بعضياتهم فالتلفون */
+  .charts-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .charts-grid > .card {
+    min-height: 0;
+    height: auto;
+  }
+
+  .charts-grid > .card .card-header {
+    min-height: 0;
+    margin-bottom: 16px;
   }
 
   .chart-row {
@@ -1329,33 +1425,11 @@ select:focus-visible {
     min-height: 230px;
     padding: 35px 15px;
   }
-}
 
-.groupes-distribution {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 8px 0;
-}
-
-.groupe-dist-row {
-  display: grid;
-  grid-template-columns: 140px 1fr 70px;
-  align-items: center;
-  gap: 12px;
-}
-
-.groupe-dist-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-}
-
-.groupe-dist-count {
-  font-size: 12px;
-  color: #666;
-  text-align: left;
+  .groupe-dist-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
 }
 
 /* =========================================================
@@ -1371,5 +1445,4 @@ select:focus-visible {
     scroll-behavior: auto !important;
     transition-duration: .01ms !important;
   }
-
 }

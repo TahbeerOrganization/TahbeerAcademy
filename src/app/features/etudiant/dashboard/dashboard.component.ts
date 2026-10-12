@@ -1,4 +1,3 @@
-
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -6,6 +5,23 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { SupabaseService } from '../../../core/services/supabase.service';
 import { SidebarComponent } from '../sidebar/sidebar.component';
+
+
+interface SourateEnCours {
+  id: number;
+  nom: string;
+  nom_arabe?: string;
+  nbAyat: number;
+  ayatEnCours: number;
+  pourcentage: number;
+}
+
+export interface StudentMeetSession {
+  groupe_id: string | number;
+  date_heure: string;
+  meet_link: string;
+  groupe_nom: string;
+}
 
 @Component({
   selector: 'app-dashboard',
@@ -16,77 +32,132 @@ import { SidebarComponent } from '../sidebar/sidebar.component';
 })
 export class DashboardComponent implements OnInit {
 
+  // ================================
   // UI
+  // ================================
+
   loading = signal(true);
 
+  // ================================
   // ETUDIANT
+  // ================================
+
   etudiant = signal<any>(null);
 
-  // PRESENCE
+  // ================================
+  // PRESENCES
+  // ================================
+
   presences = signal<any[]>([]);
 
   presenceCount = computed(() =>
-    this.presences().filter(p =>
-      this.normalizeStatus(p.statut) === 'حاضر'
+    this.presences().filter(
+      p => this.normalizeStatus(p.statut) === 'حاضر'
     ).length
   );
 
   absenceCount = computed(() =>
-    this.presences().filter(p =>
-      this.normalizeStatus(p.statut) === 'غائب'
+    this.presences().filter(
+      p => this.normalizeStatus(p.statut) === 'غائب'
     ).length
   );
 
-  totalPresences = computed(() => this.presences().length);
+  totalPresences = computed(() =>
+    this.presences().length
+  );
 
   tauxPresence = computed(() => {
     const total = this.totalPresences();
 
-    return total === 0
-      ? 0
-      : Math.round((this.presenceCount() / total) * 100);
+    return total > 0
+      ? Math.round((this.presenceCount() / total) * 100)
+      : 0;
   });
 
+  // ================================
   // GROUPES
-  studentGroupesList = computed<any[]>(() => {
-    const groupes = this.etudiant()?.groupes;
+  // ================================
 
-    if (!groupes) {
-      return [];
-    }
+ async loadStudentGroupes(id: string): Promise<void> {
 
-    return Array.isArray(groupes) ? groupes : [groupes];
-  });
+  const { data, error } = await this.sb.client
+    .from('groupe_etudiants')
+    .select(`
+      groupe_id,
+      groupes (
+        id,
+        nom,
+        couleur,
+        programme_id
+      )
+    `)
+    .eq('etudiant_id', id);
 
-  // HIFD
+  if (error) {
+      console.error('Erreur chargement groupes:', {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint  
+    });
+    this.studentGroupes.set([]);
+    return;
+  }
+
+  const groupes = (data || [])
+    .map((row: any) => {
+      const groupe = row.groupes;
+
+      return Array.isArray(groupe)
+        ? groupe[0]
+        : groupe;
+    })
+    .filter((g: any) => g != null);
+
+  this.studentGroupes.set(groupes);
+
+  console.log('Groupes chargés:', groupes);
+}
+
+
+  // ================================
+  // SUIVI HIFD
+  // ================================
+
   suiviSourates = signal<any[]>([]);
   sourates = signal<any[]>([]);
   selectedSourate = signal<any>(null);
+  studentGroupes = signal<any[]>([]);
 
   souratesMktmla = computed(() =>
-    this.suiviSourates().filter(s =>
-      this.isCompletedStatus(s.statut)
+    this.suiviSourates().filter(
+      s => this.isCompletedStatus(s.statut)
     ).length
   );
 
   souratesEnCours = computed(() =>
-    this.suiviSourates().filter(s =>
-      this.isInProgressStatus(s.statut)
+    this.suiviSourates().filter(
+      s => this.isInProgressStatus(s.statut)
     ).length
   );
 
   tauxHifd = computed(() => {
     const total = this.suiviSourates().length;
 
-    return total === 0
-      ? 0
-      : Math.round((this.souratesMktmla() / total) * 100);
+    return total > 0
+      ? Math.round((this.souratesMktmla() / total) * 100)
+      : 0;
   });
 
+  // ================================
   // DEVOIRS
+  // ================================
+
   devoirs = signal<any[]>([]);
 
-  devoirsTotal = computed(() => this.devoirs().length);
+  devoirsTotal = computed(() =>
+    this.devoirs().length
+  );
 
   devoirsRemis = computed(() =>
     this.devoirs().filter(d => {
@@ -97,25 +168,23 @@ export class DashboardComponent implements OnInit {
   );
 
   devoirsNonRemis = computed(() =>
-    this.devoirs().filter(d =>
-      this.normalizeStatus(d.statut) === 'لم يسلّم'
+    this.devoirs().filter(
+      d => this.normalizeStatus(d.statut) === 'لم يسلّم'
     ).length
   );
 
+  // ================================
   // GRAPH HIFD
+  // ================================
+
   hifdGraph = computed(() => {
     const suivis = this.suiviSourates();
 
     return suivis
       .slice()
       .sort((a, b) => {
-        const dateA = new Date(
-          a.updated_at || 0
-        ).getTime();
-
-        const dateB = new Date(
-          b.updated_at || 0
-        ).getTime();
+        const dateA = new Date(a.updated_at || 0).getTime();
+        const dateB = new Date(b.updated_at || 0).getTime();
 
         return dateA - dateB;
       })
@@ -132,66 +201,105 @@ export class DashboardComponent implements OnInit {
       });
   });
 
-  // RAPPORT DETAILLE HIFD
+  // ================================
+  // DETAILS HIFD
+  // ================================
+
   allSourates = signal<any[]>([]);
   suiviDetails = signal<any[]>([]);
 
+  // ================================
   // STATISTIQUES DES AYAT
+  // نفس طريقة الحساب الموجودة في RAPPORTS
+  // ================================
+
   hifdStats = computed(() => {
-    const suivis = this.suiviDetails();
     const sourates = this.allSourates();
+    const suivis = this.suiviDetails();
 
-    const souratesMap = new Map<number, any[]>();
+    const totalAyat = sourates.reduce(
+      (sum, s) =>
+        sum + Math.max(0, Number(s.nb_ayat) || 0),
+      0
+    );
 
-    for (const suivi of suivis) {
-      const id = Number(suivi.sourate_id);
-
-      if (!Number.isFinite(id) || id <= 0) {
-        continue;
-      }
-
-      if (!souratesMap.has(id)) {
-        souratesMap.set(id, []);
-      }
-
-      souratesMap.get(id)!.push(suivi);
-    }
-
-    let totalAyat = 0;
     let ayatCompletees = 0;
     let ayatEnCours = 0;
 
-    for (const [id, liste] of souratesMap) {
-      const sourate = sourates.find(
-        s => Number(s.id) === id
+    for (const sourate of sourates) {
+      const id = Number(sourate.id);
+      const nbAyat = Math.max(
+        0,
+        Number(sourate.nb_ayat) || 0
       );
 
-      const nbAyat = Number(sourate?.nb_ayat ?? 0);
-
-      if (nbAyat <= 0) {
+      if (!id || nbAyat <= 0) {
         continue;
       }
 
-      totalAyat += nbAyat;
-
-      const complete = liste.some(s =>
-        this.isCompletedStatus(s.statut) ||
-        Number(s.ayat_fin) >= nbAyat
+      const liste = suivis.filter(
+        s => Number(s.sourate_id) === id
       );
 
-      if (complete) {
+      // السورة المكتملة: جميع آياتها مكتملة
+      if (
+        liste.some(s => this.isCompletedStatus(s.statut))
+      ) {
         ayatCompletees += nbAyat;
-      } else {
-        const maxFin = Math.max(
-          0,
-          ...liste.map(s => Number(s.ayat_fin) || 0)
+        continue;
+      }
+
+      // جمع فترات الآيات الصحيحة
+      const intervals: [number, number][] = [];
+
+      for (const s of liste) {
+        const debut = Math.max(
+          1,
+          Number(s.ayat_debut) || 1
         );
 
-        ayatEnCours += Math.min(maxFin, nbAyat);
+        const fin = Math.min(
+          nbAyat,
+          Number(s.ayat_fin) || 0
+        );
+
+        if (fin >= debut) {
+          intervals.push([debut, fin]);
+        }
       }
+
+      if (intervals.length === 0) {
+        continue;
+      }
+
+      // ترتيب الفترات حسب الآية الأولى
+      intervals.sort((a, b) => a[0] - b[0]);
+
+      // دمج الفترات المتداخلة أو المتتابعة
+      let debut = intervals[0][0];
+      let fin = intervals[0][1];
+
+      for (let i = 1; i < intervals.length; i++) {
+        const [nouveauDebut, nouvelleFin] = intervals[i];
+
+        if (nouveauDebut <= fin + 1) {
+          fin = Math.max(fin, nouvelleFin);
+        } else {
+          ayatEnCours += fin - debut + 1;
+
+          debut = nouveauDebut;
+          fin = nouvelleFin;
+        }
+      }
+
+      ayatEnCours += fin - debut + 1;
     }
 
-    ayatCompletees = Math.min(ayatCompletees, totalAyat);
+    // حماية من تجاوز مجموع الآيات
+    ayatCompletees = Math.min(
+      ayatCompletees,
+      totalAyat
+    );
 
     ayatEnCours = Math.min(
       ayatEnCours,
@@ -208,11 +316,18 @@ export class DashboardComponent implements OnInit {
       ayatCompletees,
       ayatEnCours,
       ayatRestantes,
+
       pourcentage: totalAyat > 0
-        ? Math.round((ayatCompletees / totalAyat) * 100)
+        ? Math.round(
+            (ayatCompletees / totalAyat) * 100
+          )
         : 0
     };
   });
+
+  // ================================
+  // CONSTRUCTOR
+  // ================================
 
   constructor(
     public auth: AuthService,
@@ -220,110 +335,155 @@ export class DashboardComponent implements OnInit {
     private router: Router
   ) {}
 
+  // ================================
+  // INIT
+  // ================================
+
   ngOnInit(): void {
     void this.loadDashboard();
   }
 
+  // ================================
   // LOAD DASHBOARD
-  async loadDashboard(): Promise<void> {
-    this.loading.set(true);
+  // ================================
 
-    try {
-      const user = this.auth.currentUser();
-
-      if (!user?.id) {
-        console.error('Aucun étudiant authentifié.');
-        this.etudiant.set(null);
-        this.presences.set([]);
-        this.suiviSourates.set([]);
-        this.suiviDetails.set([]);
-        this.allSourates.set([]);
-        this.devoirs.set([]);
-        return;
-      }
-
-      const results = await Promise.allSettled([
-        this.loadEtudiant(user.id),
-        this.loadPresences(user.id),
-        this.loadSuiviSourates(user.id),
-        this.loadAllSourates(),
-        this.loadSuiviDetails(user.id)
-      ]);
-
-      results.forEach((result, index) => {
-        if (result.status === 'rejected') {
-          console.error(
-            `Erreur chargement dashboard [${index}]:`,
-            result.reason
-          );
-        }
-      });
-    } catch (error) {
-      console.error('Dashboard étudiant error:', error);
-    } finally {
-      this.loading.set(false);
-    }
-  }
-
-  // LOAD ETUDIANT
-  // Profil chargé séparément pour éviter PGRST201.
   
-async loadEtudiant(id: string): Promise<void> {
-  const { data, error } = await this.sb.client
-    .from('profiles')
-    .select('*')
-    .eq('id', id)
-    .maybeSingle();
+async loadDashboard(): Promise<void> {
+  this.loading.set(true);
 
-  if (error || !data) {
-    console.error('Erreur étudiant:', error);
+  try {
+    const user = this.auth.currentUser();
+
+    if (!user?.id) {
+      console.error('Aucun étudiant authentifié.');
+      this.resetDashboard();
+      return;
+    }
+
+    // 1. تحميل المجموعات أولا
+    await this.loadStudentGroupes(user.id);
+
+    // 2. تحميل باقي البيانات بالتوازي
+    const results = await Promise.allSettled([
+      this.loadEtudiant(user.id),
+      this.loadPresences(user.id),
+      this.loadSuiviSourates(user.id),
+      this.loadAllSourates(),
+      this.loadSuiviDetails(user.id)
+    ]);
+
+    results.forEach((result, index) => {
+      if (result.status === 'rejected') {
+        console.error(
+          `Erreur chargement dashboard [${index}]:`,
+          result.reason
+        );
+      }
+    });
+
+    // 3. المجموعات ولات واجدة، نجيبو الحصص ديالها
+    await this.loadStudentMeetSessions();
+
+  } catch (error) {
+    console.error('Dashboard étudiant error:', error);
+  } finally {
+    this.loading.set(false);
+  }
+}
+
+  // ================================
+  // RESET
+  // ================================
+
+  private resetDashboard(): void {
     this.etudiant.set(null);
-    return;
+    this.presences.set([]);
+    this.suiviSourates.set([]);
+    this.suiviDetails.set([]);
+    this.allSourates.set([]);
+    this.sourates.set([]);
+    this.selectedSourate.set(null);
+    this.devoirs.set([]);
   }
 
-  // جلب علاقات الطالب بالمجموعات
-  const { data: relations, error: relationsError } =
-    await this.sb.client
+  // ================================
+  // LOAD ETUDIANT
+  // ================================
+
+  async loadEtudiant(id: string): Promise<void> {
+    const { data, error } = await this.sb.client
+      .from('profiles')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (error || !data) {
+      console.error('Erreur étudiant:', error);
+
+      this.etudiant.set(null);
+
+      return;
+    }
+
+    const {
+      data: relations,
+      error: relationsError
+    } = await this.sb.client
       .from('groupe_etudiants')
       .select('groupe_id')
       .eq('etudiant_id', id);
 
-  if (relationsError) {
-    console.error('Erreur relations groupes:', relationsError);
-    this.etudiant.set({ ...data, groupes: [] });
-    return;
-  }
+    if (relationsError) {
+      console.error(
+        'Erreur relations groupes:',
+        relationsError
+      );
 
-  const groupeIds = (relations || [])
-    .map((r: any) => r.groupe_id)
-    .filter((id: string | null) => id !== null);
+      this.etudiant.set({
+        ...data,
+        groupes: []
+      });
 
-  // جلب معلومات المجموعات
-  let groupes: any[] = [];
+      return;
+    }
 
-  if (groupeIds.length > 0) {
-    const { data: groupesData, error: groupesError } =
-      await this.sb.client
+    const groupeIds = (relations || [])
+      .map((r: any) => r.groupe_id)
+      .filter(
+        (groupId: string | null) => groupId !== null
+      );
+
+    let groupes: any[] = [];
+
+    if (groupeIds.length > 0) {
+      const {
+        data: groupesData,
+        error: groupesError
+      } = await this.sb.client
         .from('groupes')
         .select('id, nom')
         .in('id', groupeIds);
 
-    if (groupesError) {
-      console.error('Erreur chargement groupes:', groupesError);
-    } else {
-      groupes = groupesData || [];
+      if (groupesError) {
+        console.error(
+          'Erreur chargement groupes:',
+          groupesError
+        );
+      } else {
+        groupes = groupesData || [];
+      }
     }
+
+    this.etudiant.set({
+      ...data,
+      groupes
+    });
   }
 
-  this.etudiant.set({
-    ...data,
-    groupes
-  });
-
-  console.log('Groupes étudiant:', groupes);
-}
-
+  // ================================
   // LOAD PRESENCES
+  // ================================
+
   async loadPresences(id: string): Promise<void> {
     const { data, error } = await this.sb.client
       .from('presences')
@@ -333,14 +493,19 @@ async loadEtudiant(id: string): Promise<void> {
 
     if (error) {
       console.error('Erreur présences:', error);
+
       this.presences.set([]);
+
       return;
     }
 
     this.presences.set(data || []);
   }
 
+  // ================================
   // LOAD SUIVI SOURATES
+  // ================================
+
   async loadSuiviSourates(id: string): Promise<void> {
     const { data, error } = await this.sb.client
       .from('suivi_sourates')
@@ -350,9 +515,11 @@ async loadEtudiant(id: string): Promise<void> {
 
     if (error) {
       console.error('Erreur suivi sourates:', error);
+
       this.suiviSourates.set([]);
       this.sourates.set([]);
       this.selectedSourate.set(null);
+
       return;
     }
 
@@ -374,38 +541,62 @@ async loadEtudiant(id: string): Promise<void> {
     const list = Array.from(unique.values());
 
     this.sourates.set(list);
-    this.selectedSourate.set(list.length > 0 ? list[0] : null);
+
+    this.selectedSourate.set(
+      list.length > 0 ? list[0] : null
+    );
   }
 
- 
+  // ================================
   // LOAD ALL SOURATES
+  // ================================
+
   async loadAllSourates(): Promise<void> {
     const { data, error } = await this.sb.client
       .from('sourates')
       .select('*')
-      .order('id', { ascending: true });
+      .order('id', { ascending: true })
+      .range(0, 999);
 
     if (error) {
-      console.error('Erreur chargement sourates:', error);
+      console.error(
+        'Erreur chargement sourates:',
+        error
+      );
+
       this.allSourates.set([]);
+
       return;
     }
 
-    this.allSourates.set(
-      (data || []).map((s: any) => ({
-        ...s,
-        nb_ayat: Number(
+    const souratesNormalisees = (data || []).map(
+      (s: any) => {
+        const nbAyat = Number(
           s.nb_ayat ??
           s.nombre_ayat ??
           s.total_ayat ??
           s.ayat_count ??
+          s.nombre_versets ??
           0
-        )
-      }))
+        );
+
+        return {
+          ...s,
+          id: Number(s.id),
+          nb_ayat: Number.isFinite(nbAyat)
+            ? Math.max(0, nbAyat)
+            : 0
+        };
+      }
     );
+
+    this.allSourates.set(souratesNormalisees);
   }
 
+  // ================================
   // LOAD DETAILS DU SUIVI
+  // ================================
+
   async loadSuiviDetails(id: string): Promise<void> {
     const { data, error } = await this.sb.client
       .from('suivi_sourates')
@@ -415,18 +606,25 @@ async loadEtudiant(id: string): Promise<void> {
 
     if (error) {
       console.error('Erreur détails hifd:', error);
+
       this.suiviDetails.set([]);
+
       return;
     }
 
     this.suiviDetails.set(data || []);
   }
 
+  // ================================
   // NORMALISATION DES STATUTS
-  private normalizeStatus(
+  // ================================
+
+  normalizeStatus(
     value: string | null | undefined
   ): string {
-    return String(value ?? '').trim().toLowerCase();
+    return String(value ?? '')
+      .trim()
+      .toLowerCase();
   }
 
   isCompletedStatus(
@@ -456,7 +654,10 @@ async loadEtudiant(id: string): Promise<void> {
     ].includes(this.normalizeStatus(value));
   }
 
-  // DONUT GRADIENT
+  // ================================
+  // DONUT GRADIENT - 3 COULEURS
+  // ================================
+
   getHifdDonutGradient(): string {
     const stats = this.hifdStats();
 
@@ -464,8 +665,10 @@ async loadEtudiant(id: string): Promise<void> {
       return '#e5e7eb';
     }
 
-    const p1 =
-      (stats.ayatCompletees / stats.totalAyat) * 100;
+    const p1 = Math.min(
+      100,
+      (stats.ayatCompletees / stats.totalAyat) * 100
+    );
 
     const p2 = Math.min(
       100,
@@ -479,7 +682,10 @@ async loadEtudiant(id: string): Promise<void> {
     )`;
   }
 
+  // ================================
   // SOURATE MAP HELPERS
+  // ================================
+
   isSourateCompletee(sourateId: number): boolean {
     const sourate = this.allSourates().find(
       x => Number(x.id) === Number(sourateId)
@@ -509,12 +715,17 @@ async loadEtudiant(id: string): Promise<void> {
     );
   }
 
+  // ================================
   // TOTAL DES SOURATES SUIVIES
+  // ================================
+
   getStudentHifdTotal(): number {
     return new Set(
       this.suiviDetails()
         .map(s => Number(s.sourate_id))
-        .filter(id => Number.isFinite(id) && id > 0)
+        .filter(
+          id => Number.isFinite(id) && id > 0
+        )
     ).size;
   }
 
@@ -522,28 +733,44 @@ async loadEtudiant(id: string): Promise<void> {
     return new Set(
       this.suiviDetails()
         .filter(s =>
-          this.isSourateCompletee(Number(s.sourate_id))
+          this.isSourateCompletee(
+            Number(s.sourate_id)
+          )
         )
         .map(s => Number(s.sourate_id))
+        .filter(
+          id => Number.isFinite(id) && id > 0
+        )
     ).size;
   }
 
-  // RESOLUTION DU NOM DE LA SOURATE
+  // ================================
+  // RESOLUTION NOM SOURATE
+  // ================================
+
   getSourateNomById(sourateId: number): string {
     const sourate = this.allSourates().find(
       s => Number(s.id) === Number(sourateId)
     );
 
-    return sourate?.nom ||
+    return (
+      sourate?.nom ||
       sourate?.nom_ar ||
+      sourate?.nom_arabe ||
       sourate?.name ||
       sourate?.sourate ||
-      'سورة غير معروفة';
+      'سورة غير معروفة'
+    );
   }
 
+  // ================================
   // SELECT SOURATE
+  // ================================
+
   selectSourate(event: Event): void {
-    const value = (event.target as HTMLSelectElement).value;
+    const value = (
+      event.target as HTMLSelectElement
+    ).value;
 
     const sourate = this.sourates().find(
       s => String(
@@ -556,7 +783,10 @@ async loadEtudiant(id: string): Promise<void> {
     this.selectedSourate.set(sourate || null);
   }
 
+  // ================================
   // SOURATE HELPERS
+  // ================================
+
   getSourateName(sourate: any): string {
     return (
       sourate?.sourate ||
@@ -566,6 +796,168 @@ async loadEtudiant(id: string): Promise<void> {
       '—'
     );
   }
+
+  
+/* =========================================
+   SOURATE ACTUELLE
+========================================= */
+
+getSourateEnCours(): SourateEnCours | null {
+  const suivis = [...this.suiviDetails()].sort(
+    (a, b) =>
+      new Date(b.updated_at || 0).getTime() -
+      new Date(a.updated_at || 0).getTime()
+  );
+
+  const sourates = this.allSourates();
+
+  // آخر متابعة لكل سورة
+  const derniers = new Map<number, any>();
+
+  for (const suivi of suivis) {
+    const id = Number(suivi.sourate_id);
+
+    if (id > 0 && !derniers.has(id)) {
+      derniers.set(id, suivi);
+    }
+  }
+
+  // الحالات اللي كتدل على أن السورة مكتملة
+  const candidates = Array.from(derniers.values()).filter(
+    suivi => !this.isCompletedStatus(suivi.statut)
+  );
+
+  for (const suivi of candidates) {
+    const sourate = sourates.find(
+      s => Number(s.id) === Number(suivi.sourate_id)
+    );
+
+    if (!sourate) continue;
+
+    const nbAyat = Math.max(
+      0,
+      Number(sourate.nb_ayat) || 0
+    );
+
+    if (nbAyat <= 0) continue;
+
+    // جميع المتابعات ديال السورة الحالية
+    const liste = suivis.filter(
+      s => Number(s.sourate_id) === Number(sourate.id)
+    );
+
+    // حساب الآيات بدون تكرار
+    const intervals: [number, number][] = [];
+
+    for (const s of liste) {
+      const debut = Math.max(
+        1,
+        Number(s.ayat_debut) || 1
+      );
+
+      const fin = Math.min(
+        nbAyat,
+        Number(s.ayat_fin) || 0
+      );
+
+      if (fin >= debut) {
+        intervals.push([debut, fin]);
+      }
+    }
+
+    intervals.sort((a, b) => a[0] - b[0]);
+
+    let enCours = 0;
+
+    if (intervals.length > 0) {
+      let debut = intervals[0][0];
+      let fin = intervals[0][1];
+
+      for (let i = 1; i < intervals.length; i++) {
+        const [nouveauDebut, nouvelleFin] = intervals[i];
+
+        if (nouveauDebut <= fin + 1) {
+          fin = Math.max(fin, nouvelleFin);
+        } else {
+          enCours += fin - debut + 1;
+
+          debut = nouveauDebut;
+          fin = nouvelleFin;
+        }
+      }
+
+      enCours += fin - debut + 1;
+    }
+
+    enCours = Math.min(enCours, nbAyat);
+
+    return {
+      id: Number(sourate.id),
+      nom: sourate.nom || sourate.name || '',
+      nom_arabe:
+        sourate.nom_arabe ||
+        sourate.nom_ar ||
+        sourate.arabic_name ||
+        '',
+      nbAyat,
+      ayatEnCours: enCours,
+      pourcentage: Math.round(
+        (enCours / nbAyat) * 100
+      )
+    };
+  }
+
+  return null;
+}
+
+/* =========================================
+   STATISTIQUES DE LA SOURATE ACTUELLE
+========================================= */
+
+getCurrentSourateStats() {
+  const current = this.getSourateEnCours();
+
+  if (!current) {
+    return null;
+  }
+
+  const total = current.nbAyat;
+  const enCours = current.ayatEnCours;
+
+  return {
+    total,
+    enCours,
+    remaining: Math.max(0, total - enCours),
+    percentEnCours: total > 0
+      ? Math.round((enCours / total) * 100)
+      : 0
+  };
+}
+
+/* =========================================
+   DONUT DE LA SOURATE ACTUELLE
+========================================= */
+
+getCurrentSourateDonutGradient(): string {
+  const stats = this.getCurrentSourateStats();
+
+  if (!stats || stats.total <= 0) {
+    return '#E5E7EB';
+  }
+
+  const pourcentage = Math.min(
+    100,
+    Math.max(
+      0,
+      (stats.enCours / stats.total) * 100
+    )
+  );
+
+  return `conic-gradient(
+    #1B6FA8 0% ${pourcentage}%,
+    #E5E7EB ${pourcentage}% 100%
+  )`;
+}
 
   getSourateProgress(sourate: any): number {
     if (!sourate) {
@@ -592,7 +984,9 @@ async loadEtudiant(id: string): Promise<void> {
     const total = Number(sourate.nb_ayat);
 
     if (fin > 0 && total > 0) {
-      return Math.round(Math.min(100, (fin / total) * 100));
+      return Math.round(
+        Math.min(100, (fin / total) * 100)
+      );
     }
 
     return 0;
@@ -606,7 +1000,10 @@ async loadEtudiant(id: string): Promise<void> {
     return sourate.statut || 'غير محدد';
   }
 
+  // ================================
   // DATE
+  // ================================
+
   today(): string {
     return new Date().toLocaleDateString('ar-MA', {
       weekday: 'long',
@@ -616,7 +1013,9 @@ async loadEtudiant(id: string): Promise<void> {
     });
   }
 
-  formatDate(date: string | null | undefined): string {
+  formatDate(
+    date: string | null | undefined
+  ): string {
     if (!date) {
       return '—';
     }
@@ -634,8 +1033,125 @@ async loadEtudiant(id: string): Promise<void> {
     });
   }
 
+  // ================================
   // NAVIGATION
+  // ================================
+
   navigateTo(path: string): void {
     this.router.navigate(['/etudiant', path]);
   }
+
+   // ================================
+  // GOOGLE MEET LINK
+  // ================================
+
+  meetSessions = signal<StudentMeetSession[]>([]);
+  loadingMeetSessions = signal(false);
+
+
+  canJoinMeet(session: StudentMeetSession): boolean {
+  const start = new Date(session.date_heure).getTime();
+  const now = Date.now();
+
+  if (!Number.isFinite(start)) {
+    return false;
+  }
+
+  const end = start + 60 * 60 * 1000;
+
+  return now >= start && now < end;
 }
+
+getMeetStatus(session: StudentMeetSession): string {
+  const start = new Date(session.date_heure).getTime();
+  const now = Date.now();
+
+  if (!Number.isFinite(start)) {
+    return 'تاريخ الحصة غير صالح';
+  }
+
+  const end = start + 60 * 60 * 1000;
+
+  if (now < start) {
+    return 'الحصة لم تبدأ بعد';
+  }
+
+  if (now >= end) {
+    return 'انتهى وقت الحصة';
+  }
+
+  return 'الحصة جارية الآن';
+}
+
+
+async loadStudentMeetSessions(): Promise<void> {
+  this.loadingMeetSessions.set(true);
+
+  try {
+    const groupIds = this.studentGroupes()
+      .map(g => g.id)
+      .filter(id => id != null);
+
+    console.log('Student groups:', this.studentGroupes());
+    console.log('Group IDs for Meet:', groupIds);
+
+    if (groupIds.length === 0) {
+      this.meetSessions.set([]);
+      return;
+    }
+
+    const { data, error } = await this.sb.client
+      .from('cours')
+      .select('groupe_id, date_heure, meet_link, groupes(nom)')
+      .in('groupe_id', groupIds)
+      .not('meet_link', 'is', null)
+      .not('date_heure', 'is', null)
+      .order('date_heure', { ascending: true });
+
+    console.log('Meet sessions query result:', data);
+    console.log('Meet sessions query error:', error);
+
+    if (error) {
+      console.error('STUDENT MEET ERROR:', error);
+      this.meetSessions.set([]);
+      return;
+    }
+
+    const sessions: StudentMeetSession[] = (data ?? [])
+      .filter(row => !!row.meet_link && !!row.date_heure)
+      .map(row => {
+        const relation = row.groupes as
+          | { nom?: string }
+          | { nom?: string }[]
+          | null;
+
+        const groupe = Array.isArray(relation)
+          ? relation[0]
+          : relation;
+
+        return {
+          groupe_id: row.groupe_id,
+          date_heure: row.date_heure,
+          meet_link: row.meet_link,
+          groupe_nom: groupe?.nom ?? 'مجموعة'
+        };
+      });
+
+    this.meetSessions.set(sessions);
+  } catch (error) {
+    console.error('STUDENT MEET ERROR:', error);
+    this.meetSessions.set([]);
+  } finally {
+    this.loadingMeetSessions.set(false);
+  }
+}
+
+getMeetEndTime(dateHeure: string): Date {
+  return new Date(
+    new Date(dateHeure).getTime() + 60 * 60 * 1000
+  );
+}
+}
+
+
+
