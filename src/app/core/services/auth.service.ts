@@ -45,45 +45,6 @@ export class AuthService {
     return data;
   }
 
-  // ── Register ───────────────────────────────────
-  async register(
-    email: string,
-    password: string,
-    profile: any
-  ) {
-
-    const { data, error } =
-      await this.sb.client.auth.signUp({
-        email,
-        password
-      });
-
-    if (error) {
-      throw error;
-    }
-
-    if (data.user) {
-
-      const { error: profileError } =
-        await this.sb.client
-          .from('profiles')
-          .insert({
-            id: data.user.id,
-            email: email,
-            ...profile
-          });
-
-      if (profileError) {
-        throw profileError;
-      }
-
-      await this.loadProfile(data.user.id);
-
-      this.redirectByRole();
-    }
-
-    return data;
-  }
 
   // ── Logout ─────────────────────────────────────
   async logout() {
@@ -92,7 +53,7 @@ export class AuthService {
 
     this.currentUser.set(null);
 
-    this.router.navigate(['/login']);
+    await this.router.navigate(['/login'], { replaceUrl: true });
   }
 
   // ── Charger le profil ──────────────────────────

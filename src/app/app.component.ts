@@ -10,3 +10,11 @@ import { RouterOutlet } from '@angular/router';
 export class AppComponent {
   title = 'TahbeerFrontend';
 }
+
+  // ف ngOnInit ديال AppComponent
+window.addEventListener('pageshow', (event) => {
+  if (event.persisted) {
+    // الصفحة طلعت من bfcache — نعاودو نشيكيو السيشن
+    window.location.reload();
+  }
+});

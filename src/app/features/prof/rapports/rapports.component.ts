@@ -65,6 +65,17 @@ interface SourateProgression {
   enCours: number;
 }
 
+interface SourateEnCours {
+  id: number;
+  nom: string;
+  nom_arabe?: string;
+  nbAyat: number;
+  ayatDebut: number;
+  ayatFin: number;
+  ayatEnCours: number;
+  pourcentage: number;
+}
+
 @Component({
   selector: 'app-rapports',
   standalone: true,
@@ -428,6 +439,8 @@ async loadStudentGroupes(id: string): Promise<void> {
   ===================================================== */
 
   
+  
+  
 getHifdAyatStats(): {
   total: number;
   achieved: number;
@@ -440,35 +453,39 @@ getHifdAyatStats(): {
   const sourates = this.allSourates();
   const suivis = this.studentSuivis();
 
-  let total = 0;
+  // مجموع آيات القرآن كامل
+  const total = sourates.reduce(
+    (sum, s) => sum + Math.max(0, Number(s.nb_ayat) || 0),
+    0
+  );
+
   let achieved = 0;
   let enCours = 0;
 
-  const grouped = new Map<number, Suivi[]>();
+  for (const sourate of sourates) {
+    const id = Number(sourate.id);
+    const nbAyat = Math.max(0, Number(sourate.nb_ayat) || 0);
 
-  for (const suivi of suivis) {
-    const list = grouped.get(suivi.sourate_id) ?? [];
-    list.push(suivi);
-    grouped.set(suivi.sourate_id, list);
-  }
+    if (!id || nbAyat <= 0) continue;
 
-  for (const [sourateId, list] of grouped) {
-    const sourate = sourates.find(s => s.id === sourateId);
-    const nbAyat = Number(sourate?.nb_ayat ?? 0);
+    const liste = suivis.filter(
+      s => Number(s.sourate_id) === id
+    );
 
-    if (nbAyat <= 0) continue;
+    if (liste.length === 0) continue;
 
-    total += nbAyat;
-
-    const complete = list.some(s => {
+    // واش السورة مكتملة نهائياً؟
+    const complete = liste.some(s => {
       const statut = this.normalizeStatus(s.statut);
-      return (
-        statut === 'مكتمل' ||
-        statut === 'مكتملة' ||
-        statut === 'complete' ||
-        statut === 'completed' ||
-        Number(s.ayat_fin) >= nbAyat
-      );
+
+      return [
+        'مكتمل',
+        'مكتملة',
+        'كامل',
+        'كاملة',
+        'complete',
+        'completed'
+      ].includes(statut);
     });
 
     if (complete) {
@@ -476,24 +493,61 @@ getHifdAyatStats(): {
       continue;
     }
 
-    // نحسب أكبر رقم آية وصل ليه الطالب فالسورة.
-    const maxFin = Math.max(
-      0,
-      ...list.map(s => Number(s.ayat_fin) || 0)
-    );
+    // حساب الآيات المسجلة ودمج الفترات المتداخلة
+    const intervals: [number, number][] = [];
 
-    enCours += Math.min(maxFin, nbAyat);
+    for (const s of liste) {
+      const debut = Math.max(1, Number(s.ayat_debut) || 1);
+      const fin = Math.min(nbAyat, Number(s.ayat_fin) || 0);
+
+      if (fin < debut || fin < 1) continue;
+
+      intervals.push([debut, fin]);
+    }
+
+    intervals.sort((a, b) => a[0] - b[0]);
+
+    let start = 0;
+    let end = 0;
+    let initialized = false;
+
+    for (const [a, b] of intervals) {
+      if (a > b) continue;
+
+      if (!initialized) {
+        start = a;
+        end = b;
+        initialized = true;
+      } else if (a <= end + 1) {
+        end = Math.max(end, b);
+      } else {
+        enCours += end - start + 1;
+        start = a;
+        end = b;
+      }
+    }
+
+    if (initialized) {
+      enCours += end - start + 1;
+    }
   }
 
   achieved = Math.min(achieved, total);
-  enCours = Math.min(enCours, Math.max(0, total - achieved));
+  enCours = Math.min(
+    enCours,
+    Math.max(0, total - achieved)
+  );
 
-  const remaining = Math.max(0, total - achieved - enCours);
+  const remaining = Math.max(
+    0,
+    total - achieved - enCours
+  );
 
   const percentAchieved = total > 0
     ? Math.round((achieved / total) * 100)
     : 0;
 
+  // النسبة ديال الآيات الجارية من مجموع آيات القرآن
   const percentEnCours = total > 0
     ? Math.round((enCours / total) * 100)
     : 0;
@@ -507,6 +561,159 @@ getHifdAyatStats(): {
     percentEnCours,
     percent: percentAchieved
   };
+}
+
+
+getSourateEnCours(): SourateEnCours | null {
+  const suivis = [...this.studentSuivis()].sort(
+    (a, b) =>
+      new Date(b.updated_at).getTime() -
+      new Date(a.updated_at).getTime()
+  );
+
+  const sourates = this.allSourates();
+
+  // آخر متابعة لكل سورة
+  const derniers = new Map<number, Suivi>();
+
+  for (const suivi of suivis) {
+    const id = Number(suivi.sourate_id);
+
+    if (!derniers.has(id)) {
+      derniers.set(id, suivi);
+    }
+  }
+
+  const completeStatuses = [
+    'مكتمل',
+    'مكتملة',
+    'كامل',
+    'كاملة',
+    'complete',
+    'completed'
+  ];
+
+  // اختيار أحدث سورة ما زالت غير مكتملة
+  const candidates = Array.from(derniers.values()).filter(
+    suivi =>
+      !completeStatuses.includes(
+        this.normalizeStatus(suivi.statut)
+      )
+  );
+
+  for (const suivi of candidates) {
+    const sourate = sourates.find(
+      s => s.id === Number(suivi.sourate_id)
+    );
+
+    if (!sourate) continue;
+
+    const nbAyat = Math.max(0, Number(sourate.nb_ayat) || 0);
+    if (nbAyat === 0) continue;
+
+    // جميع التسجيلات ديال نفس السورة
+    const liste = this.studentSuivis().filter(
+      s => Number(s.sourate_id) === sourate.id
+    );
+
+    // دمج الآيات المتداخلة باش ما يكونش التكرار
+    const intervals: [number, number][] = [];
+
+    for (const s of liste) {
+      const debut = Math.max(1, Number(s.ayat_debut) || 1);
+      const fin = Math.min(nbAyat, Number(s.ayat_fin) || 0);
+
+      if (fin >= debut && fin >= 1) {
+        intervals.push([debut, fin]);
+      }
+    }
+
+    intervals.sort((a, b) => a[0] - b[0]);
+
+    let ayatEnCours = 0;
+    let start = 0;
+    let end = 0;
+    let initialized = false;
+
+    for (const [a, b] of intervals) {
+      if (!initialized) {
+        start = a;
+        end = b;
+        initialized = true;
+      } else if (a <= end + 1) {
+        end = Math.max(end, b);
+      } else {
+        ayatEnCours += end - start + 1;
+        start = a;
+        end = b;
+      }
+    }
+
+    if (initialized) {
+      ayatEnCours += end - start + 1;
+    }
+
+    ayatEnCours = Math.min(ayatEnCours, nbAyat);
+
+    const ayatBa9iya = Math.max(0, nbAyat - ayatEnCours);
+
+    return {
+      id: sourate.id,
+      nom: sourate.nom,
+      nom_arabe: sourate.nom_arabe,
+      nbAyat,
+      ayatDebut: 1,
+      ayatFin: ayatEnCours,
+      ayatEnCours,
+      pourcentage: Math.round((ayatEnCours / nbAyat) * 100),
+      ayatBa9iya
+    } as SourateEnCours & { ayatBa9iya: number };
+  }
+
+  return null;
+}
+
+/* إحصائيات السورة الجاري حفظها فقط */
+getCurrentSourateStats() {
+  const current = this.getSourateEnCours();
+
+  if (!current) {
+    return null;
+  }
+
+  const total = current.nbAyat;
+  const enCours = current.ayatEnCours;
+  const remaining = Math.max(0, total - enCours);
+
+  return {
+    total,
+    achieved: 0,
+    enCours,
+    remaining,
+    percentAchieved: 0,
+    percentEnCours: total > 0
+      ? Math.round((enCours / total) * 100)
+      : 0,
+    percent: total > 0
+      ? Math.round((enCours / total) * 100)
+      : 0
+  };
+}
+
+/* Donut خاص بالسورة الحالية */
+getCurrentSourateDonutGradient(): string {
+  const stats = this.getCurrentSourateStats();
+
+  if (!stats || stats.total === 0) {
+    return '#E5E7EB';
+  }
+
+  const p = (stats.enCours / stats.total) * 100;
+
+  return `conic-gradient(
+    #1B6FA8 0% ${p}%,
+    #E5E7EB ${p}% 100%
+  )`;
 }
 
 private normalizeStatus(value: string | null | undefined): string {
