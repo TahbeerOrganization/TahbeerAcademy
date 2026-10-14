@@ -1,327 +1,254 @@
 <div class="layout" dir="rtl">
 
-<app-sidebar activePage="hifd"></app-sidebar>
+  <app-sidebar activePage="hifd"></app-sidebar>
 
   <main class="main">
-<!-- TOPBAR -->
-<div class="topbar">
 
-  <div>
-    <div class="topbar-title">
-      📖 تتبع الحفظ
-    </div>
+    <!-- TOPBAR -->
+    <div class="topbar">
 
-    <div class="topbar-sub">
-      متابعة حفظ الطلاب والسور
-    </div>
-  </div>
-
-  <button
-    class="btn-primary"
-    (click)="ouvrirAjout()"
-  >
-    + تسجيل حفظ
-  </button>
-
-</div>
-
-
-<div class="content">
-
-  <!-- FILTERS -->
-  <div class="filters-bar">
-
-    <!-- GROUPE -->
-    <select
-      class="filter-select"
-      [value]="filtreGroupe()"
-      (change)="filtreGroupe.set($any($event.target).value)"
-    >
-
-      <option value="">
-        كل المجموعات
-      </option>
-
-      @for (g of groupes(); track g.id ?? $index) {
-
-        <option [value]="g.id">
-          {{ g.nom }}
-        </option>
-
-      }
-
-    </select>
-
-
-    <!-- ETUDIANT -->
-    <select
-      class="filter-select"
-      [value]="filtreEtudiant()"
-      (change)="filtreEtudiant.set($any($event.target).value)"
-    >
-
-      <option value="">
-        كل الطلاب
-      </option>
-
-      @for (e of etudiantsFiltres(); track e.id ?? $index) {
-
-        <option [value]="e.id">
-
-          {{ e.nom }}
-
-          {{ e.groupe ? ' - ' + e.groupe : '' }}
-
-        </option>
-
-      }
-
-    </select>
-
-
-    <!-- STATUT -->
-    <select
-      class="filter-select"
-      [value]="filtreStatut()"
-      (change)="filtreStatut.set($any($event.target).value)"
-    >
-
-      <option value="">
-        كل الحالات
-      </option>
-
-      <option value="مكتمل">
-        مكتمل
-      </option>
-
-      <option value="جاري">
-        جاري
-      </option>
-
-      <option value="مراجعة">
-        مراجعة
-      </option>
-
-      <option value="لم يبدأ">
-        لم يبدأ
-      </option>
-
-    </select>
-
-
-    <!-- REFRESH -->
-    <button
-      class="btn-ghost"
-      (click)="loadData()"
-    >
-      🔄 تحديث
-    </button>
-
-  </div>
-
-
-  <!-- TABLE -->
-  <div class="card">
-
-    @if (loading()) {
-
-      <div class="loading-wrap">
-
-        <div class="spinner"></div>
-
-        <p>
-          جاري التحميل...
-        </p>
-
-      </div>
-
-    }
-
-    @else if (suiviFiltres().length === 0) {
-
-      <div class="empty-state">
-
-        <div class="empty-icon">
-          📖
+      <div>
+        <div class="topbar-title">
+          📖 تتبع الحفظ
         </div>
 
-        <p>
-          لا توجد تسجيلات للحفظ
-        </p>
+        <div class="topbar-sub">
+          متابعة حفظ الطلاب والسور
+        </div>
+      </div>
 
-        <button
-          class="btn-primary"
-          (click)="ouvrirAjout()"
+      <button
+        class="btn-primary"
+        (click)="ouvrirAjout()"
+      >
+        + تسجيل حفظ
+      </button>
+
+    </div>
+
+    <div class="content">
+
+      <!-- FILTERS -->
+      <div class="filters-bar">
+
+        <!-- GROUPE -->
+        <select
+          class="filter-select"
+          [value]="filtreGroupe()"
+          (change)="onFiltreGroupe($any($event.target).value)"
         >
-          + تسجيل أول حفظ
+          <option value="">كل المجموعات</option>
+
+          @for (g of groupes(); track g.id) {
+            <option [value]="g.id">
+              {{ g.nom }}
+            </option>
+          }
+        </select>
+
+        <!-- ETUDIANT -->
+        <select
+          class="filter-select"
+          [value]="filtreEtudiant()"
+          (change)="onFiltreEtudiant($any($event.target).value)"
+        >
+          <option value="">كل الطلاب</option>
+
+          @for (e of etudiants(); track e.id) {
+            <option [value]="e.id">
+              {{ e.nom }}
+              {{ e.groupe ? ' - ' + e.groupe : '' }}
+            </option>
+          }
+        </select>
+
+        <!-- STATUT -->
+        <select
+          class="filter-select"
+          [value]="filtreStatut()"
+          (change)="onFiltreStatut($any($event.target).value)"
+        >
+          <option value="">كل الحالات</option>
+          <option value="مكتمل">مكتمل</option>
+          <option value="جاري">جاري</option>
+          <option value="مراجعة">مراجعة</option>
+          <option value="لم يبدأ">لم يبدأ</option>
+        </select>
+
+        <!-- RESET FILTERS -->
+        <button
+          class="btn-ghost"
+          (click)="reinitialiserFiltres()"
+        >
+          ✖ مسح الفلاتر
+        </button>
+
+        <!-- REFRESH -->
+        <button
+          class="btn-ghost"
+          (click)="loadData()"
+          [disabled]="loading()"
+        >
+          🔄 تحديث
         </button>
 
       </div>
 
-    }
+      <!-- TABLE CARD -->
+      <div class="card">
 
-    @else {
+        @if (loading()) {
 
-      <div class="table-responsive">
+          <div class="loading-wrap">
+            <div class="spinner"></div>
+            <p>جاري التحميل...</p>
+          </div>
 
-        <table class="table">
+        } @else if (suiviFiltres().length === 0) {
 
-          <thead>
+          <div class="empty-state">
 
-            <tr>
+            <div class="empty-icon">
+              📖
+            </div>
 
-              <th></th>
+            <p>
+              لا توجد تسجيلات للحفظ
+            </p>
 
-              <th>
-                الطالب
-              </th>
+            <button
+              class="btn-primary"
+              (click)="ouvrirAjout()"
+            >
+              + تسجيل أول حفظ
+            </button>
 
-              <th>
-                السورة
-              </th>
+          </div>
 
-              <th>
-                من الآية
-              </th>
+        } @else {
 
-              <th>
-                إلى الآية
-              </th>
+          <div class="table-responsive">
 
-              <th>
-                الحالة
-              </th>
+            <table class="table">
 
-              <th>
-                التقييم
-              </th>
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>الطالب</th>
+                  <th>المجموعة</th>
+                  <th>السورة</th>
+                  <th>من الآية</th>
+                  <th>إلى الآية</th>
+                  <th>الحالة</th>
+                  <th>التقييم</th>
+                  <th>الإجراءات</th>
+                </tr>
+              </thead>
 
-              <th>
-                الإجراءات
-              </th>
+              <tbody>
 
-            </tr>
+                @for (
+                  h of suiviFiltres();
+                  track h.id;
+                  let i = $index
+                ) {
 
-          </thead>
+                  <tr>
 
+                    <!-- NUMBER -->
+                    <td class="td-num">
+                      {{ i + 1 }}
+                    </td>
 
-          <tbody>
-
-            @for (
-              h of suiviFiltres();
-              track h.id;
-              let i = $index
-            ) {
-
-              <tr>
-
-                <!-- NUMBER -->
-                <td class="td-num">
-                  {{ i + 1 }}
-                </td>
-
-
-                <!-- STUDENT -->
-                <td>
-
-                  <div class="stu-cell">
-
-                      <div class="stu-name">
-                        {{ h.etudiant.nom }}
+                    <!-- STUDENT -->
+                    <td>
+                      <div class="stu-cell">
+                        <div class="stu-name">
+                          {{ h.etudiant.nom }}
+                        </div>
                       </div>
-                  </div>
+                    </td>
 
-                </td>
+                    <!-- GROUPE -->
+                    <td>
+                      {{ h.etudiant.groupe || '—' }}
+                    </td>
 
+                    <!-- SOURATE -->
+                    <td>
+                      <strong class="sourate-name">
+                        {{ h.sourate }}
+                      </strong>
+                    </td>
 
-                <!-- SOURATE -->
-                <td>
+                    <!-- AYAT DEBUT -->
+                    <td>
+                      الآية {{ h.ayat_debut }}
+                    </td>
 
-                  <strong class="sourate-name">
-                    {{ h.sourate }}
-                  </strong>
+                    <!-- AYAT FIN -->
+                    <td>
+                      الآية {{ h.ayat_fin }}
+                    </td>
 
-                </td>
+                    <!-- STATUT -->
+                    <td>
+                      <span
+                        class="badge"
+                        [class]="badge(h.statut)"
+                      >
+                        {{ h.statut }}
+                      </span>
+                    </td>
 
+                    <!-- EVALUATION -->
+                    <td>
+                      <span
+                        class="badge"
+                        [class]="evaluationBadge(h.evaluation)"
+                      >
+                        {{ h.evaluation }}
+                      </span>
+                    </td>
 
-                <!-- AYAT DEBUT -->
-                <td>
-                  الآية {{ h.ayat_debut }}
-                </td>
+                    <!-- ACTIONS -->
+                    <td>
+                      <div class="actions">
 
+                        <button
+                          class="action-btn btn-edit"
+                          (click)="modifier(h)"
+                          title="تعديل"
+                        >
+                          ✏️
+                        </button>
 
-                <!-- AYAT FIN -->
-                <td>
-                  الآية {{ h.ayat_fin }}
-                </td>
+                        <button
+                          class="action-btn btn-delete"
+                          (click)="supprimer(h)"
+                          title="حذف"
+                        >
+                          🗑️
+                        </button>
 
+                      </div>
+                    </td>
 
-                <!-- STATUT -->
-                <td>
+                  </tr>
 
-                  <span
-                    class="badge"
-                    [class]="badge(h.statut)"
-                  >
-                    {{ h.statut }}
-                  </span>
+                }
 
-                </td>
+              </tbody>
 
+            </table>
 
-                <!-- EVALUATION -->
-                <td>
+          </div>
 
-                  <span
-                    class="badge"
-                    [class]="evaluationBadge(h.evaluation)"
-                  >
-                    {{ h.evaluation }}
-                  </span>
-
-                </td>
-
-
-                <!-- ACTIONS -->
-                <td>
-
-                  <div class="actions">
-
-                    <button
-                      class="action-btn btn-edit"
-                      (click)="modifier(h)"
-                      title="تعديل"
-                    >
-                      ✏️
-                    </button>
-
-                    <button
-                      class="action-btn btn-delete"
-                      (click)="supprimer(h)"
-                      title="حذف"
-                    >
-                      🗑️
-                    </button>
-
-                  </div>
-
-                </td>
-
-              </tr>
-
-            }
-
-          </tbody>
-
-        </table>
+        }
 
       </div>
 
-    }
-
-  </div>
-
-</div>
+    </div>
 
   </main>
 
@@ -338,386 +265,254 @@
     (click)="fermerModal()"
   >
 
-<div
-  class="modal"
-  (click)="$event.stopPropagation()"
->
-
-
-  <!-- HEADER -->
-  <div class="modal-header">
-
-    <h3>
-
-      {{
-        modeEdit()
-          ? '✏️ تعديل الحفظ'
-          : '+ تسجيل حفظ جديد'
-      }}
-
-    </h3>
-
-    <button
-      class="modal-close"
-      (click)="fermerModal()"
+    <div
+      class="modal"
+      (click)="$event.stopPropagation()"
     >
-      ✕
-    </button>
 
-  </div>
+      <!-- HEADER -->
+      <div class="modal-header">
 
+        <h3>
+          {{
+            modeEdit()
+              ? '✏️ تعديل الحفظ'
+              : '+ تسجيل حفظ جديد'
+          }}
+        </h3>
 
-  <!-- BODY -->
-  <div class="modal-body">
+        <button
+          class="modal-close"
+          (click)="fermerModal()"
+        >
+          ✕
+        </button>
 
+      </div>
 
-    <!-- =========================
-         ETUDIANT
-    ========================== -->
+      <!-- BODY -->
+      <div class="modal-body">
 
-    <div class="form-group">
+        <!-- ETUDIANT -->
+        <div class="form-group">
 
-      <label>
+          <label>
+            الطالب
+            <span class="required">*</span>
+          </label>
 
-        الطالب
-
-        <span class="required">
-          *
-        </span>
-
-      </label>
-
-
-      <select
-        class="form-input"
-        [value]="form().etudiant_id"
-        (change)="updateForm(
-          'etudiant_id',
-          $any($event.target).value
-        )"
-      >
-
-        <option value="">
-          اختر الطالب
-        </option>
-
-
-        @for (
-          e of etudiants();
-          track e.id
-        ) {
-
-          <option [value]="e.id">
-
-            {{ e.nom }}
-
-            {{ e.groupe ? ' - ' + e.groupe : '' }}
-
-          </option>
-
-        }
-
-      </select>
-
-    </div>
-
-
-
-    <!-- =========================
-         SOURATE
-    ========================== -->
-
-    <div class="form-group">
-
-      <label>
-
-        السورة
-
-        <span class="required">
-          *
-        </span>
-
-      </label>
-
-
-      <select
-        class="form-input"
-        [value]="form().sourate_id"
-        (change)="updateForm(
-          'sourate_id',
-          $any($event.target).value
-        )"
-      >
-
-        <option value="">
-          اختر السورة
-        </option>
-
-
-        @if (sourates().length === 0) {
-
-          <option
-            value=""
-            disabled
+          <select
+            class="form-input"
+            [value]="form().etudiant_id"
+            (change)="updateForm(
+              'etudiant_id',
+              $any($event.target).value
+            )"
           >
-            لا توجد سور
-          </option>
+
+            <option value="">
+              اختر الطالب
+            </option>
+
+            @for (e of etudiantsFiltres(); track e.id) {
+
+              <option [value]="e.id">
+                {{ e.nom }}
+              </option>
+
+            }
+
+          </select>
+
+        </div>
+
+        <!-- SOURATE -->
+        <div class="form-group">
+
+          <label>
+            السورة
+            <span class="required">*</span>
+          </label>
+
+          <select
+            class="form-input"
+            [value]="form().sourate_id"
+            (change)="updateForm(
+              'sourate_id',
+              $any($event.target).value
+            )"
+          >
+
+            <option value="">
+              اختر السورة
+            </option>
+
+            @if (sourates().length === 0) {
+              <option value="" disabled>
+                لا توجد سور
+              </option>
+            }
+
+            @for (s of sourates(); track s.id) {
+              <option [value]="s.id">
+                {{ s.nom }}
+              </option>
+            }
+
+          </select>
+
+        </div>
+
+        <!-- AYAT -->
+        <div class="form-row">
+
+          <!-- AYAT FIN -->
+          <div class="form-group">
+
+            <label>
+              إلى الآية
+              <span class="required">*</span>
+            </label>
+
+            <input
+              class="form-input"
+              type="number"
+              min="1"
+              [value]="form().ayat_fin"
+              (input)="updateForm(
+                'ayat_fin',
+                +$any($event.target).value
+              )"
+            />
+
+          </div>
+
+          <!-- AYAT DEBUT -->
+          <div class="form-group">
+
+            <label>
+              من الآية
+              <span class="required">*</span>
+            </label>
+
+            <input
+              class="form-input"
+              type="number"
+              min="1"
+              [value]="form().ayat_debut"
+              (input)="updateForm(
+                'ayat_debut',
+                +$any($event.target).value
+              )"
+            />
+
+          </div>
+
+        </div>
+
+        <!-- STATUT -->
+        <div class="form-group">
+
+          <label>
+            حالة الحفظ
+            <span class="required">*</span>
+          </label>
+
+          <select
+            class="form-input"
+            [value]="form().statut"
+            (change)="updateForm(
+              'statut',
+              $any($event.target).value
+            )"
+          >
+
+            <option value="">اختر الحالة</option>
+            <option value="مكتمل">✅ مكتمل</option>
+            <option value="جاري">🔵 جاري</option>
+            <option value="مراجعة">🟠 مراجعة</option>
+            <option value="لم يبدأ">⚪ لم يبدأ</option>
+
+          </select>
+
+        </div>
+
+        <!-- EVALUATION -->
+        <div class="form-group">
+
+          <label>
+            تقييم الحفظ
+            <span class="required">*</span>
+          </label>
+
+          <select
+            class="form-input"
+            [value]="form().evaluation"
+            (change)="updateForm(
+              'evaluation',
+              $any($event.target).value
+            )"
+          >
+
+            <option value="">اختر التقييم</option>
+            <option value="ممتاز">⭐ ممتاز</option>
+            <option value="جيد">👍 جيد</option>
+            <option value="متوسط">🟡 متوسط</option>
+            <option value="ضعيف">🔴 ضعيف</option>
+
+          </select>
+
+        </div>
+
+        <!-- INFO -->
+        @if (form().sourate_id) {
+
+          <div class="sourate-info">
+
+            📖 السورة المختارة:
+
+            <strong>
+              {{ getSourateNom() }}
+            </strong>
+
+          </div>
 
         }
 
+      </div>
 
-        @for (
-          s of sourates();
-          track s.id
-        ) {
+      <!-- FOOTER -->
+      <div class="modal-footer">
 
-          <option [value]="s.id">
+        <button
+          class="btn-ghost"
+          (click)="fermerModal()"
+          [disabled]="formLoading()"
+        >
+          إلغاء
+        </button>
 
-            {{ s.nom }}
+        <button
+          class="btn-primary"
+          (click)="soumettre()"
+          [disabled]="formLoading()"
+        >
 
-          </option>
+          @if (formLoading()) {
+            جاري الحفظ...
+          } @else {
+            {{
+              modeEdit()
+                ? '💾 حفظ التعديلات'
+                : '+ تسجيل الحفظ'
+            }}
+          }
 
-        }
-
-      </select>
-
-    </div>
-
-
-
-    <!-- =========================
-         AYAT
-    ========================== -->
-
-    <div class="form-row">
-  <!-- AYAT FIN -->
-      <div class="form-group">
-
-        <label>
-
-          إلى الآية
-
-          <span class="required">
-            *
-          </span>
-
-        </label>
-
-
-        <input
-          class="form-input"
-          type="number"
-          min="1"
-          [value]="form().ayat_fin"
-          (input)="updateForm(
-            'ayat_fin',
-            +$any($event.target).value
-          )"
-        />
+        </button>
 
       </div>
 
-      <!-- AYAT DEBUT -->
-      <div class="form-group">
-
-        <label>
-
-          من الآية
-
-          <span class="required">
-            *
-          </span>
-
-        </label>
-
-
-        <input
-          class="form-input"
-          type="number"
-          min="1"
-          [value]="form().ayat_debut"
-          (input)="updateForm(
-            'ayat_debut',
-            +$any($event.target).value
-          )"
-        />
-
-      </div>
-
-
-
-    
-
     </div>
-
-
-
-    <!-- =========================
-         STATUT
-    ========================== -->
-
-    <div class="form-group">
-
-      <label>
-
-        حالة الحفظ
-
-        <span class="required">
-          *
-        </span>
-
-      </label>
-
-
-      <select
-        class="form-input"
-        [value]="form().statut"
-        (change)="updateForm(
-          'statut',
-          $any($event.target).value
-        )"
-      >
-
-        <option value="">
-          اختر الحالة
-        </option>
-
-        <option value="مكتمل">
-          ✅ مكتمل
-        </option>
-
-        <option value="جاري">
-          🔵 جاري
-        </option>
-
-        <option value="مراجعة">
-          🟠 مراجعة
-        </option>
-
-        <option value="لم يبدأ">
-          ⚪ لم يبدأ
-        </option>
-
-      </select>
-
-    </div>
-
-
-
-    <!-- =========================
-         EVALUATION
-    ========================== -->
-
-    <div class="form-group">
-
-      <label>
-
-        تقييم الحفظ
-
-        <span class="required">
-          *
-        </span>
-
-      </label>
-
-
-      <select
-        class="form-input"
-        [value]="form().evaluation"
-        (change)="updateForm(
-          'evaluation',
-          $any($event.target).value
-        )"
-      >
-
-        <option value="">
-          اختر التقييم
-        </option>
-
-        <option value="ممتاز">
-          ⭐ ممتاز
-        </option>
-
-        <option value="جيد">
-          👍 جيد
-        </option>
-
-        <option value="متوسط">
-          🟡 متوسط
-        </option>
-
-        <option value="ضعيف">
-          🔴 ضعيف
-        </option>
-
-      </select>
-
-    </div>
-
-
-
-    <!-- =========================
-         INFO
-    ========================== -->
-
-    @if (form().sourate_id) {
-
-      <div class="sourate-info">
-
-        📖
-
-        السورة المختارة:
-
-        <strong>
-          {{ getSourateNom() }}
-        </strong>
-
-      </div>
-
-    }
-
-  </div>
-
-
-
-  <!-- FOOTER -->
-  <div class="modal-footer">
-
-    <button
-      class="btn-ghost"
-      (click)="fermerModal()"
-    >
-      إلغاء
-    </button>
-
-
-    <button
-      class="btn-primary"
-      (click)="soumettre()"
-      [disabled]="formLoading()"
-    >
-
-      @if (formLoading()) {
-
-        جاري الحفظ...
-
-      }
-
-      @else {
-
-        {{
-          modeEdit()
-            ? '💾 حفظ التعديلات'
-            : '+ تسجيل الحفظ'
-        }}
-
-      }
-
-    </button>
-
-  </div>
-
-</div>
 
   </div>
 
