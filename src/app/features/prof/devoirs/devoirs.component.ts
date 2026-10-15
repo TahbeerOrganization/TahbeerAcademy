@@ -47,12 +47,23 @@ export class DevoirsComponent implements OnInit {
 
   constructor(private sb: SupabaseService) {}
 
-  // Navigation
+  // ==================================================
+  // NAVIGATION
+  // ==================================================
+
   activeView = signal<ActiveView>('home');
 
   goTo(view: ActiveView): void {
     this.activeView.set(view);
     this.clearMessages();
+
+    if (view === 'pdf') {
+      void this.loadFichiers();
+    }
+
+    if (view === 'meet') {
+      void this.loadMeetSessions();
+    }
   }
 
   goHome(): void {
@@ -64,23 +75,53 @@ export class DevoirsComponent implements OnInit {
     this.successMsg.set('');
   }
 
-  // Groups
+  // ==================================================
+  // GROUPES
+  // ==================================================
+
   groupes = signal<Groupe[]>([]);
   loading = signal(false);
 
-  // Google Meet URL
+  // ==================================================
+  // MESSAGES ET ETAT GENERAL
+  // ==================================================
+
+  saving = signal(false);
+  errorMsg = signal('');
+  successMsg = signal('');
+  deletingItem = signal<string | null>(null);
+
+  // ==================================================
+  // GOOGLE MEET URL
+  // ==================================================
+
   meetUrl = signal('');
   savingMeetUrl = signal(false);
-
-  // Lock editing after loading/saving a URL
   editingMeetUrl = signal(false);
 
   toggleEditMeetUrl(): void {
-    this.editingMeetUrl.update(value => !value);
+    if (this.savingMeetUrl()) {
+      return;
+    }
+
+    // Si on annule la modification, recharger la valeur sauvegardée.
+    if (this.editingMeetUrl()) {
+      void this.loadMeetUrl();
+    } else {
+      this.editingMeetUrl.set(true);
+    }
+
     this.clearMessages();
   }
 
-  // Meeting schedules
+  updateMeetUrl(value: string): void {
+    this.meetUrl.set(value);
+  }
+
+  // ==================================================
+  // MEETING SESSIONS
+  // ==================================================
+
   meetSlots = signal<MeetSlot[]>([
     { groupeId: '', date: '', time: '' }
   ]);
@@ -88,17 +129,46 @@ export class DevoirsComponent implements OnInit {
   meetSessions = signal<MeetCard[]>([]);
   loadingMeetSessions = signal(false);
 
-  // PDF uploads waiting for group assignment
+  meetDeleteKey(session: MeetCard): string {
+    return `meet-${session.groupe_id}-${session.date_heure}`;
+  }
+
+  addMeetSlot(): void {
+    this.meetSlots.update(slots => [
+      ...slots,
+      { groupeId: '', date: '', time: '' }
+    ]);
+  }
+
+  removeMeetSlot(index: number): void {
+    this.meetSlots.update(slots =>
+      slots.filter((_, i) => i !== index)
+    );
+  }
+
+  updateMeetSlot(
+    index: number,
+    field: keyof MeetSlot,
+    value: string
+  ): void {
+    this.meetSlots.update(slots =>
+      slots.map((slot, i) =>
+        i === index ? { ...slot, [field]: value } : slot
+      )
+    );
+  }
+
+  // ==================================================
+  // PDF UPLOADS
+  // ==================================================
+
   pdfUploads = signal<PdfUpload[]>([]);
   uploadingFichier = signal(false);
-
-  // PDFs already saved in Supabase
   coursesPdf = signal<PdfCard[]>([]);
 
-  // General form state
-  saving = signal(false);
-  errorMsg = signal('');
-  successMsg = signal('');
+  // ==================================================
+  // INITIALISATION
+  // ==================================================
 
   ngOnInit(): void {
     void this.loadAll();
@@ -108,7 +178,7 @@ export class DevoirsComponent implements OnInit {
   }
 
   // ==================================================
-  // LOAD GROUPS
+  // CHARGER LES GROUPES
   // ==================================================
 
   async loadAll(): Promise<void> {
@@ -136,12 +206,8 @@ export class DevoirsComponent implements OnInit {
   }
 
   // ==================================================
-  // PERSISTENT GOOGLE MEET URL
+  // CHARGER LE LIEN GOOGLE MEET
   // ==================================================
-
-  updateMeetUrl(value: string): void {
-    this.meetUrl.set(value);
-  }
 
   async loadMeetUrl(): Promise<void> {
     try {
@@ -160,14 +226,16 @@ export class DevoirsComponent implements OnInit {
       const url = data?.meet_url ?? '';
 
       this.meetUrl.set(url);
-
-      // If a URL already exists, show it in locked mode.
       this.editingMeetUrl.set(!url.trim());
     } catch (error) {
       console.error('LOAD MEET URL ERROR:', error);
       this.errorMsg.set('وقع خطأ أثناء تحميل رابط Meet');
     }
   }
+
+  // ==================================================
+  // ENREGISTRER LE LIEN GOOGLE MEET
+  // ==================================================
 
   async enregistrerMeetUrl(): Promise<void> {
     if (this.savingMeetUrl()) {
@@ -190,9 +258,7 @@ export class DevoirsComponent implements OnInit {
         parsedUrl.protocol !== 'https:' ||
         parsedUrl.hostname !== 'meet.google.com'
       ) {
-        this.errorMsg.set(
-          'المرجو إدخال رابط Google Meet صحيح'
-        );
+        this.errorMsg.set('المرجو إدخال رابط Google Meet صحيح');
         return;
       }
     } catch {
@@ -218,10 +284,8 @@ export class DevoirsComponent implements OnInit {
       }
 
       this.meetUrl.set(url);
-      this.successMsg.set('تم حفظ رابط Meet بنجاح');
-
-      // Lock the input after a successful save.
       this.editingMeetUrl.set(false);
+      this.successMsg.set('تم حفظ رابط Meet بنجاح');
     } catch (error) {
       console.error('SAVE MEET URL ERROR:', error);
       this.errorMsg.set('وقع خطأ أثناء حفظ الرابط');
@@ -231,35 +295,8 @@ export class DevoirsComponent implements OnInit {
   }
 
   // ==================================================
-  // MEETING SCHEDULES
+  // ENREGISTRER LES HORAIRES DES SEANCES
   // ==================================================
-
-  addMeetSlot(): void {
-    this.meetSlots.update(slots => [
-      ...slots,
-      { groupeId: '', date: '', time: '' }
-    ]);
-  }
-
-  removeMeetSlot(index: number): void {
-    this.meetSlots.update(slots =>
-      slots.filter((_, i) => i !== index)
-    );
-  }
-
-  updateMeetSlot(
-    index: number,
-    field: keyof MeetSlot,
-    value: string
-  ): void {
-    this.meetSlots.update(slots =>
-      slots.map((slot, i) =>
-        i === index
-          ? { ...slot, [field]: value }
-          : slot
-      )
-    );
-  }
 
   async validerMeet(): Promise<void> {
     if (this.saving() || this.savingMeetUrl()) {
@@ -269,13 +306,12 @@ export class DevoirsComponent implements OnInit {
     this.clearMessages();
 
     const link = this.meetUrl().trim();
+    const slots = this.meetSlots();
 
     if (!link) {
       this.errorMsg.set('خاصك تحفظ رابط Meet أولا');
       return;
     }
-
-    const slots = this.meetSlots();
 
     if (slots.length === 0) {
       this.errorMsg.set('المرجو إضافة حصة واحدة على الأقل');
@@ -283,9 +319,7 @@ export class DevoirsComponent implements OnInit {
     }
 
     if (slots.some(slot => !slot.groupeId)) {
-      this.errorMsg.set(
-        'المرجو اختيار المجموعة لكل حصة'
-      );
+      this.errorMsg.set('المرجو اختيار المجموعة لكل حصة');
       return;
     }
 
@@ -299,9 +333,7 @@ export class DevoirsComponent implements OnInit {
     }
 
     if (slots.some(slot => !slot.date || !slot.time)) {
-      this.errorMsg.set(
-        'المرجو تحديد تاريخ ووقت كل حصة'
-      );
+      this.errorMsg.set('المرجو تحديد تاريخ ووقت كل حصة');
       return;
     }
 
@@ -322,7 +354,7 @@ export class DevoirsComponent implements OnInit {
       if (error) {
         console.error('MEET SCHEDULE ERROR:', error);
         this.errorMsg.set(
-          'فشل حفظ المواعيد. تأكد من بنية جدول cours وصلاحيات Supabase.'
+          'فشل حفظ المواعيد: ' + error.message
         );
         return;
       }
@@ -342,6 +374,10 @@ export class DevoirsComponent implements OnInit {
     }
   }
 
+  // ==================================================
+  // CHARGER LES SEANCES GOOGLE MEET
+  // ==================================================
+
   async loadMeetSessions(): Promise<void> {
     this.loadingMeetSessions.set(true);
 
@@ -359,7 +395,7 @@ export class DevoirsComponent implements OnInit {
         return;
       }
 
-      const sessions: MeetCard[] = (data ?? []).map(row => {
+      const sessions: MeetCard[] = (data ?? []).map((row: any) => {
         const relation = row.groupes as
           | { nom?: string }
           | { nom?: string }[]
@@ -387,13 +423,56 @@ export class DevoirsComponent implements OnInit {
   }
 
   // ==================================================
-  // PDF GROUP SELECTION
+  // SUPPRIMER UNE SEANCE GOOGLE MEET
   // ==================================================
 
-  togglePdfGroup(
-    pdfIndex: number,
-    groupeId: string
-  ): void {
+  async supprimerMeetSession(session: MeetCard): Promise<void> {
+    const key = this.meetDeleteKey(session);
+
+    if (this.deletingItem() !== null) {
+      return;
+    }
+
+    const confirme = window.confirm(
+      `واش متأكد من حذف حصة المجموعة "${session.groupe_nom}"؟`
+    );
+
+    if (!confirme) {
+      return;
+    }
+
+    this.clearMessages();
+    this.deletingItem.set(key);
+
+    try {
+      const { error } = await this.sb.client
+        .from('cours')
+        .delete()
+        .eq('groupe_id', session.groupe_id)
+        .eq('date_heure', session.date_heure)
+        .eq('meet_link', session.meet_link)
+        .is('fichier_url', null);
+
+      if (error) {
+        console.error('DELETE MEET ERROR:', error);
+        throw error;
+      }
+
+      await this.loadMeetSessions();
+      this.successMsg.set('تم حذف الحصة بنجاح');
+    } catch (error: any) {
+      console.error('DELETE MEET ERROR:', error);
+      this.errorMsg.set(error?.message || 'تعذر حذف الحصة');
+    } finally {
+      this.deletingItem.set(null);
+    }
+  }
+
+  // ==================================================
+  // SELECTION DES GROUPES POUR LES PDF
+  // ==================================================
+
+  togglePdfGroup(pdfIndex: number, groupeId: string): void {
     this.pdfUploads.update(list =>
       list.map((pdf, i) => {
         if (i !== pdfIndex) {
@@ -412,13 +491,14 @@ export class DevoirsComponent implements OnInit {
     );
   }
 
-  isPdfGroupSelected(
-    pdfIndex: number,
-    groupeId: string
-  ): boolean {
+  isPdfGroupSelected(pdfIndex: number, groupeId: string): boolean {
     return this.pdfUploads()[pdfIndex]?.groupeIds.includes(groupeId)
       ?? false;
   }
+
+  // ==================================================
+  // RETIRER UN PDF DE LA LISTE AVANT ENREGISTREMENT
+  // ==================================================
 
   removePdf(index: number): void {
     this.pdfUploads.update(list =>
@@ -427,7 +507,7 @@ export class DevoirsComponent implements OnInit {
   }
 
   // ==================================================
-  // UPLOAD PDF TO SUPABASE STORAGE
+  // UPLOADER UN PDF VERS SUPABASE STORAGE
   // ==================================================
 
   async onFichierSelected(event: Event): Promise<void> {
@@ -451,8 +531,11 @@ export class DevoirsComponent implements OnInit {
 
     this.uploadingFichier.set(true);
 
+    let uploadedPath: string | null = null;
+
     try {
       const fileName = `${crypto.randomUUID()}.pdf`;
+      uploadedPath = fileName;
 
       const { error } = await this.sb.client.storage
         .from('devoirs-fichiers')
@@ -493,89 +576,69 @@ export class DevoirsComponent implements OnInit {
   }
 
   // ==================================================
-  // SAVE PDF ASSIGNMENTS
+  // ENREGISTRER LES PDF ET LEURS GROUPES
   // ==================================================
 
-  
-async validerPdf(): Promise<void> {
-  if (this.saving() || this.uploadingFichier()) {
-    return;
-  }
-
-  this.clearMessages();
-
-  const uploads = this.pdfUploads();
-
-  // التحقق من وجود الملفات
-  if (uploads.length === 0) {
-    this.errorMsg.set('المرجو إضافة ملف PDF واحد على الأقل');
-    return;
-  }
-
-  // التحقق من اختيار مجموعة لكل ملف
-  if (uploads.some(pdf => pdf.groupeIds.length === 0)) {
-    this.errorMsg.set(
-      'المرجو اختيار مجموعة واحدة على الأقل لكل ملف'
-    );
-    return;
-  }
-
-  this.saving.set(true);
-
-  try {
-    // تجهيز البيانات للحفظ في جدول cours
-    const rows = uploads.flatMap(pdf =>
-      pdf.groupeIds.map(groupeId => ({
-        groupe_id: groupeId,
-        fichier_url: pdf.fichier_url,
-        fichier_nom: pdf.nom,
-        date_heure: null,
-        meet_link: null
-      }))
-    );
-
-    // حفظ الملفات في قاعدة البيانات
-    const { error } = await this.sb.client
-      .from('cours')
-      .insert(rows);
-
-    if (error) {
-      console.error('PDF SAVE ERROR:', error);
-      console.error('PDF SAVE ERROR MESSAGE:', error.message);
-      console.error('PDF SAVE ERROR CODE:', error.code);
-      console.error('PDF SAVE ERROR DETAILS:', error.details);
-      console.error('PDF SAVE ERROR HINT:', error.hint);
-
-      this.errorMsg.set(
-        `فشل حفظ الملفات: ${error.message}`
-      );
-
+  async validerPdf(): Promise<void> {
+    if (this.saving() || this.uploadingFichier()) {
       return;
     }
 
-    // نجاح الحفظ
-    this.successMsg.set('تم حفظ ملفات PDF بنجاح');
+    this.clearMessages();
 
-    // تفريغ الملفات التي تم حفظها
-    this.pdfUploads.set([]);
+    const uploads = this.pdfUploads();
 
-    // تحديث لائحة الملفات المحفوظة
-    await this.loadFichiers();
+    if (uploads.length === 0) {
+      this.errorMsg.set('المرجو إضافة ملف PDF واحد على الأقل');
+      return;
+    }
 
-  } catch (error) {
-    console.error('PDF SAVE ERROR:', error);
+    if (uploads.some(pdf => pdf.groupeIds.length === 0)) {
+      this.errorMsg.set(
+        'المرجو اختيار مجموعة واحدة على الأقل لكل ملف'
+      );
+      return;
+    }
 
-    this.errorMsg.set(
-      'وقع خطأ غير متوقع أثناء حفظ ملفات PDF'
-    );
+    this.saving.set(true);
 
-  } finally {
-    this.saving.set(false);
+    try {
+      const rows = uploads.flatMap(pdf =>
+        pdf.groupeIds.map(groupeId => ({
+          groupe_id: groupeId,
+          fichier_url: pdf.fichier_url,
+          fichier_nom: pdf.nom,
+          date_heure: null,
+          meet_link: null
+        }))
+      );
+
+      const { error } = await this.sb.client
+        .from('cours')
+        .insert(rows);
+
+      if (error) {
+        console.error('PDF SAVE ERROR:', error);
+        this.errorMsg.set('فشل حفظ الملفات: ' + error.message);
+        return;
+      }
+
+      this.pdfUploads.set([]);
+      await this.loadFichiers();
+
+      this.successMsg.set('تم حفظ ملفات PDF بنجاح');
+    } catch (error: any) {
+      console.error('PDF SAVE ERROR:', error);
+      this.errorMsg.set(
+        error?.message || 'وقع خطأ أثناء حفظ ملفات PDF'
+      );
+    } finally {
+      this.saving.set(false);
+    }
   }
-}
 
   // ==================================================
-  // LOAD SAVED PDFS
+  // CHARGER LES PDF ENREGISTRES
   // ==================================================
 
   async loadFichiers(): Promise<void> {
@@ -638,6 +701,112 @@ async validerPdf(): Promise<void> {
     } catch (error) {
       console.error('FICHIERS ERROR:', error);
       this.errorMsg.set('وقع خطأ أثناء تحميل ملفات PDF');
+    }
+  }
+
+  // ==================================================
+  // SUPPRIMER UN PDF ET SES AFFECTATIONS
+  // ==================================================
+
+  async supprimerPdf(pdf: PdfCard): Promise<void> {
+    if (this.deletingItem() !== null) {
+      return;
+    }
+
+    const confirme = window.confirm(
+      `واش متأكد من حذف الملف "${pdf.nom}" من جميع المجموعات؟`
+    );
+
+    if (!confirme) {
+      return;
+    }
+
+    this.clearMessages();
+    this.deletingItem.set(pdf.fichier_url);
+
+    try {
+      /*
+       * 1. استخراج مسار الملف في Storage قبل الحذف.
+       */
+      let filePath: string | null = null;
+
+      try {
+        const url = new URL(pdf.fichier_url);
+        const marker = '/devoirs-fichiers/';
+        const markerIndex = url.pathname.indexOf(marker);
+
+        if (markerIndex !== -1) {
+          filePath = decodeURIComponent(
+            url.pathname.substring(markerIndex + marker.length)
+          );
+        }
+      } catch (error) {
+        console.error('INVALID PDF URL:', error);
+      }
+
+      /*
+       * 2. حذف جميع سجلات الملف من قاعدة البيانات.
+       */
+      const { error: dbError } = await this.sb.client
+        .from('cours')
+        .delete()
+        .eq('fichier_url', pdf.fichier_url);
+
+      if (dbError) {
+        console.error('DELETE PDF DATABASE ERROR:', dbError);
+        throw dbError;
+      }
+
+      /*
+       * 3. تحديث القائمة بعد حذف السجلات.
+       */
+      this.coursesPdf.update(list =>
+        list.filter(item => item.fichier_url !== pdf.fichier_url)
+      );
+
+      /*
+       * 4. حذف الملف من Storage.
+       */
+      if (!filePath) {
+        this.successMsg.set(
+          'تحيدات سجلات الملف، ولكن تعذر تحديد مساره في التخزين.'
+        );
+        await this.loadFichiers();
+        return;
+      }
+
+      const { error: storageError } = await this.sb.client.storage
+        .from('devoirs-fichiers')
+        .remove([filePath]);
+
+      if (storageError) {
+        console.error('DELETE PDF STORAGE ERROR:', storageError);
+
+        await this.loadFichiers();
+
+        this.errorMsg.set(
+          'تحيدات سجلات الملف من قاعدة البيانات، ولكن فشل حذف الملف من التخزين: ' +
+          storageError.message
+        );
+
+        return;
+      }
+
+      /*
+       * 5. تحديث القائمة وعرض رسالة النجاح.
+       */
+      await this.loadFichiers();
+      this.successMsg.set('تم حذف ملف PDF بنجاح');
+    } catch (error: any) {
+      console.error('DELETE PDF ERROR:', error);
+
+      this.errorMsg.set(
+        error?.message || 'تعذر حذف ملف PDF'
+      );
+
+      await this.loadFichiers();
+    } finally {
+      this.deletingItem.set(null);
     }
   }
 }

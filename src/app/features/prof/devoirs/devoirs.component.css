@@ -882,6 +882,56 @@ button:disabled {
   }
 }
 
+/* Actions des cartes : suppression */
+.pdf-card-actions {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.btn-delete-card {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  background: #fff1f2;
+  color: #dc2626;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.btn-delete-card:hover:not(:disabled) {
+  background: #dc2626;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.btn-delete-card:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-delete-card:focus-visible {
+  outline: 2px solid #dc2626;
+  outline-offset: 3px;
+}
+
+@media (max-width: 480px) {
+  .btn-delete-card {
+    width: 100%;
+  }
+}
+
 @media (max-width: 700px) {
   .layout {
     height: 100vh;
@@ -1078,4 +1128,6 @@ button:disabled {
     scroll-behavior: auto !important;
     transition-duration: .01ms !important;
   }
+
+  
 }

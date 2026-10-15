@@ -1,10 +1,7 @@
-
 <div class="layout" dir="rtl">
-
   <app-sidebar activePage="devoirs"></app-sidebar>
 
   <main class="main">
-
     <header class="topbar">
       <div>
         <h1 class="topbar-title">🎓 الدروس والحصص المباشرة</h1>
@@ -14,24 +11,18 @@
       </div>
 
       @if (activeView() !== 'home') {
-        <button type="button" class="btn-ghost back-button" (click)="goHome()">
-          → الرجوع
-        </button>
+        <button type="button" class="btn-ghost back-button"
+                (click)="goHome()">→ الرجوع</button>
       }
     </header>
 
     <div class="content">
-
       @if (successMsg()) {
-        <div class="alert alert-success">
-          ✅ {{ successMsg() }}
-        </div>
+        <div class="alert alert-success">✅ {{ successMsg() }}</div>
       }
 
       @if (errorMsg()) {
-        <div class="alert alert-error">
-          ⚠️ {{ errorMsg() }}
-        </div>
+        <div class="alert alert-error">⚠️ {{ errorMsg() }}</div>
       }
 
       @if (loading()) {
@@ -42,31 +33,24 @@
       }
 
       <!-- HOME -->
-
       @if (activeView() === 'home') {
-
         <div class="home-cards">
-
           <button type="button" class="home-card" (click)="goTo('meet')">
             <div class="home-card-icon meet-icon">🎥</div>
-
             <div class="home-card-info">
               <h3>Google Meet</h3>
-              <p>حفظ الرابط مرة وحدة وتنظيم مواعيد المجموعات.</p>
-
+              <p>حفظ الرابط وتنظيم مواعيد المجموعات.</p>
               @if (meetUrl()) {
                 <span class="home-status status-success">✓ رابط محفوظ</span>
               } @else {
                 <span class="home-status status-pending">رابط غير محفوظ</span>
               }
             </div>
-
             <span class="home-card-arrow">←</span>
           </button>
 
           <button type="button" class="home-card" (click)="goTo('pdf')">
             <div class="home-card-icon file-icon">📄</div>
-
             <div class="home-card-info">
               <h3>ملفات الدروس PDF</h3>
               <p>رفع الملفات وتحديد المجموعات المستفيدة منها.</p>
@@ -74,22 +58,17 @@
                 {{ coursesPdf().length }} ملف محفوظ
               </span>
             </div>
-
             <span class="home-card-arrow">←</span>
           </button>
-
         </div>
 
         <!-- SAVED MEET SESSIONS -->
-
         <section class="saved-section">
-
           <div class="section-heading">
             <div>
               <h2>🎥 حصص Google Meet</h2>
               <p>جميع الحصص المسجلة مع المجموعات والتواريخ ديالها.</p>
             </div>
-
             <button type="button" class="btn-secondary" (click)="goTo('meet')">
               ＋ إضافة حصة
             </button>
@@ -101,12 +80,9 @@
               <p>جاري تحميل الحصص...</p>
             </div>
           } @else if (meetSessions().length > 0) {
-
             <div class="pdf-grid">
-
-              @for (session of meetSessions(); track session.groupe_id + '-' + session.date_heure) {
+              @for (session of meetSessions(); track meetDeleteKey(session)) {
                 <article class="pdf-card meet-session-card">
-
                   <div class="pdf-card-top">
                     <div class="pdf-card-icon">🎥</div>
                     <span class="saved-badge">مسجلة</span>
@@ -114,17 +90,14 @@
 
                   <div class="pdf-card-info">
                     <strong>{{ session.groupe_nom }}</strong>
-
                     <p class="file-description">
                       📅 التاريخ:
                       {{ session.date_heure | date:'dd/MM/yyyy' }}
                     </p>
-
                     <p class="file-description">
                       🕒 الوقت:
                       {{ session.date_heure | date:'HH:mm' }}
                     </p>
-
                     <div class="pdf-card-groupes">
                       <span class="pdf-groupe-tag">
                         👥 {{ session.groupe_nom }}
@@ -139,35 +112,40 @@
                     فتح الحصة ↗
                   </a>
 
+                  <div class="pdf-card-actions">
+                    <button type="button"
+                            class="btn-delete-card"
+                            (click)="supprimerMeetSession(session)"
+                            [disabled]="deletingItem() !== null">
+                      @if (deletingItem() === meetDeleteKey(session)) {
+                        ⏳ جاري الحذف...
+                      } @else {
+                        🗑️ حذف الحصة
+                      }
+                    </button>
+                  </div>
                 </article>
               }
-
             </div>
-
           } @else {
             <div class="empty-state">
               <span>🎥</span>
               <h3>مازال ما تسجلات حتى حصة</h3>
               <p>الحصص اللي غادي تسجل غادي يبانوا هنا.</p>
-
               <button type="button" class="btn-primary" (click)="goTo('meet')">
                 ＋ إضافة أول حصة
               </button>
             </div>
           }
-
         </section>
 
         <!-- SAVED PDFS -->
-
         <section class="saved-section">
-
           <div class="section-heading">
             <div>
               <h2>📚 الدروس المحفوظة</h2>
               <p>جميع ملفات الدروس المسجلة عندك.</p>
             </div>
-
             <button type="button" class="btn-secondary" (click)="goTo('pdf')">
               ＋ إضافة ملف
             </button>
@@ -175,10 +153,8 @@
 
           @if (coursesPdf().length > 0) {
             <div class="pdf-grid">
-
               @for (c of coursesPdf(); track c.fichier_url) {
                 <article class="pdf-card">
-
                   <div class="pdf-card-top">
                     <div class="pdf-card-icon">📕</div>
                     <span class="saved-badge">محفوظ</span>
@@ -189,12 +165,10 @@
                     <p class="file-description">
                       ملف تعليمي مخصص للمجموعات المحددة.
                     </p>
-
                     <div class="pdf-card-groupes">
                       @for (nom of c.groupes; track nom) {
                         <span class="pdf-groupe-tag">{{ nom }}</span>
                       }
-
                       @if (c.groupes.length === 0) {
                         <span class="pdf-groupe-tag">بدون مجموعة معروفة</span>
                       }
@@ -208,34 +182,39 @@
                     فتح الملف ↗
                   </a>
 
+                  <div class="pdf-card-actions">
+                    <button type="button"
+                            class="btn-delete-card"
+                            (click)="supprimerPdf(c)"
+                            [disabled]="deletingItem() !== null">
+                      @if (deletingItem() === c.fichier_url) {
+                        ⏳ جاري الحذف...
+                      } @else {
+                        🗑️ حذف الملف
+                      }
+                    </button>
+                  </div>
                 </article>
               }
-
             </div>
           } @else {
             <div class="empty-state">
               <span>📂</span>
               <h3>مازال ما تسجلو حتى كورس</h3>
               <p>الملفات اللي غادي تحفظ غادي يبانوا هنا.</p>
-
               <button type="button" class="btn-primary" (click)="goTo('pdf')">
                 📎 إضافة أول ملف
               </button>
             </div>
           }
-
         </section>
       }
 
       <!-- GOOGLE MEET -->
-
       @if (activeView() === 'meet') {
-
         <section class="card section-card">
-
           <div class="section-header">
             <div class="section-icon meet-icon">🎥</div>
-
             <div>
               <h2>رابط Google Meet</h2>
               <p>حفظ الرابط مرة وحدة واستعماله فالحصص الجاية.</p>
@@ -243,92 +222,55 @@
           </div>
 
           @if (meetUrl() && !editingMeetUrl()) {
-
-            <!-- SAVED URL: LOCKED -->
-
             <div class="meet-preview">
-
               <div class="preview-icon">🔒</div>
-
               <div class="preview-content">
                 <h3>الرابط المحفوظ</h3>
                 <p dir="ltr">{{ meetUrl() }}</p>
               </div>
-
-              <button type="button"
-                      class="btn-ghost"
-                      (click)="toggleEditMeetUrl()">
-                ✏️ تعديل
-              </button>
-
-              <a class="meet-button"
-                 [href]="meetUrl()"
-                 target="_blank"
-                 rel="noopener noreferrer">
+              <button type="button" class="btn-ghost"
+                      (click)="toggleEditMeetUrl()">✏️ تعديل</button>
+              <a class="meet-button" [href]="meetUrl()"
+                 target="_blank" rel="noopener noreferrer">
                 فتح Meet ↗
               </a>
-
             </div>
-
           } @else {
-
-            <!-- NEW URL OR EDIT MODE -->
-
             <div class="form-group">
               <label for="meetUrl">رابط الاجتماع</label>
-
-              <input
-                id="meetUrl"
-                type="url"
-                class="form-input"
-                dir="ltr"
-                placeholder="https://meet.google.com/..."
-                [value]="meetUrl()"
-                (input)="updateMeetUrl($any($event.target).value)"
-                [disabled]="savingMeetUrl()"
-              />
-
+              <input id="meetUrl" type="url" class="form-input" dir="ltr"
+                     placeholder="https://meet.google.com/..."
+                     [value]="meetUrl()"
+                     (input)="updateMeetUrl($any($event.target).value)"
+                     [disabled]="savingMeetUrl()" />
               <small class="field-hint">
                 الرابط كيتحفظ فقاعدة البيانات، وما تحتاجش تعاود تدخلو كل مرة.
               </small>
             </div>
 
             <div class="form-actions">
-
-              <button type="button"
-                      class="btn-primary"
+              <button type="button" class="btn-primary"
                       (click)="enregistrerMeetUrl()"
                       [disabled]="savingMeetUrl()">
-
                 @if (savingMeetUrl()) {
                   ⏳ جاري حفظ الرابط...
                 } @else {
                   💾 حفظ الرابط
                 }
-
               </button>
 
-              @if (meetUrl().trim() && editingMeetUrl()) {
-                <button type="button"
-                        class="btn-ghost"
-                        (click)="toggleEditMeetUrl()">
-                  إلغاء التعديل
-                </button>
+              @if (editingMeetUrl()) {
+                <button type="button" class="btn-ghost"
+                        (click)="toggleEditMeetUrl()">إلغاء التعديل</button>
               }
-
             </div>
-
           }
-
         </section>
 
         <!-- MEETING SCHEDULES -->
-
         <section class="card section-card">
-
           <div class="section-header">
             <div class="section-icon schedule-icon">📅</div>
-
             <div>
               <h2>مواعيد الحصص</h2>
               <p>حدد المجموعة والتاريخ والوقت ديال كل حصة.</p>
@@ -343,103 +285,68 @@
 
           @for (slot of meetSlots(); track $index) {
             <div class="meet-slot-card">
-
               <div class="slot-header">
                 <span class="slot-number">الحصة {{ $index + 1 }}</span>
-
                 @if (meetSlots().length > 1) {
-                  <button type="button"
-                          class="btn-ghost btn-remove"
-                          (click)="removeMeetSlot($index)">
-                    🗑️ حذف
-                  </button>
+                  <button type="button" class="btn-ghost btn-remove"
+                          (click)="removeMeetSlot($index)">🗑️ حذف</button>
                 }
               </div>
 
               <div class="form-row">
-
                 <div class="form-group">
                   <label [for]="'groupe-' + $index">المجموعة</label>
-
-                  <select
-                    [id]="'groupe-' + $index"
-                    class="form-input"
-                    [value]="slot.groupeId"
-                    (change)="updateMeetSlot($index, 'groupeId', $any($event.target).value)">
-
+                  <select [id]="'groupe-' + $index" class="form-input"
+                          [value]="slot.groupeId"
+                          (change)="updateMeetSlot($index, 'groupeId', $any($event.target).value)">
                     <option value="">اختر المجموعة</option>
-
                     @for (g of groupes(); track g.id) {
                       <option [value]="g.id">{{ g.nom }}</option>
                     }
-
                   </select>
                 </div>
 
                 <div class="form-group">
                   <label [for]="'date-' + $index">تاريخ الحصة</label>
-
-                  <input
-                    [id]="'date-' + $index"
-                    type="date"
-                    class="form-input"
-                    [value]="slot.date"
-                    (change)="updateMeetSlot($index, 'date', $any($event.target).value)"
-                  />
+                  <input [id]="'date-' + $index" type="date" class="form-input"
+                         [value]="slot.date"
+                         (change)="updateMeetSlot($index, 'date', $any($event.target).value)" />
                 </div>
 
                 <div class="form-group">
                   <label [for]="'time-' + $index">وقت الحصة</label>
-
-                  <input
-                    [id]="'time-' + $index"
-                    type="time"
-                    class="form-input"
-                    [value]="slot.time"
-                    (change)="updateMeetSlot($index, 'time', $any($event.target).value)"
-                  />
+                  <input [id]="'time-' + $index" type="time" class="form-input"
+                         [value]="slot.time"
+                         (change)="updateMeetSlot($index, 'time', $any($event.target).value)" />
                 </div>
-
               </div>
             </div>
           }
 
           <div class="meet-actions">
-
-            <button type="button"
-                    class="btn-secondary"
+            <button type="button" class="btn-secondary"
                     (click)="addMeetSlot()"
                     [disabled]="loading() || saving()">
               ＋ إضافة حصة
             </button>
-
-            <button type="button"
-                    class="btn-primary"
+            <button type="button" class="btn-primary"
                     (click)="validerMeet()"
                     [disabled]="saving() || savingMeetUrl() || loading() || !meetUrl().trim()">
-
               @if (saving()) {
                 ⏳ جاري حفظ المواعيد...
               } @else {
                 ✓ حفظ المواعيد
               }
-
             </button>
-
           </div>
-
         </section>
       }
 
       <!-- PDF -->
-
       @if (activeView() === 'pdf') {
-
         <section class="card section-card">
-
           <div class="section-header">
             <div class="section-icon file-icon">📄</div>
-
             <div>
               <h2>ملفات الدروس PDF</h2>
               <p>رفع الملفات وتخصيص كل ملف لمجموعة أو عدة مجموعات.</p>
@@ -448,22 +355,16 @@
 
           <div class="upload-area">
             <div class="upload-icon">📁</div>
-
             <h3>إضافة ملف جديد</h3>
             <p>اختار ملف PDF من الجهاز ديالك.</p>
-
             <label for="coursPdf" class="btn-secondary upload-label">
               📎 اختيار ملف PDF
             </label>
-
-            <input
-              id="coursPdf"
-              type="file"
-              accept=".pdf,application/pdf"
-              class="file-input-hidden"
-              (change)="onFichierSelected($event)"
-              [disabled]="uploadingFichier() || saving()"
-            />
+            <input id="coursPdf" type="file"
+                   accept=".pdf,application/pdf"
+                   class="file-input-hidden"
+                   (change)="onFichierSelected($event)"
+                   [disabled]="uploadingFichier() || saving()" />
 
             @if (uploadingFichier()) {
               <div class="upload-progress">
@@ -474,9 +375,7 @@
           </div>
 
           <!-- FILES WAITING FOR GROUP ASSIGNMENT -->
-
           @if (pdfUploads().length > 0) {
-
             <div class="section-divider">
               <h3>📚 تحديد المجموعات لكل ملف</h3>
               <p>خاصك تختار مجموعة واحدة على الأقل لكل ملف قبل الحفظ.</p>
@@ -484,80 +383,51 @@
 
             @for (pdf of pdfUploads(); track pdf.fichier_url) {
               <article class="pdf-assignment-card">
-
                 <div class="pdf-assignment-header">
                   <div class="pdf-card-icon">📕</div>
-
-                  <div class="pdf-card-info">
-                    <strong>{{ pdf.nom }}</strong>
-                    <small>اختار المجموعات اللي غادي يوصلها الملف.</small>
-                  </div>
-
-                  <button type="button"
-                          class="btn-ghost btn-remove"
+                  <div class="pdf-card-info"><strong>{{ pdf.nom }}</strong></div>
+                  <button type="button" class="btn-ghost btn-remove"
                           (click)="removePdf($index)"
-                          [disabled]="saving()">
-                    حذف
-                  </button>
+                          [disabled]="saving()">حذف</button>
                 </div>
 
                 <div class="groupe-chips">
-
                   @for (g of groupes(); track g.id) {
-                    <label
-                      class="groupe-chip"
-                      [class.chip-selected]="isPdfGroupSelected($index, g.id.toString())">
-
-                      <input
-                        type="checkbox"
-                        [checked]="isPdfGroupSelected($index, g.id.toString())"
-                        (change)="togglePdfGroup($index, g.id.toString())"
-                      />
-
+                    <label class="groupe-chip"
+                           [class.chip-selected]="isPdfGroupSelected($index, g.id.toString())">
+                      <input type="checkbox"
+                             [checked]="isPdfGroupSelected($index, g.id.toString())"
+                             (change)="togglePdfGroup($index, g.id.toString())" />
                       <span class="chip-check">
-                        @if (isPdfGroupSelected($index, g.id.toString())) {
-                          ✓
-                        }
+                        @if (isPdfGroupSelected($index, g.id.toString())) { ✓ }
                       </span>
-
                       {{ g.nom }}
                     </label>
                   }
-
                 </div>
 
                 <div class="pdf-assignment-footer">
                   <span>{{ pdf.groupeIds.length }} مجموعة مختارة</span>
-
-                  <a class="pdf-card-link"
-                     [href]="pdf.fichier_url"
-                     target="_blank"
-                     rel="noopener noreferrer">
-                    معاينة PDF ↗
-                  </a>
+                  <a class="pdf-card-link" [href]="pdf.fichier_url"
+                     target="_blank" rel="noopener noreferrer">معاينة PDF ↗</a>
                 </div>
-
               </article>
             }
 
             <div class="form-actions pdf-save-actions">
-              <button type="button"
-                      class="btn-primary"
+              <button type="button" class="btn-primary"
                       (click)="validerPdf()"
                       [disabled]="saving() || uploadingFichier()">
-
                 @if (saving()) {
                   ⏳ جاري حفظ الملفات...
                 } @else {
                   ✓ حفظ الملفات
                 }
-
               </button>
             </div>
           }
 
           <!-- SAVED PDFS -->
-
           <div class="section-divider">
             <h3>📂 ملفات الدروس المحفوظة</h3>
             <p>الملفات المسجلة مسبقا فقاعدة البيانات.</p>
@@ -565,10 +435,8 @@
 
           @if (coursesPdf().length > 0) {
             <div class="pdf-grid">
-
               @for (c of coursesPdf(); track c.fichier_url) {
                 <article class="pdf-card">
-
                   <div class="pdf-card-top">
                     <div class="pdf-card-icon">📕</div>
                     <span class="saved-badge">محفوظ</span>
@@ -576,28 +444,34 @@
 
                   <div class="pdf-card-info">
                     <strong>{{ c.nom }}</strong>
-
                     <div class="pdf-card-groupes">
                       @for (nom of c.groupes; track nom) {
                         <span class="pdf-groupe-tag">{{ nom }}</span>
                       }
-
                       @if (c.groupes.length === 0) {
                         <span class="pdf-groupe-tag">بدون مجموعة معروفة</span>
                       }
                     </div>
                   </div>
 
-                  <a class="pdf-card-link"
-                     [href]="c.fichier_url"
-                     target="_blank"
-                     rel="noopener noreferrer">
+                  <a class="pdf-card-link" [href]="c.fichier_url"
+                     target="_blank" rel="noopener noreferrer">
                     فتح الملف ↗
                   </a>
 
+                  <div class="pdf-card-actions">
+                    <button type="button" class="btn-delete-card"
+                            (click)="supprimerPdf(c)"
+                            [disabled]="deletingItem() !== null">
+                      @if (deletingItem() === c.fichier_url) {
+                        ⏳ جاري الحذف...
+                      } @else {
+                        🗑️ حذف الملف
+                      }
+                    </button>
+                  </div>
                 </article>
               }
-
             </div>
           } @else {
             <div class="empty-state">
@@ -606,10 +480,8 @@
               <p>الملفات المحفوظة غادي يبانوا هنا.</p>
             </div>
           }
-
         </section>
       }
-
     </div>
   </main>
 </div>
