@@ -1,4 +1,3 @@
-
 /* DEVOIRS — SAME GLOBAL VISUAL STYLE */
 
 :host {
@@ -662,11 +661,17 @@ button:disabled {
   color: #666;
   font-size: 12px;
   cursor: pointer;
+  user-select: none;
   transition: background .2s, border-color .2s, color .2s;
 }
 
 .groupe-chip:hover {
   border-color: #0F6E56;
+}
+
+.groupe-chip:focus-within {
+  border-color: #0F6E56;
+  box-shadow: 0 0 0 3px rgb(15 110 86 / 12%);
 }
 
 .groupe-chip input {

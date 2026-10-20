@@ -1,4 +1,3 @@
-
 import { Component, HostListener, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
@@ -89,7 +88,49 @@ export class DevoirsComponent implements OnInit {
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
+    // Le modal d'édition est au-dessus des autres: on le ferme en premier.
+    if (this.editingPdf()) {
+      this.fermerEditionPdf();
+      return;
+    }
+
     this.closeModal();
+  }
+
+  // ==================================================
+  // CLIC SUR LE FOND (BACKDROP) DES MODALS
+  // ==================================================
+  // IMPORTANT: ne jamais écrire dans le template
+  //   (click)="$event.target === $event.currentTarget && closeModal()"
+  // Quand cette expression vaut false, Angular appelle preventDefault()
+  // sur l'événement. Comme les clics faits à l'intérieur du modal
+  // remontent jusqu'au fond, cela annulait l'ouverture de la fenêtre
+  // de sélection de fichier ET le cochage des cases (checkbox).
+
+  private backdropPressed = false;
+
+  onBackdropMouseDown(event: MouseEvent): void {
+    this.backdropPressed = event.target === event.currentTarget;
+  }
+
+  onBackdropClick(event: MouseEvent, modal: 'main' | 'edit'): void {
+    // On ferme seulement si le clic a commencé ET fini sur le fond
+    // (évite la fermeture quand on sélectionne du texte et qu'on
+    // relâche la souris en dehors du modal).
+    const clickedBackdrop =
+      this.backdropPressed && event.target === event.currentTarget;
+
+    this.backdropPressed = false;
+
+    if (!clickedBackdrop) {
+      return;
+    }
+
+    if (modal === 'edit') {
+      this.fermerEditionPdf();
+    } else {
+      this.closeModal();
+    }
   }
 
   private clearMessages(): void {
@@ -666,88 +707,119 @@ export class DevoirsComponent implements OnInit {
   // UPLOADER UN PDF OU UNE IMAGE VERS SUPABASE STORAGE
   // ==================================================
 
-  async onFichierSelected(event: Event): Promise<void> {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
+  
+async onFichierSelected(event: Event): Promise<void> {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
 
-    if (!file) {
-      return;
-    }
-
-    this.clearMessages();
-
-    const extension = file.name.split('.').pop()?.toLowerCase();
-
-    const allowedTypes: Record<string, string> = {
-      pdf: 'application/pdf',
-      png: 'image/png',
-      jpg: 'image/jpeg',
-      jpeg: 'image/jpeg'
-    };
-
-    const expectedType = extension
-      ? allowedTypes[extension]
-      : undefined;
-
-    if (!expectedType || file.type !== expectedType) {
-      this.errorMsg.set(
-        'المرجو اختيار ملف PDF أو صورة PNG أو JPG أو JPEG'
-      );
-      input.value = '';
-      return;
-    }
-
-    const maxSize = 10 * 1024 * 1024;
-
-    if (file.size > maxSize) {
-      this.errorMsg.set('حجم الملف خاصو ما يفوتش 10 MB');
-      input.value = '';
-      return;
-    }
-
-    this.uploadingFichier.set(true);
-
-    try {
-      const fileName = `${crypto.randomUUID()}.${extension}`;
-
-      const { data, error } = await this.sb.client.storage
-        .from('devoirs-fichiers')
-        .upload(fileName, file, {
-          contentType: expectedType,
-          upsert: false
-        });
-
-      if (error) {
-        console.error('UPLOAD ERROR:', error);
-        this.errorMsg.set('فشل رفع الملف: ' + error.message);
-        return;
-      }
-
-      const { data: publicData } = this.sb.client.storage
-        .from('devoirs-fichiers')
-        .getPublicUrl(data.path);
-
-      this.pdfUploads.update(list => [
-        ...list,
-        {
-          fichier_url: publicData.publicUrl,
-          nom: file.name,
-          groupeIds: [],
-          type: extension === 'pdf' ? 'pdf' : 'image'
-        }
-      ]);
-
-      this.successMsg.set(
-        'تم رفع الملف بنجاح. اختر المجموعات المستفيدة منه.'
-      );
-    } catch (error) {
-      console.error('UPLOAD ERROR:', error);
-      this.errorMsg.set('وقع خطأ أثناء رفع الملف');
-    } finally {
-      this.uploadingFichier.set(false);
-      input.value = '';
-    }
+  if (!file) {
+    return;
   }
+
+  this.clearMessages();
+
+  const allowedTypes: Record<string, string> = {
+    pdf: 'application/pdf',
+    png: 'image/png',
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg'
+  };
+
+  const extension = file.name.split('.').pop()?.toLowerCase() ?? '';
+  const expectedType = allowedTypes[extension];
+
+  if (!expectedType) {
+    this.errorMsg.set(
+      'المرجو اختيار ملف PDF أو صورة PNG أو JPG أو JPEG'
+    );
+    input.value = '';
+    return;
+  }
+
+  if (file.size === 0) {
+    this.errorMsg.set('الملف فارغ، المرجو اختيار ملف آخر');
+    input.value = '';
+    return;
+  }
+
+  if (file.size > 10 * 1024 * 1024) {
+    this.errorMsg.set('حجم الملف خاصو ما يفوتش 10 MB');
+    input.value = '';
+    return;
+  }
+
+  if (file.type && file.type !== expectedType) {
+    this.errorMsg.set('نوع الملف غير صالح');
+    input.value = '';
+    return;
+  }
+
+  if (this.uploadingFichier() || this.saving()) {
+    return;
+  }
+
+  this.uploadingFichier.set(true);
+
+  try {
+    const fileName = `${crypto.randomUUID()}.${extension}`;
+
+    const { data, error } = await this.sb.client.storage
+      .from('devoirs-fichiers')
+      .upload(fileName, file, {
+        contentType: expectedType,
+        cacheControl: '3600',
+        upsert: false
+      });
+
+    if (error) {
+      console.error('UPLOAD ERROR:', error);
+      this.errorMsg.set(
+        `فشل رفع الملف: ${error.message}`
+      );
+      return;
+    }
+
+    if (!data?.path) {
+      this.errorMsg.set('تعذر الحصول على مسار الملف المرفوع');
+      return;
+    }
+
+    const { data: publicData } = this.sb.client.storage
+      .from('devoirs-fichiers')
+      .getPublicUrl(data.path);
+
+    if (!publicData?.publicUrl) {
+      this.errorMsg.set('تعذر إنشاء رابط الملف');
+      return;
+    }
+
+    this.pdfUploads.update(list => [
+      ...list,
+      {
+        fichier_url: publicData.publicUrl,
+        nom: file.name,
+        groupeIds: [],
+        type: extension === 'pdf' ? 'pdf' : 'image'
+      }
+    ]);
+
+    this.successMsg.set(
+      'تم رفع الملف بنجاح. اختار المجموعات المستفيدة منه.'
+    );
+
+  } catch (error: any) {
+    console.error('UPLOAD ERROR:', error);
+
+    this.errorMsg.set(
+      error?.message
+        ? `وقع خطأ أثناء رفع الملف: ${error.message}`
+        : 'وقع خطأ أثناء رفع الملف، حاول مرة أخرى'
+    );
+  } finally {
+    this.uploadingFichier.set(false);
+    input.value = '';
+  }
+}
 
   // ==================================================
   // ENREGISTRER LES FICHIERS ET LEURS GROUPES
@@ -1000,4 +1072,14 @@ export class DevoirsComponent implements OnInit {
       this.deletingItem.set(null);
     }
   }
+  
+
+
+openFilePicker(input: HTMLInputElement): void {
+  if (this.uploadingFichier() || this.saving()) {
+    return;
+  }
+
+  input.click();
+}
 }

@@ -1,4 +1,3 @@
-
 <div class="layout" dir="rtl">
   <app-sidebar activePage="devoirs"></app-sidebar>
 
@@ -358,7 +357,8 @@
 
         <div
           class="modal-backdrop"
-          (click)="$event.target === $event.currentTarget && closeModal()"
+          (mousedown)="onBackdropMouseDown($event)"
+          (click)="onBackdropClick($event, 'main')"
         >
 
           <div
@@ -649,7 +649,8 @@
 
         <div
           class="modal-backdrop"
-          (click)="$event.target === $event.currentTarget && closeModal()"
+          (mousedown)="onBackdropMouseDown($event)"
+          (click)="onBackdropClick($event, 'main')"
         >
 
           <div
@@ -702,39 +703,41 @@
                   </div>
                 </div>
 
-                <!-- UPLOAD -->
-                <div class="upload-area">
-                  <div class="upload-icon">📁</div>
 
-                  <h3>إضافة ملف جديد</h3>
+                
 
-                  <p>اختار PDF أو صورة PNG أو JPG أو JPEG.</p>
 
-                  <label
-                    for="coursPdf"
-                    class="btn-secondary upload-label"
-                  >
-                    📎 اختيار ملف أو صورة
-                  </label>
+<!-- UPLOAD -->
+<div class="upload-area">
+  <span class="upload-icon">📁</span>
 
-                  <input
-                    id="coursPdf"
-                    type="file"
-                    accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
-                    class="file-input-hidden"
-                    (change)="onFichierSelected($event)"
-                    [disabled]="uploadingFichier() || saving()"
-                  />
+  <h3>اختار الملف ديالك</h3>
+  <p>يمكن ليك تختار صورة أو ملف PDF</p>
 
-                  @if (uploadingFichier()) {
-                    <div class="upload-progress">
-                      <div class="spinner"></div>
-                      <span>جاري رفع الملف...</span>
-                    </div>
-                  }
-                </div>
+  <button
+    type="button"
+    class="btn-primary upload-label"
+    (click)="openFilePicker(fileInput)"
+    [disabled]="uploadingFichier() || saving()"
+  >
+    @if (uploadingFichier()) {
+      ⏳ جاري رفع الملف...
+    } @else {
+      📎 اختيار ملف
+    }
+  </button>
 
-                <!-- PENDING FILES -->
+  <input
+    #fileInput
+    type="file"
+    class="file-input-hidden"
+    accept=".pdf,application/pdf,.png,.jpg,.jpeg,image/png,image/jpeg"
+    (change)="onFichierSelected($event)"
+    [disabled]="uploadingFichier() || saving()"
+  />
+</div>
+        
+            <!-- PENDING FILES -->
                 @if (pdfUploads().length > 0) {
 
                   <div class="section-divider">
@@ -895,7 +898,8 @@
 @if (editingPdf(); as pdf) {
   <div
     class="modal-backdrop"
-    (click)="$event.target === $event.currentTarget && fermerEditionPdf()"
+    (mousedown)="onBackdropMouseDown($event)"
+    (click)="onBackdropClick($event, 'edit')"
   >
     <div
       class="modal"
