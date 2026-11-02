@@ -707,35 +707,35 @@
                 
 
 
-<!-- UPLOAD -->
-<div class="upload-area">
-  <span class="upload-icon">📁</span>
+                <!-- UPLOAD -->
+                <div class="upload-area">
+                  <span class="upload-icon">📁</span>
 
-  <h3>اختار الملف ديالك</h3>
-  <p>يمكن ليك تختار صورة أو ملف PDF</p>
+                  <h3>اختار الملف ديالك</h3>
+                  <p>يمكن ليك تختار صورة أو ملف PDF</p>
 
-  <button
-    type="button"
-    class="btn-primary upload-label"
-    (click)="openFilePicker(fileInput)"
-    [disabled]="uploadingFichier() || saving()"
-  >
-    @if (uploadingFichier()) {
-      ⏳ جاري رفع الملف...
-    } @else {
-      📎 اختيار ملف
-    }
-  </button>
+                  <button
+                    type="button"
+                    class="btn-primary upload-label"
+                    (click)="openFilePicker(fileInput)"
+                    [disabled]="uploadingFichier() || saving()"
+                  >
+                    @if (uploadingFichier()) {
+                      ⏳ جاري رفع الملف...
+                    } @else {
+                      📎 اختيار ملف
+                    }
+                  </button>
 
-  <input
-    #fileInput
-    type="file"
-    class="file-input-hidden"
-    accept=".pdf,application/pdf,.png,.jpg,.jpeg,image/png,image/jpeg"
-    (change)="onFichierSelected($event)"
-    [disabled]="uploadingFichier() || saving()"
-  />
-</div>
+                  <input
+                    #fileInput
+                    type="file"
+                    class="file-input-hidden"
+                    accept=".pdf,application/pdf,.png,.jpg,.jpeg,image/png,image/jpeg"
+                    (change)="onFichierSelected($event)"
+                    [disabled]="uploadingFichier() || saving()"
+                  />
+                </div>
         
             <!-- PENDING FILES -->
                 @if (pdfUploads().length > 0) {
@@ -761,7 +761,7 @@
                         </div>
 
                         <div class="pdf-card-info">
-                          <strong>{{ pdf.nom }}</strong>
+                          <strong>{{ pdf.nom || 'ملف بدون اسم' }}</strong>
                         </div>
 
                         <button
@@ -774,6 +774,19 @@
                         </button>
                       </div>
 
+                      <div class="form-group">
+                        <label for="nomFichier">اسم الملف</label>
+                        <input
+                          id="nomFichier"
+                          type="text"
+                          class="form-input"
+                          maxlength="80"
+                          placeholder="مثال: درس سورة الفاتحة"
+                          [value]="nomFichier()"
+                          (input)="updateNomFichier($any($event.target).value)"
+                          [disabled]="uploadingFichier() || saving()"
+                        />
+                      </div>
                       <!-- IMAGE PREVIEW -->
                       @if (pdf.type === 'image') {
                         <a

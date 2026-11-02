@@ -1386,6 +1386,11 @@ button:disabled {
     width: 36px;
     height: 36px;
   }
+   .pdf-assignment-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1398,5 +1403,5 @@ button:disabled {
     transition-duration: .01ms !important;
   }
 
-  
+ 
 }

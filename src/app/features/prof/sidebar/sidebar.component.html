@@ -129,6 +129,15 @@
       <span class="nav-icon">📅</span>
       <span>استعمال الزمن</span>
     </a>
+    <a
+      class="nav-item"
+      [class.active]="activePage === 'paiement'"
+      routerLink="/prof/paiement"
+      (click)="close()"
+    >
+      <span class="nav-icon">📅</span>
+      <span> الأداء</span>
+    </a>
 
   </nav>
 
@@ -144,9 +153,7 @@
           {{ auth.currentUser()?.nom }}
         </div>
 
-        <div class="user-role">
-          معلم
-        </div>
+        
       </div>
     </div>
 
