@@ -155,6 +155,13 @@ export class DevoirsComponent implements OnInit {
   deletingItem = signal<string | null>(null);
 
   // ==================================================
+  // Nom PDF
+  // ==================================================
+
+  nomFichier = signal('');
+
+
+  // ==================================================
   // GOOGLE MEET URL
   // ==================================================
 
@@ -218,6 +225,10 @@ export class DevoirsComponent implements OnInit {
         i === index ? { ...slot, [field]: value } : slot
       )
     );
+  }
+
+  updateNomFichier(value: string): void {
+    this.nomFichier.set(value);
   }
 
   // ==================================================
@@ -703,6 +714,14 @@ export class DevoirsComponent implements OnInit {
     );
   }
 
+  updatePdfNom(index: number, value: string): void {
+    this.pdfUploads.update(list =>
+      list.map((pdf, i) =>
+        i === index ? { ...pdf, nom: value } : pdf
+      )
+    );
+  }
+
   // ==================================================
   // UPLOADER UN PDF OU UNE IMAGE VERS SUPABASE STORAGE
   // ==================================================
@@ -797,14 +816,14 @@ async onFichierSelected(event: Event): Promise<void> {
       ...list,
       {
         fichier_url: publicData.publicUrl,
-        nom: file.name,
+        nom: this.nomFichier().trim() || file.name.replace(/\.[^/.]+$/, ''),
         groupeIds: [],
         type: extension === 'pdf' ? 'pdf' : 'image'
       }
     ]);
-
+    this.nomFichier.set('');
     this.successMsg.set(
-      'تم رفع الملف بنجاح. اختار المجموعات المستفيدة منه.'
+      'تم رفع الملف بنجاح. أدخل اسم الملف واختار المجموعات المستفيدة منه .'
     );
 
   } catch (error: any) {
@@ -846,6 +865,11 @@ async onFichierSelected(event: Event): Promise<void> {
       return;
     }
 
+    if (uploads.some(pdf => !pdf.nom.trim())) {
+      this.errorMsg.set('المرجو إدخال اسم لكل ملف');
+      return;
+    }
+
     this.saving.set(true);
 
     try {
@@ -853,7 +877,7 @@ async onFichierSelected(event: Event): Promise<void> {
         pdf.groupeIds.map(groupeId => ({
           groupe_id: groupeId,
           fichier_url: pdf.fichier_url,
-          fichier_nom: pdf.nom,
+          fichier_nom: pdf.nom.trim(),
           date_heure: null,
           meet_link: null
         }))
@@ -932,9 +956,9 @@ async onFichierSelected(event: Event): Promise<void> {
           nomUrl = url.split('/').pop()?.split('?')[0] || 'fichier.pdf';
         }
 
-        const nom = nomOriginal?.trim() || nomUrl;
-        const extension = nom.split('.').pop()?.toLowerCase() || '';
-
+        const nom = nomOriginal?.trim() || nomUrl.replace(/\.[^/.]+$/, '');
+        const extension = nomUrl.split('.').pop()?.toLowerCase() || '';
+        
         const type: 'pdf' | 'image' =
           ['png', 'jpg', 'jpeg'].includes(extension)
             ? 'image'

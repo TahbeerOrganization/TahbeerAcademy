@@ -1,0 +1,920 @@
+/* ═══════════════════════════════════════════════
+   RESET
+═══════════════════════════════════════════════ */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+
+/* ═══════════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════════ */
+
+.layout {
+  display: flex;
+
+  height: 100vh;
+
+  background: #f0f4f8;
+
+  font-family:
+    'Segoe UI',
+    Arial,
+    sans-serif;
+
+  direction: rtl;
+}
+
+
+.main {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow: hidden;
+
+  min-width: 0;
+}
+
+
+/* ═══════════════════════════════════════════════
+   TOPBAR
+═══════════════════════════════════════════════ */
+
+.topbar {
+  background: #fff;
+
+  border-bottom:
+    0.5px solid #e0ded8;
+
+  padding: 0 24px;
+
+  height: 56px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  flex-shrink: 0;
+}
+
+.topbar-title {
+  font-size: 16px;
+
+  font-weight: 600;
+
+  color: #1a1a1a;
+}
+
+.topbar-sub {
+  font-size: 12px;
+
+  color: #888;
+
+  margin-top: 2px;
+}
+
+
+/* ═══════════════════════════════════════════════
+   CONTENT
+═══════════════════════════════════════════════ */
+
+.content {
+  flex: 1;
+
+  overflow-y: auto;
+
+  padding: 20px 24px;
+}
+
+
+/* ═══════════════════════════════════════════════
+   FILTERS
+═══════════════════════════════════════════════ */
+
+.filters-bar {
+  display: flex;
+
+  gap: 12px;
+
+  margin-bottom: 16px;
+
+  flex-wrap: wrap;
+
+  align-items: center;
+}
+
+.filter-select {
+  padding: 9px 12px;
+
+  border:
+    0.5px solid #e0ded8;
+
+  border-radius: 8px;
+
+  font-size: 13px;
+
+  background: #fff;
+
+  color: #1a1a1a;
+
+  cursor: pointer;
+
+  direction: rtl;
+
+  outline: none;
+}
+
+.filter-select:focus {
+  border-color: #1B6FA8;
+}
+
+.student-select {
+  min-width: 240px;
+}
+
+
+/* ═══════════════════════════════════════════════
+   AMOUNT CONTROL
+═══════════════════════════════════════════════ */
+
+.amount-control {
+  background: #fff;
+
+  border:
+    0.5px solid #e0ded8;
+
+  border-radius: 8px;
+
+  min-height: 39px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  padding: 4px 10px;
+}
+
+.amount-control label {
+  font-size: 11px;
+
+  color: #888;
+
+  white-space: nowrap;
+}
+
+.amount-control input {
+  width: 70px;
+
+  border: none;
+
+  outline: none;
+
+  background: transparent;
+
+  color: #1a1a1a;
+
+  font-size: 13px;
+
+  font-family: inherit;
+}
+
+.amount-control span {
+  color: #888;
+
+  font-size: 11px;
+}
+
+
+/* ═══════════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════════ */
+
+.btn-ghost {
+  background: transparent;
+
+  color: #555;
+
+  border:
+    0.5px solid #e0ded8;
+
+  padding: 9px 16px;
+
+  border-radius: 8px;
+
+  font-size: 13px;
+
+  cursor: pointer;
+}
+
+.btn-ghost:hover {
+  background: #f5f5f3;
+}
+
+
+/* ═══════════════════════════════════════════════
+   EMPTY
+═══════════════════════════════════════════════ */
+
+.empty-student {
+  min-height: 300px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 48px;
+
+  margin-bottom: 12px;
+}
+
+.empty-student p {
+  font-size: 14px;
+
+  color: #555;
+
+  margin-bottom: 5px;
+}
+
+.empty-student span {
+  color: #999;
+
+  font-size: 12px;
+}
+
+
+/* ═══════════════════════════════════════════════
+   STUDENT HEADER
+═══════════════════════════════════════════════ */
+
+.student-header-card {
+  background: #fff;
+
+  border:
+    0.5px solid #e0ded8;
+
+  border-radius: 12px;
+
+  padding: 14px 18px;
+
+  margin-bottom: 16px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+}
+
+.student-header-info {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+}
+
+.big-avatar {
+  width: 42px;
+  height: 42px;
+
+  border-radius: 50%;
+
+  background: #E3F2FB;
+
+  color: #0D4F7C;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  font-size: 16px;
+
+  font-weight: 600;
+}
+
+.student-header-info h3 {
+  font-size: 15px;
+
+  font-weight: 600;
+
+  color: #1a1a1a;
+}
+
+.student-header-info span {
+  display: block;
+
+  color: #888;
+
+  font-size: 11px;
+
+  margin-top: 2px;
+}
+
+.year-badge {
+  background: #E3F2FB;
+
+  color: #0D4F7C;
+
+  padding: 5px 10px;
+
+  border-radius: 10px;
+
+  font-size: 11px;
+}
+
+
+/* ═══════════════════════════════════════════════
+   STATS
+═══════════════════════════════════════════════ */
+
+.stats-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 14px;
+
+  margin-bottom: 16px;
+}
+
+.stat-card {
+  background: #fff;
+
+  border:
+    0.5px solid #e0ded8;
+
+  border-radius: 12px;
+
+  padding: 16px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+}
+
+.stat-icon {
+  width: 40px;
+  height: 40px;
+
+  border-radius: 10px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  font-size: 18px;
+
+  flex-shrink: 0;
+}
+
+.stat-icon.green {
+  background: #E8F5E9;
+
+  color: #2E7D32;
+}
+
+.stat-icon.red {
+  background: #FAECE7;
+
+  color: #993C1D;
+}
+
+.stat-icon.blue {
+  background: #E3F2FB;
+
+  color: #0D4F7C;
+}
+
+.stat-icon.orange {
+  background: #FAEEDA;
+
+  color: #854F0B;
+}
+
+.stat-info {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+.stat-info span {
+  font-size: 11px;
+
+  color: #888;
+}
+
+.stat-info strong {
+  font-size: 18px;
+
+  font-weight: 600;
+
+  color: #1a1a1a;
+}
+
+
+/* ═══════════════════════════════════════════════
+   CARD
+═══════════════════════════════════════════════ */
+
+.card {
+  background: #fff;
+
+  border:
+    0.5px solid #e0ded8;
+
+  border-radius: 12px;
+
+  padding: 16px;
+}
+
+
+/* ═══════════════════════════════════════════════
+   CARD HEADER
+═══════════════════════════════════════════════ */
+
+.card-header {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  margin-bottom: 18px;
+}
+
+.card-header h3 {
+  font-size: 15px;
+
+  color: #1a1a1a;
+
+  font-weight: 600;
+}
+
+.card-header p {
+  font-size: 11px;
+
+  color: #888;
+
+  margin-top: 3px;
+}
+
+.monthly-price {
+  background: #f8f8f6;
+
+  border:
+    0.5px solid #e0ded8;
+
+  padding: 7px 11px;
+
+  border-radius: 8px;
+
+  color: #1B6FA8;
+
+  font-size: 13px;
+
+  font-weight: 600;
+}
+
+.monthly-price small {
+  color: #888;
+
+  font-size: 10px;
+
+  font-weight: 400;
+}
+
+
+/* ═══════════════════════════════════════════════
+   MONTHS
+═══════════════════════════════════════════════ */
+
+.months-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 12px;
+}
+
+.month-card {
+  border:
+    0.5px solid #e0ded8;
+
+  border-radius: 10px;
+
+  padding: 14px;
+
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.month-card.paid {
+  background: #F5FBF6;
+
+  border-color: #A5D6A7;
+}
+
+.month-card.unpaid {
+  background: #fff;
+}
+
+.month-card:hover {
+  border-color: #1B6FA8;
+}
+
+
+/* ═══════════════════════════════════════════════
+   MONTH TOP
+═══════════════════════════════════════════════ */
+
+.month-top {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  margin-bottom: 14px;
+}
+
+.month-name {
+  font-size: 14px;
+
+  font-weight: 600;
+
+  color: #1a1a1a;
+}
+
+.status {
+  padding: 3px 8px;
+
+  border-radius: 10px;
+
+  font-size: 10px;
+
+  font-weight: 500;
+}
+
+.paid-status {
+  background: #E8F5E9;
+
+  color: #2E7D32;
+}
+
+.unpaid-status {
+  background: #FAECE7;
+
+  color: #993C1D;
+}
+
+
+/* ═══════════════════════════════════════════════
+   MONTH BOTTOM
+═══════════════════════════════════════════════ */
+
+.month-bottom {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 10px;
+}
+
+.month-bottom strong {
+  color: #555;
+
+  font-size: 12px;
+}
+
+
+/* ═══════════════════════════════════════════════
+   CHECKBOX
+═══════════════════════════════════════════════ */
+
+.checkbox-wrap {
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  cursor: pointer;
+
+  color: #555;
+
+  font-size: 11px;
+
+  user-select: none;
+}
+
+.checkbox-wrap input {
+  position: absolute;
+
+  opacity: 0;
+
+  pointer-events: none;
+}
+
+.custom-checkbox {
+  width: 20px;
+  height: 20px;
+
+  border:
+    1px solid #d0ccc5;
+
+  border-radius: 5px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  color: #fff;
+
+  background: #fff;
+
+  font-size: 12px;
+
+  font-weight: bold;
+
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+
+.checkbox-wrap input:checked
+  + .custom-checkbox {
+
+  background: #2E7D32;
+
+  border-color: #2E7D32;
+}
+
+
+/* ═══════════════════════════════════════════════
+   PAYMENT DATE
+═══════════════════════════════════════════════ */
+
+.payment-date {
+  margin-top: 10px;
+
+  padding-top: 8px;
+
+  border-top:
+    0.5px solid #e8e5df;
+
+  color: #888;
+
+  font-size: 10px;
+}
+
+
+/* ═══════════════════════════════════════════════
+   TABLET
+═══════════════════════════════════════════════ */
+
+@media (max-width: 1000px) {
+
+  .stats-grid {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .months-grid {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+}
+
+
+/* ═══════════════════════════════════════════════
+   MOBILE
+═══════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+
+  .main {
+    width: 100%;
+
+    min-width: 0;
+  }
+
+  .content {
+    padding: 16px 12px;
+
+    width: 100%;
+  }
+
+
+  /* TOPBAR */
+
+  .topbar {
+    min-height: 64px;
+
+    height: auto;
+
+    padding:
+      10px 65px 10px 12px;
+  }
+
+  .topbar-title {
+    font-size: 15px;
+  }
+
+  .topbar-sub {
+    font-size: 11px;
+  }
+
+
+  /* FILTERS */
+
+  .filters-bar {
+    display: grid;
+
+    grid-template-columns: 1fr;
+
+    gap: 9px;
+
+    width: 100%;
+  }
+
+  .filter-select,
+  .student-select,
+  .filters-bar .btn-ghost {
+    width: 100%;
+
+    min-width: 0;
+
+    height: 42px;
+  }
+
+  .amount-control {
+    width: 100%;
+
+    height: 42px;
+  }
+
+  .amount-control input {
+    flex: 1;
+
+    width: auto;
+  }
+
+
+  /* STUDENT */
+
+  .student-header-card {
+    padding: 12px;
+
+    margin-bottom: 12px;
+  }
+
+  .big-avatar {
+    width: 36px;
+    height: 36px;
+
+    font-size: 14px;
+  }
+
+  .student-header-info h3 {
+    font-size: 13px;
+  }
+
+
+  /* STATS */
+
+  .stats-grid {
+    grid-template-columns:
+      1fr 1fr;
+
+    gap: 9px;
+
+    margin-bottom: 14px;
+  }
+
+  .stat-card {
+    padding: 11px;
+
+    gap: 8px;
+  }
+
+  .stat-icon {
+    width: 34px;
+    height: 34px;
+
+    font-size: 15px;
+
+    border-radius: 8px;
+  }
+
+  .stat-info span {
+    font-size: 9px;
+  }
+
+  .stat-info strong {
+    font-size: 15px;
+  }
+
+
+  /* CARD */
+
+  .card {
+    padding: 12px;
+
+    width: 100%;
+
+    overflow: hidden;
+  }
+
+
+  /* MONTHS */
+
+  .months-grid {
+    grid-template-columns: 1fr;
+
+    gap: 9px;
+  }
+
+  .month-card {
+    padding: 12px;
+  }
+
+
+  /* CARD HEADER */
+
+  .card-header {
+    gap: 10px;
+  }
+
+  .card-header h3 {
+    font-size: 14px;
+  }
+
+  .card-header p {
+    font-size: 10px;
+  }
+
+  .monthly-price {
+    font-size: 11px;
+
+    padding: 6px 8px;
+  }
+
+}
+
+
+/* ═══════════════════════════════════════════════
+   VERY SMALL
+═══════════════════════════════════════════════ */
+
+@media (max-width: 480px) {
+
+  .content {
+    padding:
+      12px 8px;
+  }
+
+  .topbar {
+    padding-right: 58px;
+  }
+
+  .student-header-card {
+    align-items: flex-start;
+  }
+
+  .year-badge {
+    font-size: 9px;
+
+    padding: 4px 7px;
+  }
+
+}

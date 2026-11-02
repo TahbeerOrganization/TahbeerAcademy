@@ -753,7 +753,16 @@
 ═══════════════════════════════════════════════════ */
 .form-group { margin-bottom: 14px; }
 .form-group label {
-display: flex; flex-direction: row-reverse; justify-content: flex-start; align-items: center; font-size: 13px; color: #555; margin-bottom: 5px; font-weight: 500;}
+  display: flex; 
+  flex-direction: row-reverse; 
+  justify-content: flex-start; 
+  align-items: center; 
+  font-size: 13px;
+  color: #555; 
+  margin-bottom: 5px; 
+  font-weight: 500;
+}
+
 .required { color: #D85A30; margin-left: 4px; }
 .form-input {
   width: 100%;
@@ -775,6 +784,17 @@ display: flex; flex-direction: row-reverse; justify-content: flex-start; align-i
   outline: none;
 
   font-family: inherit;
+}
+
+.form-group-span{
+display: flex; 
+  flex-direction: row-reverse; 
+  justify-content: flex-start; 
+  align-items: center; 
+  font-size: 13px;
+  color: #555; 
+  margin-bottom: 5px; 
+  font-weight: 500;
 }
 
 .form-input:focus {

@@ -20,7 +20,7 @@ interface Etudiant {
 interface Sourate {
   id: number;
   nom: string;
-  nombre_ayat?: number;
+  nb_ayat?: number;
 }
 
 interface Suivi {
@@ -112,6 +112,20 @@ export class HifdComponent implements OnInit {
   }
 
   // ==============================
+  // Petites sourates
+  // ==============================
+    modeComplet = signal(false);
+    sourateDe = signal('');
+    sourateA = signal('');
+
+    souratesSelectionnees = computed(() => {
+      const de = Number(this.sourateDe());
+      const a = Number(this.sourateA());
+      if (!de || !a) return [];
+      const min = Math.min(de, a), max = Math.max(de, a);
+      return this.sourates().filter(s => s.id >= min && s.id <= max);
+    });
+  // ==============================
   // CHARGEMENT DES DONNEES
   // ==============================
 
@@ -142,7 +156,7 @@ async loadData(): Promise<void> {
     const { data: souratesData, error: souratesError } =
       await this.sb.client
         .from('sourates')
-        .select('id, nom')
+        .select('id, nom, nb_ayat')
         .order('id', { ascending: true });
 
     if (souratesError) throw souratesError;
@@ -150,7 +164,9 @@ async loadData(): Promise<void> {
     this.sourates.set(
       (souratesData || []).map((s: any) => ({
         id: Number(s.id),
-        nom: String(s.nom || '')
+        nom: String(s.nom || ''),
+        nb_ayat: Number(s.nb_ayat)
+
       }))
     );
 
@@ -457,6 +473,9 @@ async loadData(): Promise<void> {
       evaluation: ''
     });
 
+    this.modeComplet.set(false);
+    this.sourateDe.set('');
+    this.sourateA.set('');
     this.showModal.set(true);
   }
 
@@ -484,11 +503,85 @@ async loadData(): Promise<void> {
   // ==============================
   // AJOUT / MODIFICATION
   // ==============================
+async soumettreComplet(): Promise<void> {
+  const f = this.form();
+  const liste = this.souratesSelectionnees();
+
+  if (!f.etudiant_id || liste.length === 0 || !f.evaluation) {
+    alert('اختر الطالب والسورة الأولى والأخيرة والتقييم');
+    return;
+  }
+  if (liste.some(s => !s.nb_ayat)) {
+    alert('عدد آيات بعض السور غير مسجل في قاعدة البيانات');
+    return;
+  }
+  if (this.formLoading()) return;
+  this.formLoading.set(true);
+
+  try {
+    const { data: existing, error: e1 } = await this.sb.client
+      .from('suivi_sourates')
+      .select('id, sourate_id')
+      .eq('etudiant_id', f.etudiant_id)
+      .in('sourate_id', liste.map(s => s.id));
+    if (e1) throw e1;
+
+    const existingMap = new Map<number, string>(
+      (existing ?? []).map((r: any) => [Number(r.sourate_id), r.id])
+    );
+    const now = new Date().toISOString();
+    const toInsert: any[] = [];
+    const updates: any[] = [];
+
+    for (const s of liste) {
+      const payload = {
+        etudiant_id: f.etudiant_id,
+        sourate_id: s.id,
+        ayat_debut: 1,
+        ayat_fin: s.nb_ayat,
+        statut: 'مكتمل',
+        evaluation: f.evaluation,
+        updated_at: now
+      };
+      const id = existingMap.get(s.id);
+      if (id) {
+        updates.push(
+          this.sb.client.from('suivi_sourates').update(payload).eq('id', id)
+        );
+      } else {
+        toInsert.push(payload);
+      }
+    }
+
+    if (toInsert.length) {
+      const { error } = await this.sb.client
+        .from('suivi_sourates').insert(toInsert);
+      if (error) throw error;
+    }
+
+    const results = await Promise.all(updates);
+    const failed = results.find((r: any) => r.error);
+    if (failed) throw failed.error;
+
+    await this.loadSuivi();
+    this.showModal.set(false);
+    alert(`تم تسجيل ${liste.length} سورة كاملة`);
+  } catch (error: any) {
+    console.error('Erreur sauvegarde complète:', error);
+    alert(error?.message || 'حدث خطأ أثناء الحفظ');
+  } finally {
+    this.formLoading.set(false);
+  }
+}
+
 
   async soumettre(): Promise<void> {
-
+    if (this.modeComplet() && !this.modeEdit()) {
+      await this.soumettreComplet();
+      return;
+    }
     const f = this.form();
-
+    
     if (
       !f.etudiant_id ||
       !f.sourate_id ||
