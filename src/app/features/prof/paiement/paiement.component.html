@@ -1,3 +1,4 @@
+
 <div class="layout" dir="rtl">
 
   <app-sidebar activePage="paiements"></app-sidebar>
@@ -5,6 +6,7 @@
   <main class="main">
 
     <!-- TOPBAR -->
+
     <div class="topbar">
 
       <div>
@@ -21,12 +23,9 @@
 
     </div>
 
-
     <div class="content">
 
-      <!-- =========================
-           FILTERS
-      ========================== -->
+      <!-- FILTERS -->
 
       <div class="filters-bar">
 
@@ -44,10 +43,7 @@
             اختر الطالب
           </option>
 
-          @for (
-            e of etudiants();
-            track e.id
-          ) {
+          @for (e of etudiants(); track e.id) {
 
             <option [value]="e.id">
               {{ e.nom }}
@@ -56,9 +52,6 @@
           }
 
         </select>
-
-
-       
 
         <!-- ANNEE -->
 
@@ -70,38 +63,37 @@
           )"
         >
 
-          <option value="2026">
-            2026
-          </option>
-
-          <option value="2027">
-            2027
-          </option>
-
-          <option value="2028">
-            2028
-          </option>
+          <option value="2026">2026</option>
+          <option value="2027">2027</option>
+          <option value="2028">2028</option>
 
         </select>
-
 
         <!-- REFRESH -->
 
         <button
           class="btn-ghost"
           (click)="loadData()"
+          [disabled]="loading()"
         >
           🔄 تحديث البيانات
         </button>
 
       </div>
 
+      <!-- LOADING -->
 
-      <!-- =========================
-           NO STUDENT
-      ========================== -->
+      @if (loading()) {
 
-      @if (!filtreEtudiant()) {
+        <div class="card empty-student">
+          <h3>جاري تحميل البيانات...</h3>
+        </div>
+
+      }
+
+      <!-- NO STUDENT -->
+
+      @else if (!filtreEtudiant()) {
 
         <div class="card empty-student">
 
@@ -113,19 +105,21 @@
             اختر طالبًا
           </h3>
 
-        
+          <p>
+            اختر الطالب لعرض المدفوعات الشهرية.
+          </p>
 
         </div>
 
       }
 
+      <!-- STUDENT SELECTED -->
+
       @else {
 
-        <!-- =========================
-             STUDENT HEADER
-        ========================== -->
-
         @if (etudiantSelectionne()) {
+
+          <!-- STUDENT HEADER -->
 
           <div class="student-header-card">
 
@@ -133,11 +127,7 @@
 
               <div class="big-avatar">
 
-                {{
-                  etudiantSelectionne()
-                    ?.nom
-                    ?.charAt(0)
-                }}
+                {{ etudiantSelectionne()?.nom?.charAt(0) }}
 
               </div>
 
@@ -146,10 +136,10 @@
                 <h3>
                   {{ etudiantSelectionne()?.nom }}
                 </h3>
+
               </div>
 
             </div>
-
 
             <div class="year-badge">
               السنة {{ annee() }}
@@ -157,63 +147,7 @@
 
           </div>
 
-        }
-
-
-        <!-- =========================
-             NO PROGRAMME
-        ========================== -->
-
-        @if (
-          programmesEtudiant().length === 0
-        ) {
-
-          <div class="card empty-student">
-
-            <div class="empty-icon">
-              📚
-            </div>
-
-            <h3>
-              لا يوجد برنامج
-            </h3>
-
-            <p>
-              هذا الطالب غير مرتبط بأي برنامج.
-            </p>
-
-          </div>
-
-        }
-
-        @else if (!programmeSelectionne()) {
-
-          <div class="card empty-student">
-
-            <div class="empty-icon">
-              📚
-            </div>
-
-            <h3>
-              اختر البرنامج
-            </h3>
-
-            <p>
-              الطالب مسجل في أكثر من برنامج.
-              اختر البرنامج لعرض المدفوعات.
-            </p>
-
-          </div>
-
-        }
-
-        @else {
-
-         
-
-          <!-- =========================
-               MONTHS
-          ========================== -->
+            <!-- MONTHS -->
 
           <div class="card months-card">
 
@@ -231,23 +165,11 @@
 
               </div>
 
-              <div class="monthly-price">
-
-                <small>
-                  / الشهر
-                </small>
-
-              </div>
-
             </div>
-
 
             <div class="months-grid">
 
-              @for (
-                m of mois;
-                track m.id
-              ) {
+              @for (m of mois; track m.id) {
 
                 <div
                   class="month-card"
@@ -267,9 +189,7 @@
                         مدفوع
                       </span>
 
-                    }
-
-                    @else {
+                    } @else {
 
                       <span class="status unpaid-status">
                         غير مدفوع
@@ -279,7 +199,6 @@
 
                   </div>
 
-
                   <div class="month-bottom">
 
                     <label class="checkbox-wrap">
@@ -288,6 +207,10 @@
                         type="checkbox"
                         [checked]="estPaye(m.id)"
                         [disabled]="saving()"
+                        (change)="changerPaiement(
+                          m.id,
+                          $any($event.target).checked
+                        )"
                       />
 
                       <span class="custom-checkbox">
@@ -306,19 +229,14 @@
 
                   </div>
 
-
-                  @if (
-                    getPaiement(m.id)
-                      ?.date_paiement
-                  ) {
+                  @if (getPaiement(m.id)?.date_paiement) {
 
                     <div class="payment-date">
 
                       تاريخ الدفع:
 
                       {{
-                        getPaiement(m.id)
-                          ?.date_paiement
+                        getPaiement(m.id)?.date_paiement
                           | date:'dd/MM/yyyy'
                       }}
 
@@ -331,6 +249,14 @@
               }
 
             </div>
+
+          </div>
+
+        } @else {
+
+          <div class="card empty-student">
+
+            <h3>لم يتم العثور على الطالب</h3>
 
           </div>
 
