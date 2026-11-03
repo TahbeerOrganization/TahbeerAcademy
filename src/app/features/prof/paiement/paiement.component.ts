@@ -147,7 +147,7 @@ export class PaiementComponent implements OnInit {
     }
 
     const { data, error } = await this.sb.client
-      .from('paiements')
+      .from('paiement')
       .select('*')
       .eq('etudiant_id', etudiantId)
       .eq('annee', this.annee())
@@ -250,7 +250,7 @@ export class PaiementComponent implements OnInit {
         : null;
 
       const { error } = await this.sb.client
-        .from('paiements')
+        .from('paiement')
         .upsert(
           {
             etudiant_id: etudiantId,
