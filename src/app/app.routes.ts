@@ -66,6 +66,12 @@ export const routes: Routes = [
           import('./features/prof/emploi/emploi.component')
             .then(m => m.EmploiComponent)
       },
+      {
+        path: 'paiement',
+        loadComponent : () =>
+          import('./features/prof/paiement/paiement.component')
+            .then(m => m.PaiementComponent)
+      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },
