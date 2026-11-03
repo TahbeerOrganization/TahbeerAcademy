@@ -747,7 +747,7 @@
                     </p>
                   </div>
 
-                  @for (pdf of pdfUploads(); track pdf.fichier_url) {
+                  @for (pdf of pdfUploads(); track pdf.fichier_url; let pdfIndex = $index) {
 
                     <article class="pdf-assignment-card">
 
@@ -775,18 +775,19 @@
                       </div>
 
                       <div class="form-group">
-                        <label for="nomFichier">اسم الملف</label>
-                        <input
-                          id="nomFichier"
-                          type="text"
-                          class="form-input"
-                          maxlength="80"
-                          placeholder="مثال: درس سورة الفاتحة"
-                          [value]="nomFichier()"
-                          (input)="updateNomFichier($any($event.target).value)"
-                          [disabled]="uploadingFichier() || saving()"
-                        />
-                      </div>
+  <label [for]="'nomFichier-' + pdfIndex">اسم الملف</label>
+
+  <input
+    [id]="'nomFichier-' + pdfIndex"
+    type="text"
+    class="form-input"
+    maxlength="80"
+    placeholder="مثال: درس سورة الفاتحة"
+    [value]="pdf.nom"
+    (input)="updatePdfNom(pdfIndex, $any($event.target).value)"
+    [disabled]="saving()"
+  />
+</div>
                       <!-- IMAGE PREVIEW -->
                       @if (pdf.type === 'image') {
                         <a
@@ -810,58 +811,59 @@
                       }
 
                       <!-- GROUP SELECTION -->
-                      <div class="groupe-chips">
+                      <!-- GROUP SELECTION -->
+<div class="groupe-chips">
 
-                        @for (g of groupes(); track g.id) {
-                          <label
-                            class="groupe-chip"
-                            [class.chip-selected]="
-                              isPdfGroupSelected($index, g.id.toString())
-                            "
-                          >
-                            <input
-                              type="checkbox"
-                              [checked]="
-                                isPdfGroupSelected($index, g.id.toString())
-                              "
-                              (change)="
-                                togglePdfGroup($index, g.id.toString())
-                              "
-                              [disabled]="saving()"
-                            />
+  @for (g of groupes(); track g.id; let groupeIndex = $index) {
+    <label
+      class="groupe-chip"
+      [class.chip-selected]="
+        isPdfGroupSelected(pdfIndex, g.id.toString())
+      "
+    >
+      <input
+        type="checkbox"
+        [checked]="
+          isPdfGroupSelected(pdfIndex, g.id.toString())
+        "
+        (change)="updatePdfGroupSelection(
+          pdfIndex,
+          g.id.toString(),
+          $any($event.target).checked
+        )"
+        [disabled]="saving()"
+      />
 
-                            <span class="chip-check">
-                              @if (
-                                isPdfGroupSelected($index, g.id.toString())
-                              ) {
-                                ✓
-                              }
-                            </span>
+      <span class="chip-check">
+        @if (isPdfGroupSelected(pdfIndex, g.id.toString())) {
+          ✓
+        }
+      </span>
 
-                            {{ g.nom }}
-                          </label>
-                        }
+      {{ g.nom }}
+    </label>
+  }
 
-                      </div>
+</div>
 
                       <div class="pdf-assignment-footer">
-                        <span>
-                          {{ pdf.groupeIds.length }} مجموعة مختارة
-                        </span>
+  <span>
+    {{ pdf.groupeIds.length }} مجموعة مختارة
+  </span>
 
-                        <a
-                          class="pdf-card-link"
-                          [href]="pdf.fichier_url"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          @if (pdf.type === 'image') {
-                            فتح الصورة ↗
-                          } @else {
-                            معاينة PDF ↗
-                          }
-                        </a>
-                      </div>
+  <a
+    class="pdf-card-link"
+    [href]="pdf.fichier_url"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    @if (pdf.type === 'image') {
+      فتح الصورة ↗
+    } @else {
+      معاينة PDF ↗
+    }
+  </a>
+</div>
 
                     </article>
 

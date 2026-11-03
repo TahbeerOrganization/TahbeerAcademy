@@ -1,3 +1,4 @@
+
 import { Component, computed, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
@@ -9,15 +10,9 @@ interface Etudiant {
   nom: string;
 }
 
-interface Programme {
-  id: string;
-  nom: string;
-}
-
 interface Paiement {
   id: string;
   etudiant_id: string;
-  programme_id: string;
   mois: number;
   annee: number;
   montant: number;
@@ -28,10 +23,7 @@ interface Paiement {
 @Component({
   selector: 'app-paiements',
   standalone: true,
-  imports: [
-    CommonModule,
-    SidebarComponent
-  ],
+  imports: [CommonModule, SidebarComponent],
   templateUrl: './paiement.component.html',
   styleUrl: './paiement.component.css'
 })
@@ -42,9 +34,7 @@ export class PaiementComponent implements OnInit {
     private sb: SupabaseService
   ) {}
 
-  /* ==============================
-     STATE
-  ============================== */
+  // STATE
 
   loading = signal(false);
   saving = signal(false);
@@ -53,14 +43,9 @@ export class PaiementComponent implements OnInit {
   annee = signal(new Date().getFullYear());
 
   etudiants = signal<Etudiant[]>([]);
-  programmes = signal<Programme[]>([]);
   paiements = signal<Paiement[]>([]);
 
- 
-
-  /* ==============================
-     MOIS
-  ============================== */
+  // MOIS
 
   mois = [
     { id: 1, nom: 'يناير' },
@@ -77,21 +62,7 @@ export class PaiementComponent implements OnInit {
     { id: 12, nom: 'دجنبر' }
   ];
 
-  /* ==============================
-     PROGRAMMES DE L'ETUDIANT
-  ============================== */
-
-  programmesEtudiant = signal<Programme[]>([]);
-
-  /* ==============================
-     PROGRAMME SELECTIONNE
-  ============================== */
-
-  programmeSelectionne = signal('');
-
-  /* ==============================
-     INIT
-  ============================== */
+  // INIT
 
   ngOnInit(): void {
 
@@ -99,9 +70,9 @@ export class PaiementComponent implements OnInit {
 
       const etudiantId = params['etudiant'];
 
-      if (etudiantId) {
-        this.filtreEtudiant.set(String(etudiantId));
-      }
+      this.filtreEtudiant.set(
+        etudiantId ? String(etudiantId) : ''
+      );
 
       this.loadData();
 
@@ -109,9 +80,7 @@ export class PaiementComponent implements OnInit {
 
   }
 
-  /* ==============================
-     LOAD DATA
-  ============================== */
+  // LOAD DATA
 
   async loadData() {
 
@@ -120,12 +89,11 @@ export class PaiementComponent implements OnInit {
     try {
 
       await this.loadEtudiants();
-      await this.loadPaiements();
 
       if (this.filtreEtudiant()) {
-        await this.loadProgrammesEtudiant(
-          this.filtreEtudiant()
-        );
+        await this.loadPaiements();
+      } else {
+        this.paiements.set([]);
       }
 
     } catch (error) {
@@ -140,26 +108,19 @@ export class PaiementComponent implements OnInit {
 
   }
 
-  /* ==============================
-     LOAD ETUDIANTS
-  ============================== */
+  // LOAD ETUDIANTS
 
   async loadEtudiants() {
 
-    const { data, error } =
-      await this.sb.client
-        .from('profiles')
-        .select('id, nom')
-        .eq('role', 'etudiant')
-        .order('nom');
+    const { data, error } = await this.sb.client
+      .from('profiles')
+      .select('id, nom')
+      .eq('role', 'etudiant')
+      .order('nom');
 
     if (error) {
 
-      console.error(
-        '❌ ETUDIANTS:',
-        error
-      );
-
+      console.error('❌ ETUDIANTS:', error);
       this.etudiants.set([]);
       return;
 
@@ -174,157 +135,27 @@ export class PaiementComponent implements OnInit {
 
   }
 
-  /* ==============================
-     LOAD PROGRAMMES ETUDIANT
-  ============================== */
-
-  async loadProgrammesEtudiant(
-  etudiantId: string
-) {
-
-  if (!etudiantId) {
-    this.programmesEtudiant.set([]);
-    return;
-  }
-
-  console.log(
-    '🔎 Recherche programmes pour étudiant:',
-    etudiantId
-  );
-
-  const { data, error } =
-    await this.sb.client
-      .from('groupe_etudiants')
-      .select(`
-        groupe_id,
-        groupes (
-          id,
-          nom,
-          programme_id,
-          programmes (
-            id,
-            nom
-          )
-        )
-      `)
-      .eq('etudiant_id', etudiantId);
-
-  if (error) {
-
-    console.error(
-      '❌ PROGRAMMES ETUDIANT:',
-      error
-    );
-
-    this.programmesEtudiant.set([]);
-    return;
-  }
-
-  console.log(
-    '📚 GROUPES ETUDIANT RAW:',
-    data
-  );
-
-  const programmesMap =
-    new Map<string, Programme>();
-
-  for (const row of data || []) {
-
-    const groupe: any =
-      row.groupes;
-
-    console.log(
-      '👥 GROUPE:',
-      groupe
-    );
-
-    if (!groupe) {
-      continue;
-    }
-
-    const programme: any =
-      groupe.programmes;
-
-    console.log(
-      '📚 PROGRAMME:',
-      programme
-    );
-
-    if (!programme) {
-      continue;
-    }
-
-    const programmeId =
-      String(programme.id);
-
-    const programmeNom =
-      String(programme.nom || '');
-
-    programmesMap.set(
-      programmeId,
-      {
-        id: programmeId,
-        nom: programmeNom,
-      }
-    );
-  }
-
-  const programmes =
-    Array.from(
-      programmesMap.values()
-    );
-
-  console.log(
-    '✅ PROGRAMMES ETUDIANT FINAL:',
-    programmes
-  );
-
-  this.programmesEtudiant.set(
-    programmes
-  );
-
-  /*
-   * إذا عندو غير programme واحد
-   * نختاروه أوتوماتيكياً
-   */
-
-  if (programmes.length === 1) {
-
-    this.programmeSelectionne.set(
-      programmes[0].id
-    );
-
-  } else {
-
-    this.programmeSelectionne.set('');
-
-  }
-}
-
-  /* ==============================
-     LOAD PAIEMENTS
-  ============================== */
+  // LOAD PAIEMENTS DU ETUDIANT ET ANNEE
 
   async loadPaiements() {
 
-    const { data, error } =
-      await this.sb.client
-        .from('paiements')
-        .select('*')
-        .order('annee', {
-          ascending: false
-        })
-        .order('mois', {
-          ascending: false
-        });
+    const etudiantId = this.filtreEtudiant();
+
+    if (!etudiantId) {
+      this.paiements.set([]);
+      return;
+    }
+
+    const { data, error } = await this.sb.client
+      .from('paiements')
+      .select('*')
+      .eq('etudiant_id', etudiantId)
+      .eq('annee', this.annee())
+      .order('mois');
 
     if (error) {
 
-      console.error(
-        '❌ PAIEMENTS:',
-        error
-      );
-
+      console.error('❌ PAIEMENTS:', error);
       this.paiements.set([]);
       return;
 
@@ -333,214 +164,142 @@ export class PaiementComponent implements OnInit {
     this.paiements.set(
       (data || []).map((p: any) => ({
         id: String(p.id),
-        etudiant_id:
-          String(p.etudiant_id),
-        programme_id:
-          String(p.programme_id),
+        etudiant_id: String(p.etudiant_id),
         mois: Number(p.mois),
         annee: Number(p.annee),
         montant: Number(p.montant || 0),
         paye: Boolean(p.paye),
-        date_paiement:
-          p.date_paiement || undefined
+        date_paiement: p.date_paiement || undefined
       }))
     );
 
   }
 
-  /* ==============================
-     CHANGER ETUDIANT
-  ============================== */
+  // CHANGER ETUDIANT
 
-  async changerEtudiant(
-    value: string
-  ) {
+  async changerEtudiant(value: string) {
 
     this.filtreEtudiant.set(value);
+    this.paiements.set([]);
 
-    this.programmeSelectionne.set('');
+    if (!value) return;
 
-    this.programmesEtudiant.set([]);
+    await this.loadPaiements();
 
-    if (!value) {
-      return;
-    }
+  }
 
-    await this.loadProgrammesEtudiant(
-      value
+  // ETUDIANT SELECTIONNE
+
+  etudiantSelectionne = computed(() => {
+
+    const id = this.filtreEtudiant();
+
+    return this.etudiants().find(e => e.id === id);
+
+  });
+
+  // PAIEMENTS ETUDIANT
+
+  paiementsEtudiant = computed(() => {
+
+    const etudiantId = this.filtreEtudiant();
+    const annee = this.annee();
+
+    return this.paiements().filter(p =>
+      p.etudiant_id === etudiantId &&
+      p.annee === annee
+    );
+
+  });
+
+  
+  // EST PAYE
+
+  estPaye(mois: number): boolean {
+
+    return this.paiementsEtudiant().some(
+      p => p.mois === mois && p.paye
     );
 
   }
 
-  /* ==============================
-     ETUDIANT SELECTIONNE
-  ============================== */
+  // GET PAIEMENT
 
-  etudiantSelectionne =
-    computed(() => {
+  getPaiement(mois: number): Paiement | undefined {
 
-      const id =
-        this.filtreEtudiant();
+    return this.paiementsEtudiant().find(
+      p => p.mois === mois
+    );
 
-      return this.etudiants().find(
-        e => e.id === id
-      );
+  }
 
-    });
+  // CHANGER ET ENREGISTRER PAIEMENT
 
-  /* ==============================
-     PROGRAMME SELECTIONNE
-  ============================== */
+  async changerPaiement(mois: number, paye: boolean) {
 
-  programmeActuel =
-    computed(() => {
+    const etudiantId = this.filtreEtudiant();
 
-      const id =
-        this.programmeSelectionne();
+    if (!etudiantId || this.saving()) return;
 
-      return this.programmesEtudiant()
-        .find(p => p.id === id);
+    this.saving.set(true);
 
-    });
+    try {
 
-  /* ==============================
-     PAIEMENTS FILTRES
-  ============================== */
+      const datePaiement = paye
+        ? new Date().toISOString().slice(0, 10)
+        : null;
 
-  paiementsEtudiant =
-    computed(() => {
+      const { error } = await this.sb.client
+        .from('paiements')
+        .upsert(
+          {
+            etudiant_id: etudiantId,
+            mois: mois,
+            annee: this.annee(),
+            montant: 0,
+            paye: paye,
+            date_paiement: datePaiement
+          },
+          {
+            onConflict: 'etudiant_id,mois,annee'
+          }
+        );
 
-      const etudiantId =
-        this.filtreEtudiant();
+      if (error) {
 
-      const programmeId =
-        this.programmeSelectionne();
-
-      const annee =
-        this.annee();
-
-      if (
-        !etudiantId ||
-        !programmeId
-      ) {
-
-        return [];
+        console.error('❌ SAVE PAIEMENT:', error);
+        alert('تعذر تسجيل الأداء. حاول مرة أخرى.');
+        return;
 
       }
 
-      return this.paiements().filter(
-        p =>
-          p.etudiant_id === etudiantId &&
-          p.programme_id === programmeId &&
-          p.annee === annee
-      );
+      await this.loadPaiements();
 
-    });
+    } catch (error) {
 
-  /* ==============================
-     MOIS PAYES
-  ============================== */
+      console.error('❌ SAVE:', error);
 
-  nombreMoisPayes =
-    computed(() => {
+    } finally {
 
-      return this.paiementsEtudiant()
-        .filter(p => p.paye)
-        .length;
+      this.saving.set(false);
 
-    });
-
-  /* ==============================
-     MOIS NON PAYES
-  ============================== */
-
-  nombreMoisNonPayes =
-    computed(() => {
-
-      return 12 -
-        this.nombreMoisPayes();
-
-    });
-
-  /* ==============================
-     TOTAL PAYE
-  ============================== */
-
-  totalPaye =
-    computed(() => {
-
-      return this.paiementsEtudiant()
-        .filter(p => p.paye)
-        .reduce(
-          (total, p) =>
-            total + p.montant,
-          0
-        );
-
-    });
-
-
-
-  /* ==============================
-     EST PAYE
-  ============================== */
-
-  estPaye(
-    mois: number
-  ): boolean {
-
-    return !!this.paiementsEtudiant()
-      .find(
-        p =>
-          p.mois === mois &&
-          p.paye
-      );
+    }
 
   }
 
-  /* ==============================
-     GET PAIEMENT
-  ============================== */
+  // CHANGER ANNEE
 
-  getPaiement(
-    mois: number
-  ): Paiement | undefined {
+  async changerAnnee(value: string) {
 
-    return this.paiementsEtudiant()
-      .find(
-        p =>
-          p.mois === mois
-      );
+    this.annee.set(Number(value));
+
+    await this.loadPaiements();
 
   }
 
-  /* ==============================
-     TOGGLE PAIEMENT
-  ============================== */
+  // FORMAT MONEY
 
-  
-
-  /* ==============================
-     CHANGER ANNEE
-  ============================== */
-
-  changerAnnee(
-    value: string
-  ) {
-
-    this.annee.set(
-      Number(value)
-    );
-
-  }
-
-  /* ==============================
-     FORMAT MONEY
-  ============================== */
-
-  formatMoney(
-    amount: number
-  ): string {
+  formatMoney(amount: number): string {
 
     return `${amount} DH`;
 

@@ -684,29 +684,32 @@ export class DevoirsComponent implements OnInit {
   // SELECTION DES GROUPES POUR LES FICHIERS
   // ==================================================
 
-  togglePdfGroup(pdfIndex: number, groupeId: string): void {
-    this.pdfUploads.update(list =>
-      list.map((pdf, i) => {
-        if (i !== pdfIndex) {
-          return pdf;
-        }
+  
+   updatePdfGroupSelection(
+  pdfIndex: number,
+  groupeId: string,
+  checked: boolean
+): void {
+  console.log('CLICK:', { pdfIndex, groupeId, checked });
 
-        const selected = pdf.groupeIds.includes(groupeId);
+  this.pdfUploads.update(list =>
+    list.map((pdf, index) => {
+      if (index !== pdfIndex) return pdf;
 
-        return {
-          ...pdf,
-          groupeIds: selected
-            ? pdf.groupeIds.filter(id => id !== groupeId)
-            : [...pdf.groupeIds, groupeId]
-        };
-      })
-    );
-  }
+      const updatedIds = checked
+        ? [...new Set([...pdf.groupeIds, groupeId])]
+        : pdf.groupeIds.filter(id => id !== groupeId);
 
-  isPdfGroupSelected(pdfIndex: number, groupeId: string): boolean {
-    return this.pdfUploads()[pdfIndex]?.groupeIds.includes(groupeId)
-      ?? false;
-  }
+      console.log('GROUPES SELECTIONNES:', updatedIds);
+
+      return { ...pdf, groupeIds: updatedIds };
+    })
+  );
+}
+
+isPdfGroupSelected(pdfIndex: number, groupeId: string): boolean {
+  return this.pdfUploads()[pdfIndex]?.groupeIds.includes(groupeId) ?? false;
+}
 
   removePdf(index: number): void {
     this.pdfUploads.update(list =>
