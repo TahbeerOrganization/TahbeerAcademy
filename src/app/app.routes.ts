@@ -72,6 +72,14 @@ export const routes: Routes = [
           import('./features/prof/paiement/paiement.component')
             .then(m => m.PaiementComponent)
       },
+      {
+        path: 'announcements',
+        loadComponent: () =>
+          import('./features/prof/announcements/announcements.component')
+            .then(m => m.AnnouncementsComponent
+              
+            )
+      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },
@@ -98,8 +106,10 @@ export const routes: Routes = [
       {
         path: 'mes-notifications',
         loadComponent: () =>
-          import('./features/etudiant/mes-notifications/mes-notifications.component')
-            .then(m => m.MesNotificationsComponent)
+          import('./features/etudiant/notifications/notifications.component')
+            .then(m => m.MesNotificationsComponent
+              
+            )
       },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]

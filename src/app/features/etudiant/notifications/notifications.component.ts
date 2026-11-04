@@ -21,7 +21,7 @@ interface AppNotification {
 }
 
 @Component({
-  selector: 'app-mes-notifications',
+  selector: 'app-notifications',
   standalone: true,
   imports: [CommonModule, SidebarComponent],
   templateUrl: './notifications.component.html',
