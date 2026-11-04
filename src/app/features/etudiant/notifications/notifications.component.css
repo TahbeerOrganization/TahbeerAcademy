@@ -1,0 +1,615 @@
+
+
+:host {
+  display: block;
+  min-height: 100vh;
+  min-width: 0;
+  color: #1a1a1a;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.layout {
+  display: flex;
+  direction: rtl;
+  height: 100vh;
+  min-height: 0;
+  overflow: hidden;
+  background: #f5f7fb;
+}
+
+app-sidebar {
+  flex-shrink: 0;
+}
+
+.main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  height: 100vh;
+  padding: 0;
+  overflow: hidden;
+  background: #f5f7fb;
+}
+
+/* TOPBAR */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-shrink: 0;
+  height: 56px;
+  min-height: 56px;
+  padding: 0 24px;
+  background: #fff;
+  border-bottom: 1px solid #e0ded8;
+}
+
+.topbar-title {
+  color: #1a1a1a;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.topbar-sub {
+  color: #888;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.btn-refresh {
+  padding: 7px 14px;
+  border: 1px solid #e0ded8;
+  border-radius: 8px;
+  background: #fff;
+  color: #555;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.btn-refresh:hover {
+  background: #f5f5f3;
+}
+
+/* CONTENT */
+
+.content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  min-height: 0;
+  max-width: 1150px;
+  margin: 0 auto;
+  padding: 20px 24px 35px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+
+/* =========================================
+   ALERTS
+========================================= */
+
+.alert {
+  padding: 13px 17px;
+  border-radius: 10px;
+  margin-bottom: 17px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.alert-error {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.alert-success {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+/* =========================================
+   PAGE HEADER
+========================================= */
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 22px;
+}
+
+.page-header h2 {
+  font-size: 22px;
+  font-weight: 800;
+  color: #172033;
+  margin-bottom: 7px;
+}
+
+.page-header p {
+  font-size: 13px;
+  color: #8490a3;
+}
+
+.notification-count {
+  min-width: 90px;
+  background: #eff6ff;
+  color: #2563eb;
+  padding: 10px 15px;
+  border-radius: 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.notification-count strong {
+  font-size: 23px;
+  font-weight: 800;
+}
+
+.notification-count span {
+  font-size: 11px;
+}
+
+/* =========================================
+   UNREAD INFO
+========================================= */
+
+.unread-info {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 15px 18px;
+  margin-bottom: 20px;
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  border-radius: 12px;
+}
+
+.unread-info-icon {
+  font-size: 25px;
+}
+
+.unread-info strong {
+  color: #1e40af;
+  font-size: 13px;
+}
+
+.unread-info p {
+  color: #64748b;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+/* =========================================
+   NOTIFICATIONS LIST
+========================================= */
+
+.notifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 950px;
+}
+
+/* =========================================
+   NOTIFICATION CARD
+========================================= */
+
+.notification-card {
+  width: 100%;
+  background: #fff;
+  border: 1px solid #e5eaf1;
+  border-radius: 14px;
+  padding: 19px;
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  transition: .2s ease;
+  box-shadow: 0 3px 12px rgba(15,23,42,.025);
+}
+
+.notification-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(15,23,42,.06);
+}
+
+/* Unread */
+
+.notification-card.unread {
+  border-right: 4px solid #2563eb;
+  background: #fcfdff;
+}
+
+/* Read */
+
+.notification-card.read {
+  border-right: 4px solid #16a34a;
+}
+
+/* =========================================
+   ICONS
+========================================= */
+
+.notification-icon {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 23px;
+}
+
+.announcement-icon {
+  background: #eff6ff;
+}
+
+.payment-icon {
+  background: #fff7ed;
+}
+
+/* =========================================
+   NOTIFICATION CONTENT
+========================================= */
+
+.notification-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.notification-header h3 {
+  color: #172033;
+  font-size: 16px;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.notification-message {
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.9;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin-bottom: 12px;
+}
+
+/* =========================================
+   BADGES
+========================================= */
+
+.type-badge {
+  background: #eff6ff;
+  color: #2563eb;
+  padding: 4px 9px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.new-badge {
+  background: #fef3c7;
+  color: #b45309;
+  padding: 4px 9px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.read-badge {
+  background: #dcfce7;
+  color: #15803d;
+  padding: 4px 9px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+/* =========================================
+   DATE
+========================================= */
+
+.notification-date {
+  color: #94a3b8;
+  font-size: 11px;
+  margin-bottom: 12px;
+}
+
+/* =========================================
+   ACTIONS
+========================================= */
+
+.notification-actions-main {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* Mark as read */
+
+.btn-mark-read {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 17px;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 9px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.btn-mark-read:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.btn-mark-read:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Read confirmation */
+
+.read-confirmation {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 13px;
+  background: #dcfce7;
+  color: #15803d;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.read-confirmation small {
+  color: #16a34a;
+  font-size: 10px;
+  font-weight: 500;
+  margin-right: 4px;
+}
+
+/* Payment */
+
+.btn-payment-done {
+  padding: 9px 16px;
+  background: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #fed7aa;
+  border-radius: 9px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.btn-payment-done:hover {
+  background: #ffedd5;
+}
+
+.btn-payment-done:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+/* =========================================
+   LOADING
+========================================= */
+
+.loading-wrap {
+  padding: 65px 20px;
+  text-align: center;
+  color: #64748b;
+}
+
+.spinner-big {
+  width: 38px;
+  height: 38px;
+  border: 4px solid #dbeafe;
+  border-top-color: #2563eb;
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  margin: 0 auto 14px;
+}
+
+.loading-wrap p {
+  font-size: 13px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================
+   EMPTY STATE
+========================================= */
+
+.empty-state {
+  background: #fff;
+  border: 1px dashed #cbd5e1;
+  border-radius: 15px;
+  text-align: center;
+  padding: 65px 20px;
+  max-width: 950px;
+}
+
+.empty-icon {
+  font-size: 45px;
+  margin-bottom: 14px;
+}
+
+.empty-state h3 {
+  font-size: 17px;
+  color: #334155;
+  margin-bottom: 8px;
+}
+
+.empty-state p {
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 900px) {
+  .content {
+    padding: 22px 18px;
+  }
+}
+
+@media (max-width: 768px) {
+
+  .layout {
+    display: block;
+    width: 100%;
+    min-height: 100vh;
+  }
+
+  .main {
+    width: 100%;
+    min-width: 0;
+    min-height: 100vh;
+  }
+
+  .topbar {
+    min-height: 68px;
+    padding: 12px 68px 12px 14px;
+  }
+
+  .topbar-title {
+    font-size: 16px;
+  }
+
+  .topbar-sub {
+    font-size: 11px;
+    max-width: 230px;
+  }
+
+  .content {
+    padding: 16px 12px;
+  }
+
+  .page-header {
+    margin-bottom: 16px;
+  }
+
+  .page-header h2 {
+    font-size: 18px;
+  }
+
+  .page-header p {
+    font-size: 11px;
+  }
+
+  .notification-count {
+    min-width: 72px;
+    padding: 8px 10px;
+  }
+
+  .notification-count strong {
+    font-size: 19px;
+  }
+
+  .notification-card {
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .notification-icon {
+    width: 39px;
+    height: 39px;
+    font-size: 19px;
+  }
+
+  .notification-header h3 {
+    font-size: 14px;
+  }
+
+  .notification-message {
+    font-size: 12px;
+  }
+
+  .btn-mark-read,
+  .btn-payment-done {
+    padding: 9px 12px;
+    font-size: 11px;
+  }
+
+  .read-confirmation {
+    flex-wrap: wrap;
+    font-size: 11px;
+  }
+
+  .unread-info {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 400px) {
+
+  .notification-card {
+    align-items: flex-start;
+    padding: 11px;
+  }
+
+  .notification-icon {
+    width: 34px;
+    height: 34px;
+    font-size: 17px;
+  }
+
+  .notification-header {
+    gap: 6px;
+  }
+
+  .notification-header h3 {
+    font-size: 13px;
+  }
+
+  .read-confirmation small {
+    width: 100%;
+  }
+
+  .notification-actions-main {
+    gap: 6px;
+  }
+}

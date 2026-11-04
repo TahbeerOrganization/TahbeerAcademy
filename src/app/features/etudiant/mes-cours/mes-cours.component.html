@@ -1,160 +1,144 @@
 <div class="layout" dir="rtl">
 
-  <!-- ══ SIDEBAR ═══════════════════════════════ -->
-
   <app-sidebar activePage="mes-cours"></app-sidebar>
-
-
-  <!-- ══ MAIN ═════════════════════════════════ -->
 
   <main class="main">
 
     <!-- TOPBAR -->
-
     <div class="topbar">
 
       <div>
-
-        <div class="topbar-title">
-          دروسي
-        </div>
-
-        <div class="topbar-sub">
-          جميع الدروس الخاصة بك
-        </div>
-
+        <div class="topbar-title">دروسي</div>
+        <div class="topbar-sub">جميع الدروس الخاصة بك</div>
       </div>
 
-
       <div class="topbar-actions">
-
         <button
+          type="button"
           class="btn-refresh"
-          (click)="loading = true">
-
+          (click)="loadCours()"
+          [disabled]="loading || downloadingId !== null"
+        >
           🔄 تحديث
-
         </button>
-
       </div>
 
     </div>
 
-
     <!-- CONTENT -->
-
     <div class="content">
 
+      <!-- MESSAGES -->
+      @if (errorMsg) {
+        <div class="alert alert-error">
+          ⚠️ {{ errorMsg }}
+        </div>
+      }
 
-      <!-- ══ HEADER ═══════════════════════════ -->
+      @if (successMsg) {
+        <div class="alert alert-success">
+          ✓ {{ successMsg }}
+        </div>
+      }
 
+      <!-- HEADER -->
       <div class="page-header">
 
         <div>
-
-          <h2>
-            📚 الدروس
-          </h2>
-
-          <p>
-            تصفح الدروس التي أضافها الأستاذ
-          </p>
-
+          <h2>📚 الدروس</h2>
+          <p>تصفح الدروس التي أضافها الأستاذ</p>
         </div>
 
-
         <div class="course-count">
-
           {{ cours.length }}
-
-          <span>
-            درس
-          </span>
-
+          <span>درس</span>
         </div>
 
       </div>
 
-
-
-      <!-- ══ LOADING ═════════════════════════ -->
-
+      <!-- LOADING -->
       @if (loading) {
 
         <div class="loading-wrap">
-
           <div class="spinner-big"></div>
-
-          <p>
-            جاري التحميل...
-          </p>
-
+          <p>جاري تحميل الدروس...</p>
         </div>
 
       }
 
-
-      <!-- ══ EMPTY ═══════════════════════════ -->
-
+      <!-- EMPTY -->
       @else if (cours.length === 0) {
 
         <div class="empty-state">
-
-          <div class="empty-icon">
-            📚
-          </div>
-
-          <h3>
-            لا توجد دروس حالياً
-          </h3>
-
-          <p>
-            عندما يضيف الأستاذ درساً سيظهر هنا
-          </p>
-
+          <div class="empty-icon">📚</div>
+          <h3>لا توجد دروس حالياً</h3>
+          <p>عندما يضيف الأستاذ درساً سيظهر هنا</p>
         </div>
 
       }
 
-
-      <!-- ══ COURSES ═════════════════════════ -->
-
+      <!-- COURSES -->
       @else {
 
         <div class="courses-grid">
 
           @for (course of cours; track course.id) {
 
-            <div class="course-card">
-
-
-
-              <!-- BODY -->
+            <article class="course-card">
 
               <div class="course-body">
 
-
-                <div class="course-title">
-
+                <h3 class="course-title">
                   {{ course.titre }}
+                </h3>
 
-                </div>
+                <!-- IMAGE -->
+                @if (course.type === 'image') {
 
+                  <img
+                    [src]="course.fichier_url"
+                    [alt]="course.titre"
+                    class="course-image-preview"
+                    loading="lazy"
+                  />
 
-               
+                }
 
+                <!-- PDF -->
+                @else if (course.type === 'pdf') {
 
-             
+                  <div class="course-pdf">
+                    <span>📄</span>
+                    <strong>ملف PDF</strong>
+                  </div>
 
-                <!-- ACTIONS -->
+                }
 
+                <!-- OTHER FILES -->
+                @else {
+
+                  <div class="course-pdf">
+                    <span>📁</span>
+                    <strong>ملف قابل للتحميل</strong>
+                  </div>
+
+                }
+
+                <!-- DOWNLOAD -->
                 <div class="course-actions">
 
                   <button
+                    type="button"
                     class="btn-download"
-                    (click)="downloadCours(course)">
+                    (click)="downloadCours(course)"
+                    [disabled]="downloadingId !== null"
+                  >
 
-                    ⬇️ تحميل
+                    @if (downloadingId === course.id) {
+                      ⏳ جاري التحميل...
+                    } @else {
+                      ⬇️ تحميل الملف
+                    }
 
                   </button>
 
@@ -162,7 +146,7 @@
 
               </div>
 
-            </div>
+            </article>
 
           }
 

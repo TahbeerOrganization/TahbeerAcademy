@@ -1,0 +1,248 @@
+
+<div class="layout" dir="rtl">
+
+  <app-sidebar activePage="notifications"></app-sidebar>
+
+  <main class="main">
+
+    <!-- الشريط العلوي -->
+    <header class="topbar">
+      <div>
+        <div class="topbar-title">🔔 الإشعارات</div>
+        <div class="topbar-sub">
+          رسائل الأستاذ وتذكيرات أداء الرسوم الشهرية
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="btn-refresh"
+        (click)="loadNotifications()"
+        [disabled]="loading"
+      >
+        🔄 تحديث
+      </button>
+    </header>
+
+    <div class="content">
+
+      <!-- رسائل التنبيه -->
+      @if (errorMsg) {
+        <div class="alert alert-error">
+          ⚠️ {{ errorMsg }}
+        </div>
+      }
+
+      @if (successMsg) {
+        <div class="alert alert-success">
+          ✓ {{ successMsg }}
+        </div>
+      }
+
+      <!-- رأس الصفحة -->
+      <div class="page-header">
+
+        <div>
+          <h2>إشعاراتي</h2>
+
+          <p>
+            {{ annoncesCount }} رسالة من الأستاذ
+            ·
+            {{ paymentsCount }} تذكير بأداء الرسوم
+          </p>
+        </div>
+
+        <div class="notification-count">
+          <strong>{{ visibleNotifications.length }}</strong>
+          <span>إشعارًا</span>
+        </div>
+
+      </div>
+
+      <!-- الإشعارات غير المقروءة -->
+      @if (unreadCount > 0 && !loading) {
+        <div class="unread-info">
+
+          <span class="unread-info-icon">📩</span>
+
+          <div>
+            <strong>
+              لديك {{ unreadCount }} إشعار غير مقروء
+            </strong>
+
+            <p>
+              افتح الرسالة واضغط على «تمت قراءة الرسالة» لتأكيد الاطلاع عليها.
+            </p>
+          </div>
+
+        </div>
+      }
+
+      <!-- حالة التحميل -->
+      @if (loading) {
+
+        <div class="loading-wrap">
+          <div class="spinner-big"></div>
+          <p>جارٍ تحميل الإشعارات...</p>
+        </div>
+
+      } @else if (visibleNotifications.length > 0) {
+
+        <!-- قائمة الإشعارات -->
+        <div class="notifications-list">
+
+          @for (
+            notification of visibleNotifications;
+            track notification.id
+          ) {
+
+            <article
+              class="notification-card"
+              [class.unread]="!notification.is_read"
+              [class.read]="notification.is_read"
+              [class.announcement]="notification.type === 'announcement'"
+            >
+
+              <!-- الأيقونة -->
+              @if (notification.type === 'announcement') {
+                <div class="notification-icon announcement-icon">
+                  📢
+                </div>
+              } @else {
+                <div class="notification-icon payment-icon">
+                  💳
+                </div>
+              }
+
+              <!-- محتوى الإشعار -->
+              <div class="notification-content">
+
+                <!-- العنوان -->
+                <div class="notification-header">
+
+                  <h3>{{ notification.title }}</h3>
+
+                  @if (notification.type === 'announcement') {
+                    <span class="type-badge">
+                      رسالة من الأستاذ
+                    </span>
+                  }
+
+                  @if (!notification.is_read) {
+                    <span class="new-badge">
+                      جديد
+                    </span>
+                  } @else {
+                    <span class="read-badge">
+                      تمت القراءة
+                    </span>
+                  }
+
+                </div>
+
+                <!-- نص الرسالة -->
+                <p class="notification-message">
+                  {{ notification.message }}
+                </p>
+
+                <!-- تاريخ الإشعار -->
+                <div class="notification-date">
+                  🕒
+                  {{ notification.created_at | date:'dd/MM/yyyy HH:mm' }}
+                </div>
+
+                <!-- زر تأكيد قراءة الرسالة -->
+                @if (notification.type === 'announcement') {
+
+                  <div class="notification-actions-main">
+
+                    @if (!notification.is_read) {
+
+                      <button
+                        type="button"
+                        class="btn-mark-read"
+                        (click)="markAsRead(notification)"
+                        [disabled]="markingReadId !== null"
+                      >
+
+                        @if (markingReadId === notification.id) {
+                          ⏳ جارٍ تسجيل القراءة...
+                        } @else {
+                          ✓ تمت قراءة الرسالة
+                        }
+
+                      </button>
+
+                    } @else {
+
+                      <div class="read-confirmation">
+                        <span>✓</span>
+                        تمت قراءة الرسالة
+
+                        @if (notification.read_at) {
+                          <small>
+                            {{ notification.read_at | date:'dd/MM/yyyy HH:mm' }}
+                          </small>
+                        }
+                      </div>
+
+                    }
+
+                  </div>
+
+                }
+
+                <!-- زر تأكيد أداء الرسوم -->
+                @if (notification.type === 'payment') {
+
+                  <div class="notification-actions-main">
+
+                    <button
+                      type="button"
+                      class="btn-payment-done"
+                      (click)="dismissPayment(notification)"
+                      [disabled]="dismissingId !== null"
+                    >
+
+                      @if (dismissingId === notification.id) {
+                        ⏳ جارٍ التحديث...
+                      } @else {
+                        ✓ تم الأداء
+                      }
+
+                    </button>
+
+                  </div>
+
+                }
+
+              </div>
+
+            </article>
+
+          }
+
+        </div>
+
+      } @else {
+
+        <!-- حالة عدم وجود إشعارات -->
+        <div class="empty-state">
+
+          <div class="empty-icon">🔔</div>
+
+          <h3>لا توجد إشعارات</h3>
+
+          <p>
+            ستظهر هنا الرسائل والإشعارات الجديدة فور وصولها إليك.
+          </p>
+
+        </div>
+
+      }
+
+    </div>
+
+  </main>
+
+</div>
