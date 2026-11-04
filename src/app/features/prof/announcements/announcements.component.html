@@ -1,0 +1,600 @@
+
+<div class="layout" dir="rtl">
+
+  <app-sidebar activePage="announcements"></app-sidebar>
+
+  <main class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div>
+        <div class="topbar-title">📢 الرسائل والإعلانات</div>
+        <div class="topbar-sub">
+          إرسال رسالة للطلاب ومعرفة من قرأها
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ALERTS -->
+      @if (successMsg()) {
+        <div class="alert alert-success">
+          ✅ {{ successMsg() }}
+        </div>
+      }
+
+      @if (errorMsg()) {
+        <div class="alert alert-error">
+          ⚠️ {{ errorMsg() }}
+        </div>
+      }
+
+      <!-- FORMULAIRE -->
+      <section class="card">
+
+        <h2 class="card-title">✉️ رسالة جديدة</h2>
+
+        <div class="form-group">
+          <label for="titre">العنوان</label>
+
+          <input
+            id="titre"
+            class="form-input"
+            type="text"
+            [attr.maxlength]="MAX_TITLE"
+            [value]="titre()"
+            (input)="titre.set($any($event.target).value)"
+            [disabled]="sending()"
+          />
+
+          <small class="char-count">
+            {{ titre().length }} / {{ MAX_TITLE }}
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="message">الرسالة</label>
+
+          <textarea
+            id="message"
+            class="form-input"
+            rows="1"
+            placeholder="اكتب الرسالة هنا..."
+            [attr.maxlength]="MAX_MESSAGE"
+            [value]="message()"
+            (input)="message.set($any($event.target).value)"
+            [disabled]="sending()"
+          ></textarea>
+
+          <small class="char-count">
+            {{ message().length }} / {{ MAX_MESSAGE }}
+          </small>
+        </div>
+
+        <div class="form-group">
+
+          <label>المرسل إليهم</label>
+
+          <div class="cible-toggle">
+
+            <button
+              type="button"
+              class="toggle-btn"
+              [class.active]="cible() === 'all'"
+              (click)="setCible('all')"
+              [disabled]="sending()"
+            >
+              👥 جميع الطلاب
+            </button>
+
+            <button
+              type="button"
+              class="toggle-btn"
+              [class.active]="cible() === 'groupes'"
+              (click)="setCible('groupes')"
+              [disabled]="sending()"
+            >
+              🗂️ مجموعات محددة
+            </button>
+
+          </div>
+
+          @if (cible() === 'groupes') {
+
+            <div class="groupe-chips">
+
+              @for (g of groupes(); track g.id) {
+
+                <label
+                  class="groupe-chip"
+                  [class.chip-selected]="isGroupeSelected(g.id)"
+                >
+
+                  <input
+                    type="checkbox"
+                    [checked]="isGroupeSelected(g.id)"
+                    (change)="toggleGroupe(g.id)"
+                    [disabled]="sending()"
+                  />
+
+                  <span class="chip-check">
+                    @if (isGroupeSelected(g.id)) { ✓ }
+                  </span>
+
+                  {{ g.nom }}
+
+                </label>
+
+              } @empty {
+
+                <p class="muted">لا توجد مجموعات</p>
+
+              }
+
+            </div>
+
+          }
+
+        </div>
+
+        <div class="form-actions">
+
+          <button
+            type="button"
+            class="btn-primary"
+            (click)="envoyer()"
+            [disabled]="!canSend()"
+          >
+            @if (sending()) {
+              ⏳ جاري الإرسال...
+            } @else {
+              📤 إرسال الرسالة
+            }
+          </button>
+
+        </div>
+
+      </section>
+
+      <!-- HISTORIQUE -->
+      <section>
+
+        <div class="section-heading">
+
+          <h2>📬 الرسائل المرسلة</h2>
+
+          <button
+            type="button"
+            class="btn-ghost"
+            (click)="loadAnnonces()"
+            [disabled]="loading()"
+          >
+            🔄 تحديث
+          </button>
+
+        </div>
+
+        @if (loading()) {
+
+          <div class="loading-wrap">
+            <div class="spinner"></div>
+            <p>جاري التحميل...</p>
+          </div>
+
+        } @else if (annonces().length === 0) {
+
+          <div class="empty-state">
+            <span>📭</span>
+            <h3>ما تسجلات حتى رسالة</h3>
+            <p>الرسائل اللي غادي ترسل غادي تبان هنا.</p>
+          </div>
+
+        } @else {
+
+          <div class="annonces-list">
+
+            @for (a of annonces(); track a.id) {
+
+              <article class="annonce-card">
+
+                <div class="annonce-head">
+
+                  <h3>{{ a.title }}</h3>
+
+                  <span class="annonce-date">
+                    🕒 {{ a.created_at | date:'dd/MM/yyyy HH:mm' }}
+                  </span>
+
+                </div>
+
+                <p class="annonce-text">
+                  {{ extrait(a.message) }}
+                </p>
+
+                <div class="annonce-meta">
+
+                  <span class="tag">
+                    👥 {{ cibleLabel(a) }}
+                  </span>
+
+                  <span class="tag">
+                    👁️ {{ a.lus }} / {{ a.total }} قرأوا
+                  </span>
+
+                </div>
+
+                <div class="progress">
+
+                  <div
+                    class="progress-bar"
+                    [style.width.%]="pourcentage(a)"
+                  ></div>
+
+                </div>
+
+                <div class="annonce-actions">
+
+                  <button
+                    type="button"
+                    class="btn-secondary"
+                    (click)="ouvrirSuivi(a)"
+                  >
+                    📊 تتبع القراءة
+                  </button>
+
+                  <button
+                    type="button"
+                    class="btn-delete"
+                    (click)="supprimer(a)"
+                    [disabled]="deletingId() !== null"
+                  >
+                    @if (deletingId() === a.id) {
+                      ⏳ ...
+                    } @else {
+                      🗑️ حذف
+                    }
+                  </button>
+
+                </div>
+
+              </article>
+
+            }
+
+          </div>
+
+        }
+
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- ====================================== -->
+  <!-- POPUP SUIVI DE LECTURE -->
+  <!-- ====================================== -->
+
+  @if (selectedAnnonce(); as a) {
+
+    <div
+      class="suivi-overlay"
+      (click)="fermerSuivi()"
+    >
+
+      <section
+        class="suivi-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="suivi-title"
+        (click)="$event.stopPropagation()"
+      >
+
+        <!-- MODAL HEADER -->
+        <div class="suivi-header">
+
+          <div class="suivi-header-info">
+
+            <div class="suivi-icon">
+              📊
+            </div>
+
+            <div>
+              <h2 id="suivi-title">
+                تتبع قراءة الرسالة
+              </h2>
+
+              <p>
+                مراقبة تفاعل الطلاب مع الإعلان
+              </p>
+            </div>
+
+          </div>
+
+          <button
+            type="button"
+            class="suivi-close"
+            (click)="fermerSuivi()"
+            aria-label="إغلاق"
+          >
+            ✕
+          </button>
+
+        </div>
+
+        <!-- MODAL BODY -->
+        <div class="suivi-body">
+
+          <!-- ANNONCE INFO -->
+          <div class="suivi-annonce-info">
+
+            <div class="suivi-annonce-label">
+              عنوان الرسالة
+            </div>
+
+            <h3>{{ a.title }}</h3>
+
+            <p class="suivi-message">
+              {{ a.message }}
+            </p>
+
+            <div class="suivi-date">
+              🕒 {{ a.created_at | date:'dd/MM/yyyy HH:mm' }}
+            </div>
+
+          </div>
+
+          <!-- STATISTIQUES -->
+          <div class="stats-grid">
+
+            <div class="stat-card">
+
+              <div class="stat-icon">
+                👥
+              </div>
+
+              <strong>
+                {{ totalRecipients() }}
+              </strong>
+
+              <span>المستلمون</span>
+
+            </div>
+
+            <div class="stat-card stat-success">
+
+              <div class="stat-icon">
+                ✓
+              </div>
+
+              <strong>
+                {{ lusCount() }}
+              </strong>
+
+              <span>قرأوا الرسالة</span>
+
+            </div>
+
+            <div class="stat-card stat-warning">
+
+              <div class="stat-icon">
+                ◷
+              </div>
+
+              <strong>
+                {{ nonLusCount() }}
+              </strong>
+
+              <span>لم يقرأوها</span>
+
+            </div>
+
+            <div class="stat-card stat-primary">
+
+              <div class="stat-icon">
+                %
+              </div>
+
+              <strong>
+                {{ tauxLecture() }}%
+              </strong>
+
+              <span>نسبة القراءة</span>
+
+            </div>
+
+          </div>
+
+          <!-- PROGRESS -->
+          <div class="suivi-progress-card">
+
+            <div class="progress-heading">
+
+              <strong>نسبة تفاعل الطلاب</strong>
+
+              <span>
+                {{ tauxLecture() }}%
+              </span>
+
+            </div>
+
+            <div class="progress big">
+
+              <div
+                class="progress-bar"
+                [style.width.%]="tauxLecture()"
+              ></div>
+
+            </div>
+
+            <p>
+              قرأ {{ lusCount() }} من أصل
+              {{ totalRecipients() }} طالب الرسالة
+            </p>
+
+          </div>
+
+          <!-- RECIPIENTS -->
+          <div class="recipients-section">
+
+            <div class="recipients-heading">
+
+              <div>
+                <h3>👨‍🎓 قائمة الطلاب</h3>
+
+                <p>
+                  تفاصيل حالة قراءة الرسالة لكل طالب
+                </p>
+              </div>
+
+              <span class="recipients-count">
+                {{ totalRecipients() }} طالب
+              </span>
+
+            </div>
+
+            <!-- FILTER TABS -->
+            <div class="tabs">
+
+              <button
+                type="button"
+                class="tab"
+                [class.active]="filtreSuivi() === 'all'"
+                (click)="setFiltreSuivi('all')"
+              >
+                الكل ({{ totalRecipients() }})
+              </button>
+
+              <button
+                type="button"
+                class="tab"
+                [class.active]="filtreSuivi() === 'non_lus'"
+                (click)="setFiltreSuivi('non_lus')"
+              >
+                لم يقرأوها ({{ nonLusCount() }})
+              </button>
+
+              <button
+                type="button"
+                class="tab"
+                [class.active]="filtreSuivi() === 'lus'"
+                (click)="setFiltreSuivi('lus')"
+              >
+                قرأوها ({{ lusCount() }})
+              </button>
+
+            </div>
+
+            <!-- LOADING -->
+            @if (loadingRecipients()) {
+
+              <div class="loading-wrap">
+                <div class="spinner"></div>
+                <p>جاري تحميل معلومات الطلاب...</p>
+              </div>
+
+            } @else if (recipientsFiltres().length === 0) {
+
+              <div class="empty-state">
+                <span>📭</span>
+                <p>لا توجد نتائج</p>
+              </div>
+
+            } @else {
+
+              <div class="table-card suivi-table-card">
+
+                <table class="table">
+
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>الطالب</th>
+                      <th>حالة القراءة</th>
+                      <th>وقت القراءة</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+
+                    @for (
+                      r of recipientsFiltres();
+                      track r.id;
+                      let i = $index
+                    ) {
+
+                      <tr>
+
+                        <td>{{ i + 1 }}</td>
+
+                        <td>
+                          <strong>{{ r.nom }}</strong>
+                        </td>
+
+                        <td>
+
+                          @if (r.is_read) {
+
+                            <span class="badge badge-green">
+                              ✓ قرأها
+                            </span>
+
+                          } @else {
+
+                            <span class="badge badge-amber">
+                              ◷ لم يقرأها
+                            </span>
+
+                          }
+
+                        </td>
+
+                        <td>
+                          {{
+                            r.read_at
+                              ? (r.read_at | date:'dd/MM/yyyy HH:mm')
+                              : '—'
+                          }}
+                        </td>
+
+                      </tr>
+
+                    }
+
+                  </tbody>
+
+                </table>
+
+              </div>
+
+            }
+
+          </div>
+
+        </div>
+
+        <!-- MODAL FOOTER -->
+        <div class="suivi-footer">
+
+          <span>
+            📢 تتبع إحصائيات قراءة الإعلان
+          </span>
+
+          <button
+            type="button"
+            class="btn-secondary"
+            (click)="fermerSuivi()"
+          >
+            إغلاق النافذة
+          </button>
+
+        </div>
+
+      </section>
+
+    </div>
+
+  }
+
+</div>

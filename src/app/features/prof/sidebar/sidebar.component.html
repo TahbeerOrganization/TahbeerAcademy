@@ -138,7 +138,15 @@
       <span class="nav-icon">💰</span>
       <span> الأداء</span>
     </a>
-
+    <a
+      class="nav-item"
+      [class.active]="activePage === 'announcements'"
+      routerLink="/prof/announcements"
+      (click)="close()"
+    >
+      <span class="nav-icon">📢</span>
+      <span> الاعلانات</span>
+    </a>
   </nav>
 
   <div class="sidebar-footer">
