@@ -67,15 +67,25 @@
       <span class="nav-icon">📖</span>
       <span>الدروس</span>
     </a>
-<a
-      class="nav-item"
-      [class.active]="activePage === 'mes-notifications'"
-      routerLink="/etudiant/mes-notifications"
-      (click)="close()"
-    >
-      <span class="nav-icon">🔔</span>
-      <span>الإشعارات</span>
-    </a>
+
+   <a
+  class="nav-item"
+  [class.active]="activePage === 'mes-notifications'"
+  routerLink="/etudiant/mes-notifications"
+  (click)="close()"
+>
+  <span class="nav-icon">🔔</span>
+
+  <span class="nav-text">الإشعارات</span>
+
+  @if (notificationCount.unreadCount() > 0) {
+    <span class="unread-badge">
+      {{ notificationCount.unreadCount() > 99
+          ? '99+'
+          : notificationCount.unreadCount() }}
+    </span>
+  }
+</a>
 
     
   </nav>

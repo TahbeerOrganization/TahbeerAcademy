@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 
 import { SupabaseService } from '../../../core/services/supabase.service';
 import { SidebarComponent } from '../sidebar/sidebar.component';
-
+import { NotificationsService } from '../../../core/services/notifications.service';
 type NotificationType = 'payment' | 'announcement';
 
 interface AppNotification {
