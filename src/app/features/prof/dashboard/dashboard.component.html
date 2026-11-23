@@ -18,10 +18,12 @@
 
       <div class="topbar-actions">
         <button
+          type="button"
           class="btn-refresh"
           (click)="loadDashboard()"
           [disabled]="loading()">
-          🔄 تحديث
+          <span>↻</span>
+        تحديث البيانات  
         </button>
       </div>
     </div>

@@ -1,3 +1,29 @@
+
+/* ═══════════════════════════════════════════════════
+   TAHBEER ACADEMY — CALENDAR DESIGN
+   Palette:
+   #075B91 | #087CB5 | #16A6B5
+   #D6A84F | #F3F7FA
+═══════════════════════════════════════════════════ */
+
+:host {
+  --primary: #075B91;
+  --blue: #087CB5;
+  --turquoise: #16A6B5;
+  --gold: #D6A84F;
+  --light: #F3F7FA;
+
+  --ink: #17384D;
+  --muted: #718596;
+  --line: #DCE8EF;
+  --soft-blue: #EAF4FA;
+  --soft-turquoise: #E8F7F7;
+  --white: #FFFFFF;
+  --danger: #DC5252;
+
+  display: block;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -8,7 +34,7 @@
   display: flex;
   width: 100%;
   min-height: 100vh;
-  background: #f5f5f3;
+  background: var(--light);
   font-family: 'Segoe UI', Arial, sans-serif;
   direction: rtl;
 }
@@ -19,44 +45,49 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background:
+    radial-gradient(circle at 90% 0%, rgba(22,166,181,.06), transparent 30%),
+    var(--light);
 }
 
-/* ========================= */
-/* TOPBAR */
-/* ========================= */
+/* ═══════════════════════════════════════════════════
+   TOPBAR
+═══════════════════════════════════════════════════ */
 
 .topbar {
-  height: 64px;
-  min-height: 64px;
-  background: #fff;
-  border-bottom: 1px solid #e0ded8;
-  padding: 0 20px;
+  height: 70px;
+  min-height: 70px;
+  background: rgba(255,255,255,.96);
+  border-bottom: 1px solid var(--line);
+  padding: 0 26px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  box-shadow: 0 3px 14px rgba(7,91,145,.04);
 }
 
 .topbar-title {
-  font-size: 17px;
-  font-weight: 600;
-  color: #1a1a1a;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--primary);
   text-align: right;
+  letter-spacing: -.3px;
 }
 
 .topbar-sub {
-  margin-top: 3px;
+  margin-top: 4px;
   font-size: 12px;
-  color: #888;
+  color: var(--muted);
   text-align: right;
 }
 
-/* ========================= */
-/* CONTENT */
-/* ========================= */
+/* ═══════════════════════════════════════════════════
+   CONTENT
+═══════════════════════════════════════════════════ */
 
 .content {
   width: 100%;
-  padding: 18px;
+  padding: 24px;
 }
 
 .loading {
@@ -64,54 +95,70 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #888;
+  color: var(--primary);
   font-size: 14px;
+  font-weight: 600;
 }
 
-/* ========================= */
-/* CALENDAR WRAPPER */
-/* ========================= */
+/* ═══════════════════════════════════════════════════
+   CALENDAR WRAPPER
+═══════════════════════════════════════════════════ */
 
 .calendar-wrapper {
   width: 100%;
   overflow-x: auto;
   overflow-y: hidden;
-  border-radius: 12px;
-  border: 1px solid #e0ded8;
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, .03);
+  border-radius: 17px;
+  border: 1px solid var(--line);
+  background: var(--white);
+  box-shadow: 0 8px 28px rgba(7,91,145,.07);
+  scrollbar-width: thin;
+  scrollbar-color: #9BCBD9 #F0F6F9;
 }
 
-/* ========================= */
-/* CALENDAR */
-/* ========================= */
+.calendar-wrapper::-webkit-scrollbar {
+  height: 9px;
+}
+
+.calendar-wrapper::-webkit-scrollbar-track {
+  background: #F0F6F9;
+  border-radius: 20px;
+}
+
+.calendar-wrapper::-webkit-scrollbar-thumb {
+  background: #9BCBD9;
+  border-radius: 20px;
+}
+
+.calendar-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--turquoise);
+}
+
+/* ═══════════════════════════════════════════════════
+   CALENDAR
+═══════════════════════════════════════════════════ */
 
 .calendar {
   width: max-content;
   min-width: 100%;
-  background: #fff;
+  background: var(--white);
 }
 
-/* ========================= */
-/* HEADER */
-/* ========================= */
+/* ═══════════════════════════════════════════════════
+   HEADER
+═══════════════════════════════════════════════════ */
 
 .calendar-header {
-  height: 48px;
+  height: 54px;
   display: flex;
-
-  /*
-   * الأيام فاليمين
-   */
   direction: rtl;
-
-  background: #f8fafc;
+  background: linear-gradient(135deg, #EAF4FA, #F0F9FA);
 }
 
 .day-corner {
   width: 82px;
   min-width: 82px;
-  height: 48px;
+  height: 54px;
 
   display: flex;
   align-items: center;
@@ -119,185 +166,161 @@
 
   flex-shrink: 0;
 
-  background: #f1f5f9;
-  border-left: 1px solid #e5e7eb;
+  background: linear-gradient(145deg, var(--primary), var(--blue));
+  border-left: 1px solid rgba(255,255,255,.2);
 
-  color: #475569;
-  font-size: 11px;
-  font-weight: 600;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
 
   direction: rtl;
 }
 
-/* ========================= */
-/* HOURS HEADER */
-/* ========================= */
-
 .hour-header {
   width: 110px;
   min-width: 110px;
-  height: 48px;
-
+  height: 54px;
   flex: none;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border-left: 1px solid #e5e7eb;
+  border-left: 1px solid #DCEAF0;
 
-  color: #475569;
-  font-size: 11px;
-  font-weight: 600;
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 700;
 
   direction: ltr;
+  transition: background .2s ease;
 }
 
-/* ========================= */
-/* BODY */
-/* ========================= */
+.hour-header:hover {
+  background: rgba(22,166,181,.08);
+}
+
+/* ═══════════════════════════════════════════════════
+   BODY
+═══════════════════════════════════════════════════ */
 
 .calendar-body {
   width: max-content;
   min-width: 100%;
 }
 
-/* ========================= */
-/* DAY ROW */
-/* ========================= */
+/* ═══════════════════════════════════════════════════
+   DAY ROW
+═══════════════════════════════════════════════════ */
 
 .day-row {
   width: max-content;
   min-width: 100%;
-
   height: 70px;
 
   display: flex;
-
-  /*
-   * IMPORTANT:
-   * اليوم فاليمين
-   * والساعات من بعدو
-   */
   direction: rtl;
 
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid #E8EFF3;
+  transition: background .2s ease;
 }
 
-/* ========================= */
-/* DAY NAME */
-/* ========================= */
+.day-row:hover {
+  background: #FBFDFE;
+}
+
+/* ═══════════════════════════════════════════════════
+   DAY NAME
+═══════════════════════════════════════════════════ */
 
 .day-name {
   width: 82px;
   min-width: 82px;
-
   height: 70px;
-
   flex: none;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  background: #f8fafc;
+  background: linear-gradient(145deg, #F0F7FB, #F7FAFC);
+  border-left: 1px solid var(--line);
 
-  border-left: 1px solid #e5e7eb;
-
-  color: #334155;
-
-  font-size: 11px;
-  font-weight: 600;
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 800;
 
   direction: rtl;
 
-  /*
-   * sticky فاليمين
-   */
   position: sticky;
   right: 0;
-
   z-index: 10;
+
+  box-shadow: -3px 0 8px rgba(7,91,145,.035);
 }
 
-/* ========================= */
-/* HOURS AREA */
-/* ========================= */
+/* ═══════════════════════════════════════════════════
+   HOURS AREA
+═══════════════════════════════════════════════════ */
 
 .day-hours {
   position: relative;
-
   display: flex;
-
   flex: none;
-
-  /*
-   * مهم جدا:
-   * الساعات تبقى LTR
-   * باش 08 -> 09 -> 10
-   * و event left positioning يبقى خدام
-   */
   direction: ltr;
 
   height: 70px;
-
   width: 1760px;
   min-width: 1760px;
 }
 
-/* ========================= */
-/* HOUR CELL */
-/* ========================= */
+/* ═══════════════════════════════════════════════════
+   HOUR CELL
+═══════════════════════════════════════════════════ */
 
 .hour-cell {
   width: 110px;
   min-width: 110px;
-
   height: 70px;
-
   flex: none;
 
-  border-left: 1px solid #e5e7eb;
-
+  border-left: 1px solid #EDF2F5;
   cursor: pointer;
 
-  transition: background .15s ease;
+  transition: background .18s ease;
 }
 
 .hour-cell:hover {
-  background: #f8fafc;
+  background: rgba(22,166,181,.07);
 }
 
-/* ========================= */
-/* EVENT BLOCK */
-/* ========================= */
+/* ═══════════════════════════════════════════════════
+   EVENT BLOCK
+═══════════════════════════════════════════════════ */
 
 .event-block {
   position: absolute;
+  top: 5px;
 
-  top: 0;
+  height: 60px;
+  border-radius: 10px;
 
-  height: 70px;
-
-  border-radius: 7px;
-
-  padding: 6px;
-
+  padding: 7px 9px;
   color: #fff;
 
   font-size: 11px;
-
   overflow: hidden;
-
   z-index: 5;
-
   cursor: pointer;
 
-  box-shadow: 0 2px 5px rgba(0, 0, 0, .12);
+  box-shadow:
+    0 3px 9px rgba(7,91,145,.18),
+    inset 0 1px 0 rgba(255,255,255,.2);
 
   transition:
-    transform .15s ease,
-    box-shadow .15s ease;
+    transform .18s ease,
+    box-shadow .18s ease,
+    filter .18s ease;
 
   display: flex;
   flex-direction: column;
@@ -307,180 +330,207 @@
 }
 
 .event-block:hover {
-  transform: translateY(-1px);
-
-  box-shadow: 0 4px 10px rgba(0, 0, 0, .18);
-
+  transform: translateY(-2px);
+  box-shadow: 0 7px 16px rgba(7,91,145,.25);
+  filter: brightness(1.06);
   z-index: 8;
 }
 
 .event-nom {
-  font-weight: 600;
-
-  margin-bottom: 2px;
+  font-weight: 800;
+  margin-bottom: 3px;
 
   white-space: nowrap;
-
   overflow: hidden;
-
   text-overflow: ellipsis;
 }
 
 .event-time {
   font-size: 9px;
-
-  opacity: .9;
-
+  opacity: .95;
   white-space: nowrap;
+  font-weight: 500;
 }
 
-/* ========================= */
-/* MODAL */
-/* ========================= */
+/* ═══════════════════════════════════════════════════
+   MODAL OVERLAY
+═══════════════════════════════════════════════════ */
 
 .modal-overlay {
   position: fixed;
-
   inset: 0;
 
-  background: rgba(15, 23, 42, .55);
+  background: rgba(8,39,61,.58);
+  backdrop-filter: blur(5px);
 
   display: flex;
-
   align-items: center;
   justify-content: center;
 
   z-index: 1000;
-
   padding: 20px;
+
+  animation: overlayFade .2s ease;
 }
+
+@keyframes overlayFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ═══════════════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════════════ */
 
 .modal {
   width: 100%;
   max-width: 480px;
-
   max-height: calc(100vh - 40px);
 
   background: #fff;
-
-  border-radius: 15px;
+  border: 1px solid rgba(255,255,255,.7);
+  border-radius: 19px;
 
   overflow: hidden;
 
-  box-shadow: 0 20px 50px rgba(0, 0, 0, .2);
+  box-shadow: 0 22px 60px rgba(5,48,77,.25);
 
   display: flex;
   flex-direction: column;
 
   direction: rtl;
   text-align: right;
+
+  animation: modalEnter .25s ease;
 }
 
-.modal-header {
-  min-height: 58px;
+@keyframes modalEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
 
-  padding: 14px 26px;
+/* ═══════════════════════════════════════════════════
+   MODAL HEADER
+═══════════════════════════════════════════════════ */
+
+.modal-header {
+  min-height: 64px;
+  padding: 15px 25px;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
 
-  border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(110deg, #F0F8FC, #F5FBFB);
+  border-bottom: 1px solid var(--line);
 
   flex-shrink: 0;
 }
 
 .modal-header h3 {
-  color: #1a1a1a;
-
-  font-size: 15px;
-
-  font-weight: 600;
+  color: var(--primary);
+  font-size: 16px;
+  font-weight: 800;
 }
 
 .close {
-  width: 34px;
-  height: 34px;
+  width: 35px;
+  height: 35px;
 
-  border: 0;
+  border: 1px solid #E2EDF2;
+  border-radius: 10px;
 
-  border-radius: 8px;
+  background: #fff;
+  color: var(--muted);
 
-  background: transparent;
-
-  color: #64748b;
-
-  font-size: 18px;
-
+  font-size: 19px;
   cursor: pointer;
 
   display: flex;
   align-items: center;
   justify-content: center;
+
+  transition: all .2s ease;
 }
 
 .close:hover {
-  background: #f1f5f9;
+  background: #FDEEEE;
+  border-color: #F4CACA;
+  color: var(--danger);
+  transform: rotate(90deg);
 }
 
+/* ═══════════════════════════════════════════════════
+   MODAL BODY
+═══════════════════════════════════════════════════ */
+
 .modal-body {
-  padding: 22px 28px;
-
+  padding: 24px 27px;
   overflow-y: auto;
-
   text-align: right;
 }
 
 .form-group {
-  margin-bottom: 18px;
+  margin-bottom: 19px;
 }
 
 .form-group label {
   display: block;
-
-  margin-bottom: 7px;
-
+  margin-bottom: 8px;
   padding-right: 2px;
 
-  color: #374151;
-
+  color: var(--ink);
   font-size: 13px;
-  font-weight: 600;
-
+  font-weight: 700;
   text-align: right;
 }
+
+/* ═══════════════════════════════════════════════════
+   INPUTS
+═══════════════════════════════════════════════════ */
 
 .form-input {
   width: 100%;
+  padding: 12px 14px;
 
-  padding: 11px 13px;
+  border: 1px solid #D7E4EB;
+  border-radius: 10px;
 
-  border: 1px solid #d1d5db;
-
-  border-radius: 9px;
-
-  background: #fff;
-
-  color: #1f2937;
+  background: #FBFDFE;
+  color: var(--ink);
 
   font-size: 14px;
-
   outline: 0;
 
   direction: rtl;
-
   text-align: right;
 
   transition:
-    border-color .15s ease,
-    box-shadow .15s ease;
+    border-color .2s ease,
+    box-shadow .2s ease,
+    background .2s ease;
+}
+
+.form-input:hover {
+  border-color: #A9CCD9;
+  background: #fff;
 }
 
 .form-input:focus {
-  border-color: #0F6E56;
+  border-color: var(--turquoise);
+  background: #fff;
 
-  box-shadow:
-    0 0 0 3px rgba(15, 110, 86, .1);
+  box-shadow: 0 0 0 3px rgba(22,166,181,.13);
+}
+
+.form-input::placeholder {
+  color: #A1B1BC;
 }
 
 select.form-input {
@@ -492,129 +542,155 @@ input[type="time"].form-input {
   text-align: left;
 }
 
+/* ═══════════════════════════════════════════════════
+   TIME FIELDS
+═══════════════════════════════════════════════════ */
+
 .time-fields {
   display: grid;
-
   grid-template-columns: 1fr 1fr;
-
   gap: 14px;
 }
 
+/* ═══════════════════════════════════════════════════
+   SELECTED GROUP
+═══════════════════════════════════════════════════ */
+
 .selected-group {
-  min-height: 46px;
+  min-height: 48px;
 
-  border: 2px solid;
+  border: 1px solid var(--turquoise);
+  border-radius: 11px;
 
-  border-radius: 10px;
-
-  padding: 10px 13px;
+  padding: 10px 14px;
 
   display: flex;
   align-items: center;
+  gap: 10px;
 
-  gap: 9px;
-
-  background: #fafafa;
+  background: linear-gradient(110deg, #F0FAFA, #F7FBFC);
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .color-dot {
-  width: 12px;
-  height: 12px;
-
+  width: 13px;
+  height: 13px;
   border-radius: 50%;
-
   flex-shrink: 0;
+
+  box-shadow: 0 0 0 3px rgba(22,166,181,.12);
 }
 
+/* ═══════════════════════════════════════════════════
+   MODAL FOOTER
+═══════════════════════════════════════════════════ */
+
 .modal-footer {
-  min-height: 64px;
+  min-height: 68px;
+  padding: 13px 25px;
 
-  padding: 12px 26px;
-
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid var(--line);
+  background: #FBFDFE;
 
   display: flex;
   align-items: center;
-
   justify-content: flex-start;
-
-  gap: 9px;
+  gap: 10px;
 
   flex-shrink: 0;
 }
+
+/* ═══════════════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════════════ */
 
 .btn-primary,
 .btn-ghost,
 .btn-delete {
   border: 0;
+  border-radius: 9px;
 
-  border-radius: 8px;
-
-  padding: 9px 15px;
+  padding: 10px 17px;
 
   font-size: 12px;
-
-  font-weight: 600;
-
+  font-weight: 800;
   cursor: pointer;
 
   transition:
-    background .15s ease,
-    opacity .15s ease;
+    transform .18s ease,
+    background .18s ease,
+    box-shadow .18s ease,
+    opacity .18s ease;
 }
 
 .btn-primary {
-  background: #0F6E56;
+  background: linear-gradient(135deg, var(--primary), var(--blue));
   color: #fff;
+  box-shadow: 0 4px 11px rgba(7,91,145,.18);
 }
 
 .btn-primary:hover {
-  background: #085041;
+  background: linear-gradient(135deg, #064C79, #06699E);
+  box-shadow: 0 6px 15px rgba(7,91,145,.25);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
 }
 
 .btn-primary:disabled {
-  opacity: .6;
+  opacity: .55;
   cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
 }
 
 .btn-ghost {
-  background: #f1f5f9;
-  color: #334155;
+  background: #EAF2F6;
+  color: var(--primary);
+  border: 1px solid #DCE9EF;
 }
 
 .btn-ghost:hover {
-  background: #e2e8f0;
+  background: #DDECF3;
+  transform: translateY(-1px);
 }
 
 .btn-delete {
   margin-left: auto;
-
-  background: #fee2e2;
-  color: #dc2626;
+  background: #FFF0F0;
+  color: #D34A4A;
+  border: 1px solid #F5D5D5;
 }
 
 .btn-delete:hover {
-  background: #fecaca;
+  background: #FDE1E1;
+  box-shadow: 0 4px 10px rgba(220,82,82,.1);
+  transform: translateY(-1px);
 }
 
-/* ========================= */
-/* TABLET */
-/* ========================= */
+/* ═══════════════════════════════════════════════════
+   TABLET
+═══════════════════════════════════════════════════ */
 
 @media (max-width: 1100px) {
-
   .content {
-    padding: 14px;
+    padding: 17px;
   }
 
+  .topbar {
+    padding: 0 19px;
+  }
 }
 
-/* ========================= */
-/* MOBILE */
-/* ========================= */
+/* ═══════════════════════════════════════════════════
+   MOBILE
+═══════════════════════════════════════════════════ */
 
 @media (max-width: 768px) {
-
   .layout {
     display: block;
   }
@@ -624,38 +700,30 @@ input[type="time"].form-input {
   }
 
   .topbar {
-    height: 58px;
-    min-height: 58px;
-
+    height: 60px;
+    min-height: 60px;
     padding: 0 12px 0 60px;
   }
 
   .topbar-title {
-    font-size: 14px;
+    font-size: 15px;
   }
 
   .topbar-sub {
     font-size: 10px;
-
     max-width: 200px;
 
     white-space: nowrap;
-
     overflow: hidden;
-
     text-overflow: ellipsis;
   }
 
   .content {
-    padding: 10px;
+    padding: 12px;
   }
 
   .calendar-wrapper {
-    border-radius: 9px;
-
-    /*
-     * scroll باقي خدام فالموبايل
-     */
+    border-radius: 12px;
     overflow-x: auto;
   }
 
@@ -677,9 +745,7 @@ input[type="time"].form-input {
   .day-row {
     width: max-content;
     min-width: 900px;
-
     height: 54px;
-
     direction: rtl;
   }
 
@@ -697,23 +763,21 @@ input[type="time"].form-input {
   .day-hours {
     width: 1760px;
     min-width: 1760px;
-
     height: 54px;
   }
 
   .hour-cell {
     width: 110px;
     min-width: 110px;
-
     height: 54px;
   }
 
   .event-block {
-    height: 54px;
-
+    top: 3px;
+    height: 48px;
     padding: 4px;
-
     font-size: 9px;
+    border-radius: 7px;
   }
 
   .event-nom {
@@ -730,10 +794,8 @@ input[type="time"].form-input {
 
   .modal {
     max-width: 100%;
-
     max-height: calc(100vh - 20px);
-
-    border-radius: 13px;
+    border-radius: 15px;
   }
 
   .modal-header {
@@ -741,12 +803,11 @@ input[type="time"].form-input {
   }
 
   .modal-body {
-    padding: 18px 20px;
+    padding: 19px 20px;
   }
 
   .modal-footer {
     padding: 11px 18px;
-
     flex-wrap: wrap;
   }
 
@@ -757,19 +818,16 @@ input[type="time"].form-input {
 
   .btn-delete {
     order: 3;
-
     width: 100%;
-
     margin-left: 0;
   }
 }
 
-/* ========================= */
-/* SMALL MOBILE */
-/* ========================= */
+/* ═══════════════════════════════════════════════════
+   SMALL MOBILE
+═══════════════════════════════════════════════════ */
 
 @media (max-width: 480px) {
-
   .topbar {
     padding-right: 10px;
     padding-left: 55px;
@@ -777,6 +835,10 @@ input[type="time"].form-input {
 
   .content {
     padding: 8px;
+  }
+
+  .calendar-wrapper {
+    border-radius: 10px;
   }
 
   .day-corner,
@@ -788,7 +850,6 @@ input[type="time"].form-input {
   .hour-header {
     width: 110px;
     min-width: 110px;
-
     font-size: 9px;
   }
 
@@ -799,17 +860,18 @@ input[type="time"].form-input {
 
   .day-row,
   .day-hours,
-  .hour-cell,
-  .event-block {
+  .hour-cell {
     height: 50px;
+  }
+
+  .event-block {
+    top: 3px;
+    height: 44px;
+    padding: 3px;
   }
 
   .day-name {
     font-size: 9px;
-  }
-
-  .event-block {
-    padding: 3px;
   }
 
   .event-nom {
@@ -845,7 +907,24 @@ input[type="time"].form-input {
   }
 
   .form-input {
-    padding: 9px 10px;
+    padding: 10px;
     font-size: 12px;
+  }
+
+  .time-fields {
+    gap: 9px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   ACCESSIBILITY
+═══════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
   }
 }

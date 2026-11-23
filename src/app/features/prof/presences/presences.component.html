@@ -2,7 +2,7 @@
 
   <!-- ══ SIDEBAR ══════════════════════════════════ -->
 
-<app-sidebar activePage="etudiants"></app-sidebar>
+<app-sidebar activePage="presences"></app-sidebar>
 
   <!-- ══ MAIN ══════════════════════════════════════ -->
 
@@ -18,7 +18,7 @@
 
     <div class="topbar-sub">
 
-      {{ selectedDate() | date:'EEEE dd MMMM yyyy':'':'ar' }}
+      {{ selectedDate() | date:'EEEE dd MMMM yyyy':'':'ar-MA' }}
 
       @if (isToday()) {
         <span class="today-badge">
@@ -199,7 +199,8 @@
       class="btn-ghost"
       (click)="loadEtudiants()"
     >
-      🔄 تحديث
+        <span>↻</span>
+        تحديث 
     </button>
 
   </div>
