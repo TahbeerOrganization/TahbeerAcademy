@@ -4,6 +4,69 @@
 
   <main class="main">
 
+    @if (showMemorisationPopup()) {
+  <div class="popup-overlay">
+
+    <div class="memorisation-popup" dir="rtl">
+
+      <button
+        type="button"
+        class="popup-close"
+        (click)="closeMemorisationPopup()">
+        ×
+      </button>
+
+      <div class="popup-icon">
+        📖
+      </div>
+
+      <div class="popup-title">
+        خريطة حفظ القرآن الكريم
+      </div>
+
+      <div class="popup-subtitle">
+        مرحباً بك أيها الطالب!
+      </div>
+
+      <div class="popup-message">
+        <p>
+          يمكنك الآن تحديد السور التي أتممت حفظها مسبقاً بنفسك،
+          وذلك من خلال خريطة الحفظ الموجودة في لوحة التحكم.
+        </p>
+
+        <div class="popup-instructions">
+          <div>
+            <span>✓</span>
+            اضغط على السورة لتحديدها كمحفوظة.
+          </div>
+
+          <div>
+            <span>✓</span>
+            اضغط عليها مرة أخرى لإلغاء التحديد.
+          </div>
+
+          <div>
+            <span>✓</span>
+            ستظهر السور التي حددتها بلون مميز.
+          </div>
+        </div>
+      </div>
+
+      <div class="popup-duaa">
+        نسأل الله لك التوفيق والسداد في رحلة حفظ كتابه الكريم 🌿
+      </div>
+
+      <button
+        type="button"
+        class="popup-confirm"
+        (click)="closeMemorisationPopup()">
+        فهمت، شكراً
+      </button>
+
+    </div>
+
+  </div>
+}
     <!-- TOPBAR -->
     <div class="topbar">
       <div>
@@ -21,7 +84,8 @@
           class="btn-refresh"
           (click)="loadDashboard()"
           [disabled]="loading()">
-          🔄 تحديث
+          <span>↻</span>
+        تحديث   
         </button>
       </div>
     </div>
@@ -36,39 +100,68 @@
       <div class="content">
 
         <!-- STUDENT PROFILE -->
-        <section class="student-profile card">
+        
+      <section class="student-profile">
 
-          <div class="student-avatar">
-            {{ (etudiant()?.nom || '?').charAt(0) }}
+        <div class="hero-decoration"></div>
+
+        <div class="hero-top">
+
+          <div class="student-identity">
+
+            <div class="student-avatar">
+              {{ (etudiant()?.nom || '?').charAt(0) }}
+            </div>
+
+            <div class="student-main-info">
+
+              <h2>{{ etudiant()?.nom || 'الطالب' }}</h2>
+
+              <p>
+                <span class="online-dot"></span>
+                تاريخ التسجيل:
+                {{ formatDate(etudiant()?.created_at) }}
+              </p>
+
+              @if (etudiant()?.niveau) {
+                <span class="student-level">
+                  المستوى: {{ etudiant()?.niveau }}
+                </span>
+              }
+
+            </div>
           </div>
 
-          <div class="student-main-info">
-            <h2>{{ etudiant()?.nom || 'الطالب' }}</h2>
-
-            <span>
-              تاريخ التسجيل:
-              {{ formatDate(etudiant()?.created_at) }}
-            </span>
-
-            @if (etudiant()?.niveau) {
-              <span class="student-level">
-                المستوى: {{ etudiant()?.niveau }}
-              </span>
-            }
+          <div class="hero-tag">
+            ملف الطالب
           </div>
-          <div class="student-kpis">
 
+        </div>
+
+        <div class="hero-bottom">
+
+          <div class="hero-stat">
+            <span class="hero-stat-icon">👥</span>
             <div>
               <strong>{{ studentGroupes().length }}</strong>
-              <span>مجموعات</span>
-            </div>
-
-            <div>
-              <strong>{{ getStudentHifdTotal() }}</strong>
-              <span>سور مسجلة</span>
+              <small>المجموعات</small>
             </div>
           </div>
-        </section>
+
+          <div class="hero-divider"></div>
+
+          <div class="hero-stat">
+            <span class="hero-stat-icon">📚</span>
+            <div>
+              <strong>{{ getStudentHifdTotal() }}</strong>
+              <small>السور المسجلة</small>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
         <!-- STUDENT GOOGLE MEET SESSIONS -->
           <section class="card meet-section">
 
@@ -358,66 +451,122 @@
         </section>
 
         <!-- SURAH MAP -->
-        <section class="card">
+        
+<!-- SURAH MAP -->
+<section class="card">
 
-          <div class="card-header">
-            <div>
-              <div class="card-title">🗺️ خريطة الحفظ</div>
-              <div class="card-description">
-                الخضراء مكتملة، الزرقاء جارية، والرمادية لم تبدأ
-              </div>
-            </div>
-          </div>
+  <div class="card-header">
+    <div>
+      <div class="card-title">🗺️ خريطة الحفظ</div>
+      <div class="card-description">
+        اضغط على السورة لتحديدها كمحفوظة أو لإلغاء التحديد
+      </div>
+    </div>
 
-          <div class="sourate-map-legend">
-            <span>
-              <i class="legend-square completed-square"></i>
-              مكتملة
-            </span>
+    <span class="memorised-count">
+      {{ souratesMemoriseesCount() }} / {{ allSourates().length }}
+      سورة محفوظة
+    </span>
+  </div>
 
-            <span>
-              <i class="legend-square running-square"></i>
-              جارية / مراجعة
-            </span>
+  <!-- INFORMATION -->
+  <div class="memorisation-notice">
+    <span class="notice-icon">💡</span>
+    <p>
+      يمكنك تحديد السور التي أتممت حفظها بنفسك مباشرة من الخريطة.
+      اضغط على السورة لإضافتها إلى قائمة السور المحفوظة،
+      واضغط عليها مرة أخرى لإلغاء التحديد.
+    </p>
+  </div>
 
-            <span>
-              <i class="legend-square not-started-square"></i>
-              لم تبدأ
-            </span>
-          </div>
+  <!-- LEGEND -->
+  <div class="sourate-map-legend">
 
-          @if (allSourates().length === 0) {
-            <div class="empty-state">
-              لا توجد سور لعرضها
-            </div>
-          } @else {
+    <span>
+      <i class="legend-square completed-square"></i>
+      مكتملة عند الأستاذ
+    </span>
 
-            <div class="sourate-map">
+    <span>
+      <i class="legend-square running-square"></i>
+      جارية / مراجعة
+    </span>
 
-              @for (s of allSourates(); track s.id) {
+    <span>
+      <i class="legend-square not-started-square"></i>
+      لم تبدأ
+    </span>
 
-                <div
-                  class="sourate-chip"
-                  [class.chip-completed]="isSourateCompletee(s.id)"
-                  [class.chip-encours]="!isSourateCompletee(s.id) && isSourateEnCours(s.id)"
-                  [class.chip-not-started]="!isSourateCompletee(s.id) && !isSourateEnCours(s.id)"
-                  [title]="s.nom || s.nom_ar || s.name || ('سورة ' + s.id)">
+    <span>
+      <i class="legend-square memorised-square"></i>
+      حفظتها بنفسي
+    </span>
 
-                  <span class="chip-number">{{ s.id }}</span>
+  </div>
 
-                  <span class="chip-name">
-                    {{ s.nom || s.nom_ar || s.name || ('سورة ' + s.id) }}
-                  </span>
+  @if (allSourates().length === 0) {
 
-                </div>
+    <div class="empty-state">
+      لا توجد سور لعرضها
+    </div>
 
-              }
+  } @else {
 
-            </div>
+    <div class="sourate-map">
 
+      @for (s of allSourates(); track s.id) {
+
+        <button
+          type="button"
+          class="sourate-chip"
+
+          [class.chip-completed]="isSourateCompletee(s.id) && !isSourateMemorisee(s.id)"
+
+          [class.chip-encours]="!isSourateCompletee(s.id) && isSourateEnCours(s.id) && !isSourateMemorisee(s.id)"
+
+          [class.chip-not-started]="!isSourateCompletee(s.id) && !isSourateEnCours(s.id) && !isSourateMemorisee(s.id)"
+
+          [class.chip-memorised]="isSourateMemorisee(s.id)"
+
+          [class.is-saving]="savingSourateId() === s.id"
+
+          [disabled]="savingSourateId() !== null"
+
+          [title]="
+            (s.nom_arabe || s.nom || s.name || ('سورة ' + s.id)) +
+            (isSourateMemorisee(s.id) ? ' - حفظتها بنفسي' : ' - اضغط للتحديد')
+          "
+
+          (click)="toggleSourateMemorisee(s.id)">
+
+          <span class="chip-number">{{ s.id }}</span>
+
+          <span class="chip-name">
+            {{
+              s.nom_arabe ||
+              s.nom_ar ||
+              s.nom ||
+              s.name ||
+              ('سورة ' + s.id)
+            }}
+          </span>
+
+          @if (savingSourateId() === s.id) {
+            <span class="saving-indicator"></span>
+          } @else if (isSourateMemorisee(s.id)) {
+            <span class="memorised-check">✓</span>
           }
 
-        </section>
+        </button>
+
+      }
+
+    </div>
+
+  }
+
+</section>
+
 
         <!-- HIFD DETAILS TABLE -->
         <section class="card">

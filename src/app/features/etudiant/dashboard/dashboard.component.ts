@@ -1,3 +1,4 @@
+
 import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
@@ -5,7 +6,6 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { SupabaseService } from '../../../core/services/supabase.service';
 import { SidebarComponent } from '../sidebar/sidebar.component';
-
 
 interface SourateEnCours {
   id: number;
@@ -32,21 +32,21 @@ export interface StudentMeetSession {
 })
 export class DashboardComponent implements OnInit {
 
-  // ================================
+  // =========================================
   // UI
-  // ================================
+  // =========================================
 
   loading = signal(true);
 
-  // ================================
+  // =========================================
   // ETUDIANT
-  // ================================
+  // =========================================
 
   etudiant = signal<any>(null);
 
-  // ================================
+  // =========================================
   // PRESENCES
-  // ================================
+  // =========================================
 
   presences = signal<any[]>([]);
 
@@ -74,60 +74,63 @@ export class DashboardComponent implements OnInit {
       : 0;
   });
 
-  // ================================
+  // =========================================
   // GROUPES
-  // ================================
+  // =========================================
 
- async loadStudentGroupes(id: string): Promise<void> {
+  studentGroupes = signal<any[]>([]);
 
-  const { data, error } = await this.sb.client
-    .from('groupe_etudiants')
-    .select(`
-      groupe_id,
-      groupes (
-        id,
-        nom,
-        couleur,
-        programme_id
-      )
-    `)
-    .eq('etudiant_id', id);
+  async loadStudentGroupes(id: string): Promise<void> {
 
-  if (error) {
+    const { data, error } = await this.sb.client
+      .from('groupe_etudiants')
+      .select(`
+        groupe_id,
+        groupes (
+          id,
+          nom,
+          couleur,
+          programme_id
+        )
+      `)
+      .eq('etudiant_id', id);
+
+    if (error) {
       console.error('Erreur chargement groupes:', {
-      message: error.message,
-      code: error.code,
-      details: error.details,
-      hint: error.hint  
-    });
-    this.studentGroupes.set([]);
-    return;
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint
+      });
+
+      this.studentGroupes.set([]);
+      return;
+    }
+
+    const groupes = (data || [])
+      .map((row: any) => {
+        const groupe = row.groupes;
+
+        return Array.isArray(groupe)
+          ? groupe[0]
+          : groupe;
+      })
+      .filter((g: any) => g != null);
+
+    this.studentGroupes.set(groupes);
+
+    console.log('Groupes chargés:', groupes);
   }
 
-  const groupes = (data || [])
-    .map((row: any) => {
-      const groupe = row.groupes;
-
-      return Array.isArray(groupe)
-        ? groupe[0]
-        : groupe;
-    })
-    .filter((g: any) => g != null);
-
-  this.studentGroupes.set(groupes);
-
-  console.log('Groupes chargés:', groupes);
-}
-
-
-  // ================================
+  // =========================================
   // SUIVI HIFD
-  // ================================
+  // =========================================
 
   suiviSourates = signal<any[]>([]);
+
   sourates = signal<any[]>([]);
+
   selectedSourate = signal<any>(null);
-  studentGroupes = signal<any[]>([]);
 
   souratesMktmla = computed(() =>
     this.suiviSourates().filter(
@@ -149,9 +152,9 @@ export class DashboardComponent implements OnInit {
       : 0;
   });
 
-  // ================================
+  // =========================================
   // DEVOIRS
-  // ================================
+  // =========================================
 
   devoirs = signal<any[]>([]);
 
@@ -173,9 +176,9 @@ export class DashboardComponent implements OnInit {
     ).length
   );
 
-  // ================================
+  // =========================================
   // GRAPH HIFD
-  // ================================
+  // =========================================
 
   hifdGraph = computed(() => {
     const suivis = this.suiviSourates();
@@ -201,17 +204,17 @@ export class DashboardComponent implements OnInit {
       });
   });
 
-  // ================================
+  // =========================================
   // DETAILS HIFD
-  // ================================
+  // =========================================
 
   allSourates = signal<any[]>([]);
+
   suiviDetails = signal<any[]>([]);
 
-  // ================================
+  // =========================================
   // STATISTIQUES DES AYAT
-  // نفس طريقة الحساب الموجودة في RAPPORTS
-  // ================================
+  // =========================================
 
   hifdStats = computed(() => {
     const sourates = this.allSourates();
@@ -228,6 +231,7 @@ export class DashboardComponent implements OnInit {
 
     for (const sourate of sourates) {
       const id = Number(sourate.id);
+
       const nbAyat = Math.max(
         0,
         Number(sourate.nb_ayat) || 0
@@ -241,7 +245,6 @@ export class DashboardComponent implements OnInit {
         s => Number(s.sourate_id) === id
       );
 
-      // السورة المكتملة: جميع آياتها مكتملة
       if (
         liste.some(s => this.isCompletedStatus(s.statut))
       ) {
@@ -249,7 +252,6 @@ export class DashboardComponent implements OnInit {
         continue;
       }
 
-      // جمع فترات الآيات الصحيحة
       const intervals: [number, number][] = [];
 
       for (const s of liste) {
@@ -272,10 +274,8 @@ export class DashboardComponent implements OnInit {
         continue;
       }
 
-      // ترتيب الفترات حسب الآية الأولى
       intervals.sort((a, b) => a[0] - b[0]);
 
-      // دمج الفترات المتداخلة أو المتتابعة
       let debut = intervals[0][0];
       let fin = intervals[0][1];
 
@@ -295,7 +295,6 @@ export class DashboardComponent implements OnInit {
       ayatEnCours += fin - debut + 1;
     }
 
-    // حماية من تجاوز مجموع الآيات
     ayatCompletees = Math.min(
       ayatCompletees,
       totalAyat
@@ -325,9 +324,172 @@ export class DashboardComponent implements OnInit {
     };
   });
 
-  // ================================
+ 
+  // =========================================
+  // SOURATES MÉMORISÉES PAR L'ÉTUDIANT
+  // =========================================
+
+  // =========================================
+// SOURATES MÉMORISÉES PAR L'ÉTUDIANT
+// =========================================
+
+souratesMemorisees = signal<number[]>([]);
+
+savingSourateId = signal<number | null>(null);
+
+souratesMemoriseesCount = computed(() =>
+  this.souratesMemorisees().length
+);
+
+isSourateMemorisee(sourateId: number): boolean {
+  return this.souratesMemorisees().includes(Number(sourateId));
+}
+
+// Charger les sourates enregistrées dans suivi_sourates
+async loadSouratesMemorisees(id: string): Promise<void> {
+
+  const { data, error } = await this.sb.client
+    .from('suivi_sourates')
+    .select('sourate_id')
+    .eq('etudiant_id', id)
+    .eq('source_creation', 'etudiant');
+
+  if (error) {
+    console.error('Erreur chargement sourates mémorisées:', {
+      message: error.message,
+      code: error.code,
+      details: error.details,
+      hint: error.hint
+    });
+
+    this.souratesMemorisees.set([]);
+    return;
+  }
+
+  const ids = [
+    ...new Set(
+      (data || []).map((item: any) => Number(item.sourate_id))
+    )
+  ];
+
+  this.souratesMemorisees.set(ids);
+}
+
+// Cocher / décocher une sourate
+
+async toggleSourateMemorisee(sourateId: number): Promise<void> {
+  const user = this.auth.currentUser();
+
+  if (!user?.id || this.savingSourateId() !== null) return;
+
+  const id = Number(sourateId);
+  if (!Number.isFinite(id) || id <= 0) return;
+
+  const dejaCochee = this.isSourateMemorisee(id);
+  this.savingSourateId.set(id);
+
+  try {
+    if (dejaCochee) {
+      // DECOCHER : supprimer la ligne existante
+      const { data, error } = await this.sb.client
+        .from('suivi_sourates')
+        .delete()
+        .eq('etudiant_id', user.id)
+        .eq('sourate_id', id)
+        .select('id');
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        throw new Error('Aucune ligne supprimée. Vérifie les politiques RLS.');
+      }
+
+      this.souratesMemorisees.update(list =>
+        list.filter(x => x !== id)
+      );
+
+    } else {
+      // COCHER : récupérer les informations de la sourate
+      const sourate = this.allSourates().find(
+        s => Number(s.id) === id
+      );
+
+      const nbAyat = Number(sourate?.nb_ayat ?? 0);
+
+      if (!Number.isFinite(nbAyat) || nbAyat <= 0) {
+        throw new Error('Nombre de versets introuvable.');
+      }
+
+      // Vérifier si une ligne existe déjà
+      const { data: existing, error: selectError } =
+        await this.sb.client
+          .from('suivi_sourates')
+          .select('id')
+          .eq('etudiant_id', user.id)
+          .eq('sourate_id', id)
+          .maybeSingle();
+
+      if (selectError) throw selectError;
+
+      const valeurs = {
+        ayat_debut: 1,
+        ayat_fin: nbAyat,
+        ayat_memorises: nbAyat,
+        statut: 'مكتمل',
+        evaluation: null,
+        source_creation: 'etudiant',
+        updated_at: new Date().toISOString()
+      };
+
+      if (existing) {
+        // La ligne existe déjà : UPDATE au lieu de INSERT
+        const { error } = await this.sb.client
+          .from('suivi_sourates')
+          .update(valeurs)
+          .eq('id', existing.id);
+
+        if (error) throw error;
+
+      } else {
+        // Aucune ligne : INSERT
+        const { error } = await this.sb.client
+          .from('suivi_sourates')
+          .insert({
+            etudiant_id: user.id,
+            sourate_id: id,
+            ...valeurs
+          });
+
+        if (error) throw error;
+      }
+
+      this.souratesMemorisees.update(list =>
+        [...new Set([...list, id])]
+      );
+    }
+
+    // Actualiser les données
+    await Promise.all([
+      this.loadSouratesMemorisees(user.id),
+      this.loadSuiviSourates(user.id),
+      this.loadSuiviDetails(user.id)
+    ]);
+
+  } catch (error: any) {
+    console.error('Erreur modification sourate mémorisée:', {
+      message: error?.message,
+      code: error?.code,
+      details: error?.details,
+      hint: error?.hint
+    });
+  } finally {
+    this.savingSourateId.set(null);
+  }
+}
+
+  // =========================================
   // CONSTRUCTOR
-  // ================================
+  // =========================================
 
   constructor(
     public auth: AuthService,
@@ -335,65 +497,66 @@ export class DashboardComponent implements OnInit {
     private router: Router
   ) {}
 
-  // ================================
+  // =========================================
   // INIT
-  // ================================
+  // =========================================
 
   ngOnInit(): void {
     void this.loadDashboard();
   }
 
-  // ================================
+  // =========================================
   // LOAD DASHBOARD
-  // ================================
+  // =========================================
 
-  
-async loadDashboard(): Promise<void> {
-  this.loading.set(true);
+  async loadDashboard(): Promise<void> {
 
-  try {
-    const user = this.auth.currentUser();
+    this.loading.set(true);
 
-    if (!user?.id) {
-      console.error('Aucun étudiant authentifié.');
-      this.resetDashboard();
-      return;
-    }
+    try {
+      const user = this.auth.currentUser();
 
-    // 1. تحميل المجموعات أولا
-    await this.loadStudentGroupes(user.id);
-
-    // 2. تحميل باقي البيانات بالتوازي
-    const results = await Promise.allSettled([
-      this.loadEtudiant(user.id),
-      this.loadPresences(user.id),
-      this.loadSuiviSourates(user.id),
-      this.loadAllSourates(),
-      this.loadSuiviDetails(user.id)
-    ]);
-
-    results.forEach((result, index) => {
-      if (result.status === 'rejected') {
-        console.error(
-          `Erreur chargement dashboard [${index}]:`,
-          result.reason
-        );
+      if (!user?.id) {
+        console.error('Aucun étudiant authentifié.');
+        this.resetDashboard();
+        return;
       }
-    });
 
-    // 3. المجموعات ولات واجدة، نجيبو الحصص ديالها
-    await this.loadStudentMeetSessions();
+      // 1. Charger les groupes de l'étudiant
+      await this.loadStudentGroupes(user.id);
 
-  } catch (error) {
-    console.error('Dashboard étudiant error:', error);
-  } finally {
-    this.loading.set(false);
+      // 2. Charger les autres données en parallèle
+      const results = await Promise.allSettled([
+        this.loadEtudiant(user.id),
+        this.loadPresences(user.id),
+        this.loadSuiviSourates(user.id),
+        this.loadAllSourates(),
+        this.loadSuiviDetails(user.id),
+        this.loadSouratesMemorisees(user.id)
+      ]);
+
+      results.forEach((result, index) => {
+        if (result.status === 'rejected') {
+          console.error(
+            `Erreur chargement dashboard [${index}]:`,
+            result.reason
+          );
+        }
+      });
+
+      // 3. Charger les séances Meet des groupes
+      await this.loadStudentMeetSessions();
+
+    } catch (error) {
+      console.error('Dashboard étudiant error:', error);
+    } finally {
+      this.loading.set(false);
+    }
   }
-}
 
-  // ================================
-  // RESET
-  // ================================
+  // =========================================
+  // RESET DASHBOARD
+  // =========================================
 
   private resetDashboard(): void {
     this.etudiant.set(null);
@@ -404,13 +567,18 @@ async loadDashboard(): Promise<void> {
     this.sourates.set([]);
     this.selectedSourate.set(null);
     this.devoirs.set([]);
+
+    this.souratesMemorisees.set([]);
+    this.studentGroupes.set([]);
+    this.meetSessions.set([]);
   }
 
-  // ================================
+  // =========================================
   // LOAD ETUDIANT
-  // ================================
+  // =========================================
 
   async loadEtudiant(id: string): Promise<void> {
+
     const { data, error } = await this.sb.client
       .from('profiles')
       .select('*')
@@ -419,9 +587,7 @@ async loadDashboard(): Promise<void> {
 
     if (error || !data) {
       console.error('Erreur étudiant:', error);
-
       this.etudiant.set(null);
-
       return;
     }
 
@@ -456,6 +622,7 @@ async loadDashboard(): Promise<void> {
     let groupes: any[] = [];
 
     if (groupeIds.length > 0) {
+
       const {
         data: groupesData,
         error: groupesError
@@ -480,11 +647,12 @@ async loadDashboard(): Promise<void> {
     });
   }
 
-  // ================================
+  // =========================================
   // LOAD PRESENCES
-  // ================================
+  // =========================================
 
   async loadPresences(id: string): Promise<void> {
+
     const { data, error } = await this.sb.client
       .from('presences')
       .select('*')
@@ -493,20 +661,19 @@ async loadDashboard(): Promise<void> {
 
     if (error) {
       console.error('Erreur présences:', error);
-
       this.presences.set([]);
-
       return;
     }
 
     this.presences.set(data || []);
   }
 
-  // ================================
+  // =========================================
   // LOAD SUIVI SOURATES
-  // ================================
+  // =========================================
 
   async loadSuiviSourates(id: string): Promise<void> {
+
     const { data, error } = await this.sb.client
       .from('suivi_sourates')
       .select('*')
@@ -528,6 +695,7 @@ async loadDashboard(): Promise<void> {
     const unique = new Map<string, any>();
 
     (data || []).forEach((item: any) => {
+
       const nom =
         item.sourate ||
         item.nom_sourate ||
@@ -547,57 +715,53 @@ async loadDashboard(): Promise<void> {
     );
   }
 
-  // ================================
+  // =========================================
   // LOAD ALL SOURATES
-  // ================================
+  // =========================================
 
   async loadAllSourates(): Promise<void> {
-    const { data, error } = await this.sb.client
-      .from('sourates')
-      .select('*')
-      .order('id', { ascending: true })
-      .range(0, 999);
 
-    if (error) {
-      console.error(
-        'Erreur chargement sourates:',
-        error
-      );
+  const { data, error } = await this.sb.client
+    .from('sourates')
+    .select('*')
+    .order('id', { ascending: true })
+    .range(0, 999);
 
-      this.allSourates.set([]);
-
-      return;
-    }
-
-    const souratesNormalisees = (data || []).map(
-      (s: any) => {
-        const nbAyat = Number(
-          s.nb_ayat ??
-          s.nombre_ayat ??
-          s.total_ayat ??
-          s.ayat_count ??
-          s.nombre_versets ??
-          0
-        );
-
-        return {
-          ...s,
-          id: Number(s.id),
-          nb_ayat: Number.isFinite(nbAyat)
-            ? Math.max(0, nbAyat)
-            : 0
-        };
-      }
-    );
-
-    this.allSourates.set(souratesNormalisees);
+  if (error) {
+    console.error('Erreur chargement sourates:', error);
+    this.allSourates.set([]);
+    return;
   }
 
-  // ================================
+  const souratesNormalisees = (data || []).map((s: any) => {
+
+    const nbAyat = Number(
+      s.nb_ayat ??
+      s.nombre_ayat ??
+      s.total_ayat ??
+      s.ayat_count ??
+      s.nombre_versets ??
+      0
+    );
+
+    return {
+      ...s,
+      id: Number(s.id),
+      nb_ayat: Number.isFinite(nbAyat)
+        ? Math.max(0, nbAyat)
+        : 0
+    };
+  });
+
+  this.allSourates.set(souratesNormalisees);
+}
+
+  // =========================================
   // LOAD DETAILS DU SUIVI
-  // ================================
+  // =========================================
 
   async loadSuiviDetails(id: string): Promise<void> {
+
     const { data, error } = await this.sb.client
       .from('suivi_sourates')
       .select('*')
@@ -606,22 +770,21 @@ async loadDashboard(): Promise<void> {
 
     if (error) {
       console.error('Erreur détails hifd:', error);
-
       this.suiviDetails.set([]);
-
       return;
     }
 
     this.suiviDetails.set(data || []);
   }
 
-  // ================================
+  // =========================================
   // NORMALISATION DES STATUTS
-  // ================================
+  // =========================================
 
   normalizeStatus(
     value: string | null | undefined
   ): string {
+
     return String(value ?? '')
       .trim()
       .toLowerCase();
@@ -630,6 +793,7 @@ async loadDashboard(): Promise<void> {
   isCompletedStatus(
     value: string | null | undefined
   ): boolean {
+
     return [
       'مكتمل',
       'مكتملة',
@@ -643,6 +807,7 @@ async loadDashboard(): Promise<void> {
   isInProgressStatus(
     value: string | null | undefined
   ): boolean {
+
     return [
       'جاري',
       'جارية',
@@ -654,11 +819,12 @@ async loadDashboard(): Promise<void> {
     ].includes(this.normalizeStatus(value));
   }
 
-  // ================================
-  // DONUT GRADIENT - 3 COULEURS
-  // ================================
+  // =========================================
+  // DONUT GRADIENT - TAHBEER COLORS
+  // =========================================
 
   getHifdDonutGradient(): string {
+
     const stats = this.hifdStats();
 
     if (stats.totalAyat <= 0) {
@@ -676,17 +842,18 @@ async loadDashboard(): Promise<void> {
     );
 
     return `conic-gradient(
-      #1d9e75 0% ${p1}%,
-      #1b6fa8 ${p1}% ${p2}%,
+      #075B91 0% ${p1}%,
+      #16A6B5 ${p1}% ${p2}%,
       #e5e7eb ${p2}% 100%
     )`;
   }
 
-  // ================================
+  // =========================================
   // SOURATE MAP HELPERS
-  // ================================
+  // =========================================
 
   isSourateCompletee(sourateId: number): boolean {
+
     const sourate = this.allSourates().find(
       x => Number(x.id) === Number(sourateId)
     );
@@ -706,6 +873,7 @@ async loadDashboard(): Promise<void> {
   }
 
   isSourateEnCours(sourateId: number): boolean {
+
     return this.suiviDetails().some(s =>
       Number(s.sourate_id) === Number(sourateId) &&
       (
@@ -715,11 +883,12 @@ async loadDashboard(): Promise<void> {
     );
   }
 
-  // ================================
+  // =========================================
   // TOTAL DES SOURATES SUIVIES
-  // ================================
+  // =========================================
 
   getStudentHifdTotal(): number {
+
     return new Set(
       this.suiviDetails()
         .map(s => Number(s.sourate_id))
@@ -730,6 +899,7 @@ async loadDashboard(): Promise<void> {
   }
 
   getStudentHifdCompletees(): number {
+
     return new Set(
       this.suiviDetails()
         .filter(s =>
@@ -744,11 +914,12 @@ async loadDashboard(): Promise<void> {
     ).size;
   }
 
-  // ================================
+  // =========================================
   // RESOLUTION NOM SOURATE
-  // ================================
+  // =========================================
 
   getSourateNomById(sourateId: number): string {
+
     const sourate = this.allSourates().find(
       s => Number(s.id) === Number(sourateId)
     );
@@ -763,11 +934,12 @@ async loadDashboard(): Promise<void> {
     );
   }
 
-  // ================================
+  // =========================================
   // SELECT SOURATE
-  // ================================
+  // =========================================
 
   selectSourate(event: Event): void {
+
     const value = (
       event.target as HTMLSelectElement
     ).value;
@@ -783,11 +955,12 @@ async loadDashboard(): Promise<void> {
     this.selectedSourate.set(sourate || null);
   }
 
-  // ================================
+  // =========================================
   // SOURATE HELPERS
-  // ================================
+  // =========================================
 
   getSourateName(sourate: any): string {
+
     return (
       sourate?.sourate ||
       sourate?.nom_sourate ||
@@ -797,169 +970,176 @@ async loadDashboard(): Promise<void> {
     );
   }
 
-  
-/* =========================================
-   SOURATE ACTUELLE
-========================================= */
+  // =========================================
+  // SOURATE ACTUELLE
+  // =========================================
 
-getSourateEnCours(): SourateEnCours | null {
-  const suivis = [...this.suiviDetails()].sort(
-    (a, b) =>
-      new Date(b.updated_at || 0).getTime() -
-      new Date(a.updated_at || 0).getTime()
-  );
+  getSourateEnCours(): SourateEnCours | null {
 
-  const sourates = this.allSourates();
-
-  // آخر متابعة لكل سورة
-  const derniers = new Map<number, any>();
-
-  for (const suivi of suivis) {
-    const id = Number(suivi.sourate_id);
-
-    if (id > 0 && !derniers.has(id)) {
-      derniers.set(id, suivi);
-    }
-  }
-
-  // الحالات اللي كتدل على أن السورة مكتملة
-  const candidates = Array.from(derniers.values()).filter(
-    suivi => !this.isCompletedStatus(suivi.statut)
-  );
-
-  for (const suivi of candidates) {
-    const sourate = sourates.find(
-      s => Number(s.id) === Number(suivi.sourate_id)
+    const suivis = [...this.suiviDetails()].sort(
+      (a, b) =>
+        new Date(b.updated_at || 0).getTime() -
+        new Date(a.updated_at || 0).getTime()
     );
 
-    if (!sourate) continue;
+    const sourates = this.allSourates();
 
-    const nbAyat = Math.max(
-      0,
-      Number(sourate.nb_ayat) || 0
-    );
+    const derniers = new Map<number, any>();
 
-    if (nbAyat <= 0) continue;
+    for (const suivi of suivis) {
+      const id = Number(suivi.sourate_id);
 
-    // جميع المتابعات ديال السورة الحالية
-    const liste = suivis.filter(
-      s => Number(s.sourate_id) === Number(sourate.id)
-    );
-
-    // حساب الآيات بدون تكرار
-    const intervals: [number, number][] = [];
-
-    for (const s of liste) {
-      const debut = Math.max(
-        1,
-        Number(s.ayat_debut) || 1
-      );
-
-      const fin = Math.min(
-        nbAyat,
-        Number(s.ayat_fin) || 0
-      );
-
-      if (fin >= debut) {
-        intervals.push([debut, fin]);
+      if (id > 0 && !derniers.has(id)) {
+        derniers.set(id, suivi);
       }
     }
 
-    intervals.sort((a, b) => a[0] - b[0]);
+    const candidates = Array.from(derniers.values()).filter(
+      suivi => !this.isCompletedStatus(suivi.statut)
+    );
 
-    let enCours = 0;
+    for (const suivi of candidates) {
 
-    if (intervals.length > 0) {
-      let debut = intervals[0][0];
-      let fin = intervals[0][1];
+      const sourate = sourates.find(
+        s => Number(s.id) === Number(suivi.sourate_id)
+      );
 
-      for (let i = 1; i < intervals.length; i++) {
-        const [nouveauDebut, nouvelleFin] = intervals[i];
+      if (!sourate) continue;
 
-        if (nouveauDebut <= fin + 1) {
-          fin = Math.max(fin, nouvelleFin);
-        } else {
-          enCours += fin - debut + 1;
+      const nbAyat = Math.max(
+        0,
+        Number(sourate.nb_ayat) || 0
+      );
 
-          debut = nouveauDebut;
-          fin = nouvelleFin;
+      if (nbAyat <= 0) continue;
+
+      const liste = suivis.filter(
+        s => Number(s.sourate_id) === Number(sourate.id)
+      );
+
+      const intervals: [number, number][] = [];
+
+      for (const s of liste) {
+
+        const debut = Math.max(
+          1,
+          Number(s.ayat_debut) || 1
+        );
+
+        const fin = Math.min(
+          nbAyat,
+          Number(s.ayat_fin) || 0
+        );
+
+        if (fin >= debut) {
+          intervals.push([debut, fin]);
         }
       }
 
-      enCours += fin - debut + 1;
+      intervals.sort((a, b) => a[0] - b[0]);
+
+      let enCours = 0;
+
+      if (intervals.length > 0) {
+
+        let debut = intervals[0][0];
+        let fin = intervals[0][1];
+
+        for (let i = 1; i < intervals.length; i++) {
+
+          const [nouveauDebut, nouvelleFin] = intervals[i];
+
+          if (nouveauDebut <= fin + 1) {
+            fin = Math.max(fin, nouvelleFin);
+          } else {
+            enCours += fin - debut + 1;
+
+            debut = nouveauDebut;
+            fin = nouvelleFin;
+          }
+        }
+
+        enCours += fin - debut + 1;
+      }
+
+      enCours = Math.min(enCours, nbAyat);
+
+      return {
+        id: Number(sourate.id),
+        nom: sourate.nom || sourate.name || '',
+        nom_arabe:
+          sourate.nom_arabe ||
+          sourate.nom_ar ||
+          sourate.arabic_name ||
+          '',
+        nbAyat,
+        ayatEnCours: enCours,
+        pourcentage: Math.round(
+          (enCours / nbAyat) * 100
+        )
+      };
     }
 
-    enCours = Math.min(enCours, nbAyat);
-
-    return {
-      id: Number(sourate.id),
-      nom: sourate.nom || sourate.name || '',
-      nom_arabe:
-        sourate.nom_arabe ||
-        sourate.nom_ar ||
-        sourate.arabic_name ||
-        '',
-      nbAyat,
-      ayatEnCours: enCours,
-      pourcentage: Math.round(
-        (enCours / nbAyat) * 100
-      )
-    };
-  }
-
-  return null;
-}
-
-/* =========================================
-   STATISTIQUES DE LA SOURATE ACTUELLE
-========================================= */
-
-getCurrentSourateStats() {
-  const current = this.getSourateEnCours();
-
-  if (!current) {
     return null;
   }
 
-  const total = current.nbAyat;
-  const enCours = current.ayatEnCours;
+  // =========================================
+  // STATISTIQUES DE LA SOURATE ACTUELLE
+  // =========================================
 
-  return {
-    total,
-    enCours,
-    remaining: Math.max(0, total - enCours),
-    percentEnCours: total > 0
-      ? Math.round((enCours / total) * 100)
-      : 0
-  };
-}
+  getCurrentSourateStats() {
 
-/* =========================================
-   DONUT DE LA SOURATE ACTUELLE
-========================================= */
+    const current = this.getSourateEnCours();
 
-getCurrentSourateDonutGradient(): string {
-  const stats = this.getCurrentSourateStats();
+    if (!current) {
+      return null;
+    }
 
-  if (!stats || stats.total <= 0) {
-    return '#E5E7EB';
+    const total = current.nbAyat;
+    const enCours = current.ayatEnCours;
+
+    return {
+      total,
+      enCours,
+      remaining: Math.max(0, total - enCours),
+      percentEnCours: total > 0
+        ? Math.round((enCours / total) * 100)
+        : 0
+    };
   }
 
-  const pourcentage = Math.min(
-    100,
-    Math.max(
-      0,
-      (stats.enCours / stats.total) * 100
-    )
-  );
+  // =========================================
+  // DONUT DE LA SOURATE ACTUELLE
+  // =========================================
 
-  return `conic-gradient(
-    #1B6FA8 0% ${pourcentage}%,
-    #E5E7EB ${pourcentage}% 100%
-  )`;
-}
+  getCurrentSourateDonutGradient(): string {
+
+    const stats = this.getCurrentSourateStats();
+
+    if (!stats || stats.total <= 0) {
+      return '#E5E7EB';
+    }
+
+    const pourcentage = Math.min(
+      100,
+      Math.max(
+        0,
+        (stats.enCours / stats.total) * 100
+      )
+    );
+
+    return `conic-gradient(
+      #087CB5 0% ${pourcentage}%,
+      #E5E7EB ${pourcentage}% 100%
+    )`;
+  }
+
+  // =========================================
+  // SOURATE PROGRESS
+  // =========================================
 
   getSourateProgress(sourate: any): number {
+
     if (!sourate) {
       return 0;
     }
@@ -969,6 +1149,7 @@ getCurrentSourateDonutGradient(): string {
       sourate.pourcentage;
 
     if (value != null) {
+
       const progress = Number(value);
 
       return Number.isFinite(progress)
@@ -993,6 +1174,7 @@ getCurrentSourateDonutGradient(): string {
   }
 
   getSourateStatus(sourate: any): string {
+
     if (!sourate) {
       return '—';
     }
@@ -1000,11 +1182,12 @@ getCurrentSourateDonutGradient(): string {
     return sourate.statut || 'غير محدد';
   }
 
-  // ================================
+  // =========================================
   // DATE
-  // ================================
+  // =========================================
 
   today(): string {
+
     return new Date().toLocaleDateString('ar-MA', {
       weekday: 'long',
       year: 'numeric',
@@ -1016,6 +1199,7 @@ getCurrentSourateDonutGradient(): string {
   formatDate(
     date: string | null | undefined
   ): string {
+
     if (!date) {
       return '—';
     }
@@ -1033,125 +1217,145 @@ getCurrentSourateDonutGradient(): string {
     });
   }
 
-  // ================================
+  // =========================================
   // NAVIGATION
-  // ================================
+  // =========================================
 
   navigateTo(path: string): void {
     this.router.navigate(['/etudiant', path]);
   }
 
-   // ================================
-  // GOOGLE MEET LINK
-  // ================================
+  // =========================================
+  // GOOGLE MEET
+  // =========================================
 
   meetSessions = signal<StudentMeetSession[]>([]);
+
   loadingMeetSessions = signal(false);
 
-
   canJoinMeet(session: StudentMeetSession): boolean {
-  const start = new Date(session.date_heure).getTime();
-  const now = Date.now();
 
-  if (!Number.isFinite(start)) {
-    return false;
-  }
+    const start = new Date(session.date_heure).getTime();
+    const now = Date.now();
 
-  const end = start + 60 * 60 * 1000;
-
-  return now >= start && now < end;
-}
-
-getMeetStatus(session: StudentMeetSession): string {
-  const start = new Date(session.date_heure).getTime();
-  const now = Date.now();
-
-  if (!Number.isFinite(start)) {
-    return 'تاريخ الحصة غير صالح';
-  }
-
-  const end = start + 60 * 60 * 1000;
-
-  if (now < start) {
-    return 'الحصة لم تبدأ بعد';
-  }
-
-  if (now >= end) {
-    return 'انتهى وقت الحصة';
-  }
-
-  return 'الحصة جارية الآن';
-}
-
-
-async loadStudentMeetSessions(): Promise<void> {
-  this.loadingMeetSessions.set(true);
-
-  try {
-    const groupIds = this.studentGroupes()
-      .map(g => g.id)
-      .filter(id => id != null);
-
-    console.log('Student groups:', this.studentGroupes());
-    console.log('Group IDs for Meet:', groupIds);
-
-    if (groupIds.length === 0) {
-      this.meetSessions.set([]);
-      return;
+    if (!Number.isFinite(start)) {
+      return false;
     }
 
-    const { data, error } = await this.sb.client
-      .from('cours')
-      .select('groupe_id, date_heure, meet_link, groupes(nom)')
-      .in('groupe_id', groupIds)
-      .not('meet_link', 'is', null)
-      .not('date_heure', 'is', null)
-      .order('date_heure', { ascending: true });
+    const end = start + 60 * 60 * 1000;
 
-    console.log('Meet sessions query result:', data);
-    console.log('Meet sessions query error:', error);
+    return now >= start && now < end;
+  }
 
-    if (error) {
+  getMeetStatus(session: StudentMeetSession): string {
+
+    const start = new Date(session.date_heure).getTime();
+    const now = Date.now();
+
+    if (!Number.isFinite(start)) {
+      return 'تاريخ الحصة غير صالح';
+    }
+
+    const end = start + 60 * 60 * 1000;
+
+    if (now < start) {
+      return 'الحصة لم تبدأ بعد';
+    }
+
+    if (now >= end) {
+      return 'انتهى وقت الحصة';
+    }
+
+    return 'الحصة جارية الآن';
+  }
+
+  async loadStudentMeetSessions(): Promise<void> {
+
+    this.loadingMeetSessions.set(true);
+
+    try {
+
+      const groupIds = this.studentGroupes()
+        .map(g => g.id)
+        .filter(id => id != null);
+
+      console.log('Student groups:', this.studentGroupes());
+      console.log('Group IDs for Meet:', groupIds);
+
+      if (groupIds.length === 0) {
+        this.meetSessions.set([]);
+        return;
+      }
+
+      const { data, error } = await this.sb.client
+        .from('cours')
+        .select(`
+          groupe_id,
+          date_heure,
+          meet_link,
+          groupes(nom)
+        `)
+        .in('groupe_id', groupIds)
+        .not('meet_link', 'is', null)
+        .not('date_heure', 'is', null)
+        .order('date_heure', { ascending: true });
+
+      console.log('Meet sessions query result:', data);
+      console.log('Meet sessions query error:', error);
+
+      if (error) {
+        console.error('STUDENT MEET ERROR:', error);
+        this.meetSessions.set([]);
+        return;
+      }
+
+      const sessions: StudentMeetSession[] = (data ?? [])
+        .filter(row => !!row.meet_link && !!row.date_heure)
+        .map(row => {
+
+          const relation = row.groupes as
+            | { nom?: string }
+            | { nom?: string }[]
+            | null;
+
+          const groupe = Array.isArray(relation)
+            ? relation[0]
+            : relation;
+
+          return {
+            groupe_id: row.groupe_id,
+            date_heure: row.date_heure,
+            meet_link: row.meet_link,
+            groupe_nom: groupe?.nom ?? 'مجموعة'
+          };
+        });
+
+      this.meetSessions.set(sessions);
+
+    } catch (error) {
+
       console.error('STUDENT MEET ERROR:', error);
       this.meetSessions.set([]);
-      return;
+
+    } finally {
+      this.loadingMeetSessions.set(false);
     }
+  }
 
-    const sessions: StudentMeetSession[] = (data ?? [])
-      .filter(row => !!row.meet_link && !!row.date_heure)
-      .map(row => {
-        const relation = row.groupes as
-          | { nom?: string }
-          | { nom?: string }[]
-          | null;
+  getMeetEndTime(dateHeure: string): Date {
 
-        const groupe = Array.isArray(relation)
-          ? relation[0]
-          : relation;
+    return new Date(
+      new Date(dateHeure).getTime() + 60 * 60 * 1000
+    );
+  }
 
-        return {
-          groupe_id: row.groupe_id,
-          date_heure: row.date_heure,
-          meet_link: row.meet_link,
-          groupe_nom: groupe?.nom ?? 'مجموعة'
-        };
-      });
 
-    this.meetSessions.set(sessions);
-  } catch (error) {
-    console.error('STUDENT MEET ERROR:', error);
-    this.meetSessions.set([]);
-  } finally {
-    this.loadingMeetSessions.set(false);
+  // =========================================
+  // GOOGLE POPUP
+  // =========================================  showMemorisationPopup = signal(true);
+  showMemorisationPopup = signal(true);
+
+  closeMemorisationPopup(): void {
+    this.showMemorisationPopup.set(false);
   }
 }
-
-getMeetEndTime(dateHeure: string): Date {
-  return new Date(
-    new Date(dateHeure).getTime() + 60 * 60 * 1000
-  );
-}
-}
-
-
-

@@ -1,7 +1,7 @@
 
 <div class="layout" dir="rtl">
 
-  <app-sidebar activePage="notifications"></app-sidebar>
+  <app-sidebar activePage="mes-notifications"></app-sidebar>
 
   <main class="main">
 
@@ -20,8 +20,9 @@
         (click)="loadNotifications()"
         [disabled]="loading"
       >
-        🔄 تحديث
-      </button>
+      <span>↻</span>
+        تحديث   
+    </button>
     </header>
 
     <div class="content">
