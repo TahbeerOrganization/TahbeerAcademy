@@ -1,6 +1,25 @@
-/* ═══════════════════════════════════════════════
-   RESET
-═══════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════
+   TAHBEER ACADEMY — COMPACT PAYMENT DESIGN
+═══════════════════════════════════════════════════ */
+
+:host {
+  --primary: #075B91;
+  --blue: #087CB5;
+  --turquoise: #16A6B5;
+  --gold: #D6A84F;
+  --light: #F3F7FA;
+  --ink: #17384D;
+  --muted: #718596;
+  --line: #DCE8EF;
+  --soft-blue: #EAF4FA;
+  --white: #FFFFFF;
+  --success: #23845B;
+  --danger: #C94D4D;
+  --warning: #B77B25;
+
+  display: block;
+}
 
 * {
   box-sizing: border-box;
@@ -8,536 +27,452 @@
   padding: 0;
 }
 
-
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    LAYOUT
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════════════ */
 
 .layout {
   display: flex;
-
-  height: 100vh;
-
-  background: #f0f4f8;
-
-  font-family:
-    'Segoe UI',
-    Arial,
-    sans-serif;
-
+  min-height: 100vh;
+  background: var(--light);
+  font-family: 'Segoe UI', Arial, sans-serif;
   direction: rtl;
 }
 
-
 .main {
   flex: 1;
-
   display: flex;
   flex-direction: column;
-
-  overflow: hidden;
-
   min-width: 0;
+  min-height: 100vh;
+  background: var(--light);
 }
 
-
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    TOPBAR
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════════════ */
 
 .topbar {
   background: #fff;
-
-  border-bottom:
-    0.5px solid #e0ded8;
-
-  padding: 0 24px;
-
-  height: 56px;
-
+  border-bottom: 1px solid var(--line);
+  padding: 0 22px;
+  height: 60px;
+  min-height: 60px;
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
-
   flex-shrink: 0;
 }
 
 .topbar-title {
   font-size: 16px;
-
-  font-weight: 600;
-
-  color: #1a1a1a;
+  font-weight: 800;
+  color: var(--primary);
 }
 
 .topbar-sub {
-  font-size: 12px;
-
-  color: #888;
-
+  font-size: 11px;
+  color: var(--muted);
   margin-top: 2px;
 }
 
-
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    CONTENT
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════════════ */
 
 .content {
   flex: 1;
-
   overflow-y: auto;
-
-  padding: 20px 24px;
+  padding: 15px 20px;
+  scrollbar-width: thin;
+  scrollbar-color: #A8CFDC transparent;
 }
 
-
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    FILTERS
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════════════ */
 
 .filters-bar {
   display: flex;
-
-  gap: 12px;
-
-  margin-bottom: 16px;
-
+  gap: 9px;
+  margin-bottom: 12px;
   flex-wrap: wrap;
-
   align-items: center;
 }
 
 .filter-select {
-  padding: 9px 12px;
-
-  border:
-    0.5px solid #e0ded8;
-
+  padding: 8px 11px;
+  border: 1px solid var(--line);
   border-radius: 8px;
-
-  font-size: 13px;
-
+  font-size: 12px;
   background: #fff;
-
-  color: #1a1a1a;
-
+  color: var(--ink);
   cursor: pointer;
-
   direction: rtl;
-
   outline: none;
+  transition: .2s ease;
 }
 
 .filter-select:focus {
-  border-color: #1B6FA8;
+  border-color: var(--turquoise);
+  box-shadow: 0 0 0 2px rgba(22,166,181,.1);
 }
 
 .student-select {
-  min-width: 240px;
+  min-width: 220px;
 }
 
-
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    AMOUNT CONTROL
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════════════ */
 
 .amount-control {
   background: #fff;
-
-  border:
-    0.5px solid #e0ded8;
-
+  border: 1px solid var(--line);
   border-radius: 8px;
-
-  min-height: 39px;
-
+  min-height: 35px;
   display: flex;
-
   align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+}
 
-  gap: 7px;
-
-  padding: 4px 10px;
+.amount-control:focus-within {
+  border-color: var(--turquoise);
+  box-shadow: 0 0 0 2px rgba(22,166,181,.1);
 }
 
 .amount-control label {
-  font-size: 11px;
-
-  color: #888;
-
+  font-size: 10px;
+  color: var(--muted);
   white-space: nowrap;
 }
 
 .amount-control input {
-  width: 70px;
-
+  width: 65px;
   border: none;
-
   outline: none;
-
   background: transparent;
-
-  color: #1a1a1a;
-
-  font-size: 13px;
-
+  color: var(--primary);
+  font-size: 12px;
   font-family: inherit;
+  font-weight: 700;
 }
 
 .amount-control span {
-  color: #888;
-
-  font-size: 11px;
+  color: var(--muted);
+  font-size: 10px;
 }
 
-
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    BUTTONS
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════════════ */
 
 .btn-ghost {
-  background: transparent;
-
-  color: #555;
-
-  border:
-    0.5px solid #e0ded8;
-
-  padding: 9px 16px;
-
-  border-radius: 8px;
-
-  font-size: 13px;
-
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 11px 17px;
+  border: 1px solid #d9e9f1;
+  border-radius: 11px;
+  background: #fff;
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 800;
   cursor: pointer;
+  transition: .2s ease;
 }
 
-.btn-ghost:hover {
-  background: #f5f5f3;
+.btn-ghost span {
+  font-size: 19px;
+  line-height: 1;
 }
 
+.btn-ghost:hover:not(:disabled) {
+  background: #eaf5fb;
+  border-color: #a8d3e5;
+  transform: translateY(-2px);
+}
 
-/* ═══════════════════════════════════════════════
-   EMPTY
-═══════════════════════════════════════════════ */
+.btn-ghost:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+/* ═══════════════════════════════════════════════════
+   EMPTY STATE
+═══════════════════════════════════════════════════ */
 
 .empty-student {
-  min-height: 300px;
-
+  min-height: 220px;
   display: flex;
-
   flex-direction: column;
-
   align-items: center;
-
   justify-content: center;
-
   text-align: center;
+  background: rgba(255,255,255,.7);
+  border: 1px dashed #C9DCE5;
+  border-radius: 13px;
+  padding: 18px;
 }
 
 .empty-icon {
-  font-size: 48px;
-
-  margin-bottom: 12px;
+  width: 60px;
+  height: 60px;
+  border-radius: 17px;
+  background: linear-gradient(145deg, var(--soft-blue), #E8F7F7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 31px;
+  margin-bottom: 10px;
 }
 
 .empty-student p {
-  font-size: 14px;
-
-  color: #555;
-
+  font-size: 13px;
+  color: var(--primary);
+  font-weight: 700;
   margin-bottom: 5px;
 }
 
 .empty-student span {
-  color: #999;
-
-  font-size: 12px;
+  color: var(--muted);
+  font-size: 11px;
 }
 
-
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    STUDENT HEADER
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════════════ */
 
 .student-header-card {
-  background: #fff;
-
-  border:
-    0.5px solid #e0ded8;
-
+  background: linear-gradient(115deg, #fff, #F4FAFC);
+  border: 1px solid var(--line);
   border-radius: 12px;
-
-  padding: 14px 18px;
-
-  margin-bottom: 16px;
-
+  padding: 10px 15px;
+  margin-bottom: 12px;
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+.student-header-card::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--turquoise), var(--blue));
 }
 
 .student-header-info {
   display: flex;
-
   align-items: center;
-
-  gap: 12px;
+  gap: 10px;
 }
 
 .big-avatar {
-  width: 42px;
-  height: 42px;
-
-  border-radius: 50%;
-
-  background: #E3F2FB;
-
-  color: #0D4F7C;
-
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: linear-gradient(145deg, var(--primary), var(--blue));
+  color: #fff;
   display: flex;
-
   align-items: center;
   justify-content: center;
-
-  font-size: 16px;
-
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 800;
+  flex-shrink: 0;
 }
 
 .student-header-info h3 {
-  font-size: 15px;
-
-  font-weight: 600;
-
-  color: #1a1a1a;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--primary);
 }
 
 .student-header-info span {
   display: block;
-
-  color: #888;
-
-  font-size: 11px;
-
+  color: var(--muted);
+  font-size: 10px;
   margin-top: 2px;
 }
 
 .year-badge {
-  background: #E3F2FB;
-
-  color: #0D4F7C;
-
-  padding: 5px 10px;
-
-  border-radius: 10px;
-
-  font-size: 11px;
+  background: #FFF8E9;
+  color: #98702D;
+  border: 1px solid #F0DEB9;
+  padding: 5px 9px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 700;
 }
 
-
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    STATS
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════════════ */
 
 .stats-grid {
   display: grid;
-
-  grid-template-columns:
-    repeat(4, minmax(0, 1fr));
-
-  gap: 14px;
-
-  margin-bottom: 16px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
 .stat-card {
   background: #fff;
-
-  border:
-    0.5px solid #e0ded8;
-
-  border-radius: 12px;
-
-  padding: 16px;
-
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 11px 13px;
   display: flex;
-
   align-items: center;
+  gap: 10px;
+  transition: .2s ease;
+}
 
-  gap: 12px;
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 13px rgba(7,91,145,.07);
 }
 
 .stat-icon {
-  width: 40px;
-  height: 40px;
-
-  border-radius: 10px;
-
+  width: 35px;
+  height: 35px;
+  border-radius: 9px;
   display: flex;
-
   align-items: center;
   justify-content: center;
-
-  font-size: 18px;
-
+  font-size: 16px;
   flex-shrink: 0;
 }
 
 .stat-icon.green {
-  background: #E8F5E9;
-
-  color: #2E7D32;
+  background: #E8F6EF;
+  color: #23845B;
 }
 
 .stat-icon.red {
-  background: #FAECE7;
-
-  color: #993C1D;
+  background: #FCEEEE;
+  color: #C94D4D;
 }
 
 .stat-icon.blue {
-  background: #E3F2FB;
-
-  color: #0D4F7C;
+  background: var(--soft-blue);
+  color: var(--primary);
 }
 
 .stat-icon.orange {
-  background: #FAEEDA;
-
-  color: #854F0B;
+  background: #FFF5E5;
+  color: #B77B25;
 }
 
 .stat-info {
   display: flex;
-
   flex-direction: column;
-
-  gap: 3px;
+  gap: 2px;
 }
 
 .stat-info span {
-  font-size: 11px;
-
-  color: #888;
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 600;
 }
 
 .stat-info strong {
-  font-size: 18px;
-
-  font-weight: 600;
-
-  color: #1a1a1a;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--ink);
 }
 
-
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    CARD
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════════════ */
 
 .card {
   background: #fff;
-
-  border:
-    0.5px solid #e0ded8;
-
-  border-radius: 12px;
-
-  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  padding: 13px;
+  box-shadow: 0 3px 12px rgba(7,91,145,.035);
 }
 
-
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    CARD HEADER
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════════════ */
 
 .card-header {
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
-
-  margin-bottom: 18px;
+  margin-bottom: 12px;
+  gap: 10px;
 }
 
 .card-header h3 {
-  font-size: 15px;
-
-  color: #1a1a1a;
-
-  font-weight: 600;
+  font-size: 14px;
+  color: var(--primary);
+  font-weight: 800;
 }
 
 .card-header p {
-  font-size: 11px;
-
-  color: #888;
-
-  margin-top: 3px;
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 2px;
 }
 
 .monthly-price {
-  background: #f8f8f6;
-
-  border:
-    0.5px solid #e0ded8;
-
-  padding: 7px 11px;
-
+  background: linear-gradient(120deg, #EAF4FA, #F0FAFA);
+  border: 1px solid #D4E9EE;
+  padding: 6px 10px;
   border-radius: 8px;
-
-  color: #1B6FA8;
-
-  font-size: 13px;
-
-  font-weight: 600;
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
 }
 
 .monthly-price small {
-  color: #888;
-
-  font-size: 10px;
-
-  font-weight: 400;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 500;
 }
 
-
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    MONTHS
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════════════ */
 
 .months-grid {
   display: grid;
-
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
-
-  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
 }
 
 .month-card {
-  border:
-    0.5px solid #e0ded8;
-
+  border: 1px solid var(--line);
   border-radius: 10px;
-
-  padding: 14px;
-
-  transition:
-    border-color 0.15s,
-    background 0.15s;
+  padding: 10px 12px;
+  background: #fff;
+  transition: .2s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .month-card.paid {
-  background: #F5FBF6;
+  background: linear-gradient(145deg, #F1FAF5, #fff);
+  border-color: #B9DDC9;
+}
 
-  border-color: #A5D6A7;
+.month-card.paid::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 2px;
+  background: #23845B;
 }
 
 .month-card.unpaid {
@@ -545,295 +480,230 @@
 }
 
 .month-card:hover {
-  border-color: #1B6FA8;
+  border-color: var(--turquoise);
+  box-shadow: 0 4px 11px rgba(7,91,145,.06);
 }
 
-
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    MONTH TOP
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════════════ */
 
 .month-top {
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
-
-  margin-bottom: 14px;
+  margin-bottom: 9px;
+  gap: 7px;
 }
 
 .month-name {
-  font-size: 14px;
-
-  font-weight: 600;
-
-  color: #1a1a1a;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ink);
 }
 
 .status {
-  padding: 3px 8px;
-
-  border-radius: 10px;
-
-  font-size: 10px;
-
-  font-weight: 500;
+  padding: 4px 7px;
+  border-radius: 7px;
+  font-size: 9px;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .paid-status {
-  background: #E8F5E9;
-
-  color: #2E7D32;
+  background: #E4F4EB;
+  color: #23764F;
+  border: 1px solid #C6E6D3;
 }
 
 .unpaid-status {
-  background: #FAECE7;
-
-  color: #993C1D;
+  background: #FCEEEE;
+  color: #B84747;
+  border: 1px solid #F3D4D4;
 }
 
-
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    MONTH BOTTOM
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════════════ */
 
 .month-bottom {
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
-
-  gap: 10px;
+  gap: 8px;
 }
 
 .month-bottom strong {
-  color: #555;
-
-  font-size: 12px;
+  color: var(--primary);
+  font-size: 11px;
+  font-weight: 800;
 }
 
-
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    CHECKBOX
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════════════ */
 
 .checkbox-wrap {
   display: flex;
-
   align-items: center;
-
-  gap: 7px;
-
+  gap: 6px;
   cursor: pointer;
-
-  color: #555;
-
-  font-size: 11px;
-
+  color: var(--ink);
+  font-size: 10px;
+  font-weight: 600;
   user-select: none;
 }
 
 .checkbox-wrap input {
   position: absolute;
-
   opacity: 0;
-
   pointer-events: none;
 }
 
 .custom-checkbox {
-  width: 20px;
-  height: 20px;
-
-  border:
-    1px solid #d0ccc5;
-
+  width: 18px;
+  height: 18px;
+  border: 1px solid #C9D9E1;
   border-radius: 5px;
-
   display: flex;
-
   align-items: center;
   justify-content: center;
-
   color: #fff;
-
   background: #fff;
-
-  font-size: 12px;
-
+  font-size: 11px;
   font-weight: bold;
-
-  transition:
-    background 0.15s,
-    border-color 0.15s;
+  transition: .18s ease;
+  flex-shrink: 0;
 }
 
-.checkbox-wrap input:checked
-  + .custom-checkbox {
-
-  background: #2E7D32;
-
-  border-color: #2E7D32;
+.checkbox-wrap:hover .custom-checkbox {
+  border-color: var(--turquoise);
 }
 
+.checkbox-wrap input:checked + .custom-checkbox {
+  background: var(--success);
+  border-color: var(--success);
+}
 
-/* ═══════════════════════════════════════════════
+.checkbox-wrap input:focus-visible + .custom-checkbox {
+  outline: 2px solid rgba(22,166,181,.25);
+}
+
+/* ═══════════════════════════════════════════════════
    PAYMENT DATE
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════════════ */
 
 .payment-date {
-  margin-top: 10px;
-
-  padding-top: 8px;
-
-  border-top:
-    0.5px solid #e8e5df;
-
-  color: #888;
-
-  font-size: 10px;
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid #E5EEE9;
+  color: var(--muted);
+  font-size: 9px;
 }
 
-
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    TABLET
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════════════ */
 
 @media (max-width: 1000px) {
-
   .stats-grid {
-    grid-template-columns:
-      repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .months-grid {
-    grid-template-columns:
-      repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .content {
+    padding: 13px 15px;
+  }
 }
 
-
-/* ═══════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════
    MOBILE
-═══════════════════════════════════════════════ */
+═══════════════════════════════════════════════════ */
 
 @media (max-width: 768px) {
-
   .main {
     width: 100%;
-
     min-width: 0;
   }
 
   .content {
-    padding: 16px 12px;
-
+    padding: 12px 10px;
     width: 100%;
   }
 
-
-  /* TOPBAR */
-
   .topbar {
-    min-height: 64px;
-
+    min-height: 58px;
     height: auto;
-
-    padding:
-      10px 65px 10px 12px;
+    padding: 9px 65px 9px 12px;
   }
 
   .topbar-title {
-    font-size: 15px;
+    font-size: 14px;
   }
 
   .topbar-sub {
-    font-size: 11px;
+    font-size: 10px;
   }
-
-
-  /* FILTERS */
 
   .filters-bar {
     display: grid;
-
     grid-template-columns: 1fr;
-
-    gap: 9px;
-
+    gap: 7px;
     width: 100%;
+    margin-bottom: 10px;
   }
 
   .filter-select,
   .student-select,
   .filters-bar .btn-ghost {
     width: 100%;
-
     min-width: 0;
-
-    height: 42px;
+    height: 38px;
   }
 
   .amount-control {
     width: 100%;
-
-    height: 42px;
+    min-height: 38px;
   }
 
   .amount-control input {
     flex: 1;
-
     width: auto;
   }
 
-
-  /* STUDENT */
-
   .student-header-card {
-    padding: 12px;
-
-    margin-bottom: 12px;
+    padding: 9px 11px;
+    margin-bottom: 10px;
   }
 
   .big-avatar {
-    width: 36px;
-    height: 36px;
-
+    width: 34px;
+    height: 34px;
     font-size: 14px;
   }
 
   .student-header-info h3 {
-    font-size: 13px;
+    font-size: 12px;
   }
 
-
-  /* STATS */
-
   .stats-grid {
-    grid-template-columns:
-      1fr 1fr;
-
-    gap: 9px;
-
-    margin-bottom: 14px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+    margin-bottom: 10px;
   }
 
   .stat-card {
-    padding: 11px;
-
-    gap: 8px;
+    padding: 9px;
+    gap: 7px;
   }
 
   .stat-icon {
-    width: 34px;
-    height: 34px;
-
-    font-size: 15px;
-
-    border-radius: 8px;
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
   }
 
   .stat-info span {
@@ -841,66 +711,49 @@
   }
 
   .stat-info strong {
-    font-size: 15px;
-  }
-
-
-  /* CARD */
-
-  .card {
-    padding: 12px;
-
-    width: 100%;
-
-    overflow: hidden;
-  }
-
-
-  /* MONTHS */
-
-  .months-grid {
-    grid-template-columns: 1fr;
-
-    gap: 9px;
-  }
-
-  .month-card {
-    padding: 12px;
-  }
-
-
-  /* CARD HEADER */
-
-  .card-header {
-    gap: 10px;
-  }
-
-  .card-header h3 {
     font-size: 14px;
   }
 
+  .card {
+    padding: 10px;
+    width: 100%;
+  }
+
+  .months-grid {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  .month-card {
+    padding: 9px 11px;
+  }
+
+  .card-header {
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .card-header h3 {
+    font-size: 13px;
+  }
+
   .card-header p {
-    font-size: 10px;
+    font-size: 9px;
   }
 
   .monthly-price {
     font-size: 11px;
-
-    padding: 6px 8px;
+    padding: 5px 7px;
   }
-
 }
 
-
-/* ═══════════════════════════════════════════════
-   VERY SMALL
-═══════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════
+   SMALL MOBILE
+═══════════════════════════════════════════════════ */
 
 @media (max-width: 480px) {
-
   .content {
-    padding:
-      12px 8px;
+    padding: 9px 7px;
   }
 
   .topbar {
@@ -909,12 +762,150 @@
 
   .student-header-card {
     align-items: flex-start;
+    gap: 6px;
+  }
+
+  .student-header-info {
+    gap: 8px;
+  }
+
+  .student-header-info h3 {
+    font-size: 11px;
+  }
+
+  .student-header-info span {
+    font-size: 9px;
   }
 
   .year-badge {
     font-size: 9px;
-
-    padding: 4px 7px;
+    padding: 4px 6px;
   }
 
+  .stat-card {
+    padding: 8px 7px;
+  }
+
+  .stat-info strong {
+    font-size: 13px;
+  }
+
+  .month-name {
+    font-size: 11px;
+  }
+
+  .month-bottom strong {
+    font-size: 10px;
+  }
+
+  .monthly-price {
+    font-size: 10px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   REDUCED MOTION
+═══════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+/* ═══════════════════════════════════════
+   TYPOGRAPHY — TEXT A BIT BIGGER
+═══════════════════════════════════════ */
+/* ═══════════════════════════════════════
+   TYPOGRAPHY — TEXT A BIT BIGGER
+═══════════════════════════════════════ */
+
+body,
+.layout {
+  font-size: 15px;
+}
+
+.topbar-title {
+  font-size: 21px;
+}
+
+.topbar p,
+.topbar-subtitle {
+  font-size: 14px;
+}
+
+.filter-group label,
+.filter-label {
+  font-size: 14px;
+}
+
+.filter-group input,
+.filter-group select {
+  font-size: 14px;
+}
+
+.student-name {
+  font-size: 18px;
+}
+
+.student-info,
+.student-details {
+  font-size: 14px;
+}
+
+.stat-card h3,
+.stat-card .label {
+  font-size: 14px;
+}
+
+.stat-card .value,
+.stat-card strong {
+  font-size: 22px;
+}
+
+.card-header h3,
+.section-title {
+  font-size: 17px;
+}
+
+.month-title {
+  font-size: 16px;
+}
+
+.month-card,
+.month-card label {
+  font-size: 14px;
+}
+
+.month-card input {
+  transform: scale(1.05);
+}
+
+.payment-date,
+small,
+.hint {
+  font-size: 13px;
+}
+
+button {
+  font-size: 14px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .topbar-title {
+    font-size: 19px;
+  }
+
+  .student-name {
+    font-size: 16px;
+  }
+
+  .stat-card .value,
+  .stat-card strong {
+    font-size: 20px;
+  }
 }
